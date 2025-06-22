@@ -121,7 +121,7 @@ echo
 
 	kiroVersion='v25.06.22.01'
 
-	isoLabel='kiro-'$kiroVersion'-x86_64.iso'
+	isoLabel='kiro-next-'$kiroVersion'-x86_64.iso'
 
 	# setting of the general parameters
 	archisoRequiredVersion="archiso 83-1"

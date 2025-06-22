@@ -392,9 +392,9 @@ yay-git
 ####                               CALAMARES
 ###########################################################################
 
-calamares
-kiro-calamares-config
-kiro-system-installation
+calamares-next
+kiro-calamares-config-next
+kiro-system-installation-next
 
 adobe-source-han-sans-jp-fonts
 adobe-source-han-sans-kr-fonts
