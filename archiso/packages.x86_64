@@ -371,6 +371,7 @@ appstream
 appstream-qt5
 archlinux-tools
 downgrade
+fastfetch-git
 font-manager
 gitahead
 hardcode-fixer-git
@@ -394,8 +395,6 @@ yay-git
 
 calamares-next
 kiro-calamares-config-next
-#next one no longer used
-#kiro-system-installation-next
 
 adobe-source-han-sans-jp-fonts
 adobe-source-han-sans-kr-fonts
