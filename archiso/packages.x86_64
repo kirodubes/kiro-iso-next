@@ -394,7 +394,8 @@ yay-git
 
 calamares-next
 kiro-calamares-config-next
-kiro-system-installation-next
+#next one no longer used
+#kiro-system-installation-next
 
 adobe-source-han-sans-jp-fonts
 adobe-source-han-sans-kr-fonts
