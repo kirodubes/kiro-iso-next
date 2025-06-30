@@ -1,4 +1,4 @@
-# Kiro calamares config
+# Kiro iso next
 
 ![Kiro Logo](kiro.jpg)
 
@@ -50,6 +50,14 @@ Live long and prosper
 
 # Major changes after the videos on youtube
 
-Make sure you read the major change at the bottom of the readme file on 
+- Calamares moved from https://github.com/calamares/calamares to https://codeberg.org/Calamares/calamares - new pkgbuild
+- kiro-system-installation package is no longer necessary and removed
+- kiro-calamares-config has now several new modules replacing bash scripts
 
-https://github.com/kirodubes/kiro-iso
+When studying the Buildra tutorial consider all the changes after the video and more will surely follow. 
+
+Compare, compare and compare.
+
+https://youtu.be/3jdKH6bLgUE
+
+https://youtu.be/mH52To8DvlI
