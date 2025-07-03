@@ -27,6 +27,8 @@ set -eo pipefail
 # variables and functions
 workdir=$(pwd)
 
+##################################################################################################################
+
 ./change-version.sh
 
 echo "getting mirrorlist"
