@@ -7,7 +7,7 @@ Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch
 
 ##
 ## Arch Linux repository mirrorlist
-## Generated on 2025-07-03
+## Generated on 2025-07-07
 ##
 
 ## Worldwide
@@ -527,6 +527,8 @@ Server = http://mirrors.nepalicloud.com/archlinux/$repo/os/$arch
 Server = https://mirrors.nepalicloud.com/archlinux/$repo/os/$arch
 
 ## Netherlands
+Server = http://ams.nl.mirrors.bjg.at/arch/$repo/os/$arch
+Server = https://ams.nl.mirrors.bjg.at/arch/$repo/os/$arch
 Server = http://mirror.bouwhuis.network/archlinux/$repo/os/$arch
 Server = https://mirror.bouwhuis.network/archlinux/$repo/os/$arch
 Server = http://mirror.nl.cdn-perfprod.com/archlinux/$repo/os/$arch
@@ -679,6 +681,8 @@ Server = https://mirror1.sox.rs/archlinux/$repo/os/$arch
 ## Singapore
 Server = http://mirror.aktkn.sg/archlinux/$repo/os/$arch
 Server = https://mirror.aktkn.sg/archlinux/$repo/os/$arch
+Server = http://mirror.sg.cdn-perfprod.com/archlinux/$repo/os/$arch
+Server = https://mirror.sg.cdn-perfprod.com/archlinux/$repo/os/$arch
 Server = http://sg.mirrors.cicku.me/archlinux/$repo/os/$arch
 Server = https://sg.mirrors.cicku.me/archlinux/$repo/os/$arch
 Server = https://download.nus.edu.sg/mirror/archlinux/$repo/os/$arch
@@ -731,6 +735,8 @@ Server = http://mirror.yuki.net.uk/archlinux/$repo/os/$arch
 Server = https://mirror.yuki.net.uk/archlinux/$repo/os/$arch
 
 ## Spain
+Server = http://mirror.es.cdn-perfprod.com/archlinux/$repo/os/$arch
+Server = https://mirror.es.cdn-perfprod.com/archlinux/$repo/os/$arch
 Server = http://es.mirrors.cicku.me/archlinux/$repo/os/$arch
 Server = https://es.mirrors.cicku.me/archlinux/$repo/os/$arch
 Server = https://nox.panibrez.com/archlinux/$repo/os/$arch
@@ -762,6 +768,8 @@ Server = http://pkg.adfinis.com/archlinux/$repo/os/$arch
 Server = https://pkg.adfinis.com/archlinux/$repo/os/$arch
 Server = http://ch.mirrors.cicku.me/archlinux/$repo/os/$arch
 Server = https://ch.mirrors.cicku.me/archlinux/$repo/os/$arch
+Server = http://mirror.hb9hil.org/archlinux/$repo/os/$arch
+Server = https://mirror.hb9hil.org/archlinux/$repo/os/$arch
 Server = http://mirror.init7.net/archlinux/$repo/os/$arch
 Server = https://mirror.init7.net/archlinux/$repo/os/$arch
 Server = http://mirror.metanet.ch/archlinux/$repo/os/$arch
@@ -796,6 +804,8 @@ Server = https://mirror.kku.ac.th/archlinux/$repo/os/$arch
 ## Türkiye
 Server = http://ftp.linux.org.tr/archlinux/$repo/os/$arch
 Server = https://tr.arch.niranjan.co/$repo/os/$arch
+Server = http://mirror.nucc.tr/arch/$repo/os/$arch
+Server = https://mirror.nucc.tr/arch/$repo/os/$arch
 Server = http://mirror.timtal.com.tr/archlinux/$repo/os/$arch
 Server = https://mirror.timtal.com.tr/archlinux/$repo/os/$arch
 
@@ -851,8 +861,8 @@ Server = http://mirror.arizona.edu/archlinux/$repo/os/$arch
 Server = https://mirror.arizona.edu/archlinux/$repo/os/$arch
 Server = http://arlm.tyzoid.com/$repo/os/$arch
 Server = https://arlm.tyzoid.com/$repo/os/$arch
-Server = http://mirrors.bjg.at/arch/$repo/os/$arch
-Server = https://mirrors.bjg.at/arch/$repo/os/$arch
+Server = http://ny.us.mirrors.bjg.at/arch/$repo/os/$arch
+Server = https://ny.us.mirrors.bjg.at/arch/$repo/os/$arch
 Server = http://mirrors.bloomu.edu/archlinux/$repo/os/$arch
 Server = https://mirrors.bloomu.edu/archlinux/$repo/os/$arch
 Server = https://arch-mirror.brightlight.today/$repo/os/$arch
@@ -934,6 +944,8 @@ Server = https://iad.mirrors.misaka.one/archlinux/$repo/os/$arch
 Server = http://repo.miserver.it.umich.edu/archlinux/$repo/os/$arch
 Server = http://mirrors.mit.edu/archlinux/$repo/os/$arch
 Server = https://mirrors.mit.edu/archlinux/$repo/os/$arch
+Server = http://mirror.mra.sh/archlinux/$repo/os/$arch
+Server = https://mirror.mra.sh/archlinux/$repo/os/$arch
 Server = http://us.arch.niranjan.co/$repo/os/$arch
 Server = https://us.arch.niranjan.co/$repo/os/$arch
 Server = http://mirrors.ocf.berkeley.edu/archlinux/$repo/os/$arch
