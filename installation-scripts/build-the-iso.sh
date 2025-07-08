@@ -78,6 +78,7 @@ echo "Do not run this file as root or add sudo in front"
 echo "Run this script as a user"
 echo
 echo "You can add a personal local repo to the iso build if you want"
+echo "https://www.youtube.com/watch?v=TqFuLknCsUE"
 tput sgr0
 echo "################################################################## "
 echo
@@ -119,7 +120,7 @@ echo
 
 	desktop="xfce"
 
-	kiroVersion='v25.07.07.01'
+	kiroVersion='v25.07.08.01'
 
 	isoLabel='kiro-next-'$kiroVersion'-x86_64.iso'
 
