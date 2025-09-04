@@ -373,7 +373,6 @@ mkinitcpio-openswap
 ###utilities
 alacritty
 appstream
-#appstream-qt5
 archlinux-tools
 downgrade
 fastfetch-git
