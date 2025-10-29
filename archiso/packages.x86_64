@@ -255,7 +255,6 @@ imagemagick
 inkscape
 lshw
 meld
-nitrogen
 numlockx
 qbittorrent
 scrot
@@ -356,7 +355,7 @@ archlinux-tools
 downgrade
 fastfetch-git
 font-manager
-gitahead
+gittyup
 hardcode-fixer-git
 inxi
 mintstick
@@ -434,6 +433,8 @@ yad
 
 #flat-remix
 #colloid-cursors-git
+beautyline
+candy-icons-git
 chaotic-keyring
 chaotic-mirrorlist
 
@@ -474,7 +475,6 @@ edu-shells-git
 edu-variety-config-git
 edu-xfce-git
 flameshot-git
-gitahead-git
 hardcode-fixer-git
 lastpass
 neo-candy-icons-git
