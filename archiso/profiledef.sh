@@ -2,15 +2,14 @@
 # shellcheck disable=SC2034
 
 iso_name="kiro-next"
-iso_label="kiro-v25.10.29.01"
+iso_label="kiro-v25.11.01.01"
 iso_publisher="kiro"
 iso_application="Kiro Live/Rescue CD"
-iso_version="v25.10.29.01"
+iso_version="v25.11.01.01"
 install_dir="arch"
 buildmodes=('iso')
 bootmodes=('bios.syslinux'
            'uefi.systemd-boot')
-arch="x86_64"
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
 #airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M' '-Xdict-size' '1M')
