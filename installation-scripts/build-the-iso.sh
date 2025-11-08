@@ -125,7 +125,7 @@ echo
 
 	desktop="xfce"
 
-	kiroVersion='v25.11.07.01'
+	kiroVersion='v25.11.08.01'
 
 	isoLabel='kiro-next-'$kiroVersion'-x86_64.iso'
 
@@ -331,7 +331,7 @@ echo
 
 	[ -d $outFolder ] || mkdir $outFolder
 	cd $buildFolder/archiso/
-	sudo mkarchiso -v -w $buildFolder -o $outFolder $buildFolder/archiso/
+	sudo mkarchiso -x -v -w $buildFolder -o $outFolder $buildFolder/archiso/
 
 echo
 echo "###################################################################"

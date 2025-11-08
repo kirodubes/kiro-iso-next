@@ -2,18 +2,19 @@
 # shellcheck disable=SC2034
 
 iso_name="kiro-next"
-iso_label="kiro-v25.11.07.01"
+iso_label="kiro-v25.11.08.01"
 iso_publisher="kiro"
 iso_application="Kiro Live/Rescue CD"
-iso_version="v25.11.07.01"
+iso_version="v25.11.08.01"
 install_dir="arch"
 buildmodes=('iso')
 bootmodes=('bios.syslinux'
            'uefi.systemd-boot')
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
+airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86')
 #airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M' '-Xdict-size' '1M')
-airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '6')
+#airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '6')
 bootstrap_tarball_compression=('zstd' '-c' '-T0' '--auto-threads=logical' '--long' '-19')
 file_permissions=(
   ["/etc/gshadow"]="0:0:400"
