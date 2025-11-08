@@ -331,7 +331,7 @@ echo
 
 	[ -d $outFolder ] || mkdir $outFolder
 	cd $buildFolder/archiso/
-	sudo mkarchiso -x -v -w $buildFolder -o $outFolder $buildFolder/archiso/
+	sudo mkarchiso -v -w $buildFolder -o $outFolder $buildFolder/archiso/
 
 echo
 echo "###################################################################"
