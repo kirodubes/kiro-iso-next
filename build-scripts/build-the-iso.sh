@@ -125,7 +125,7 @@ echo
 
 	desktop="xfce4/chadwm"
 
-	kiroVersion='v26.01.30.01'
+	kiroVersion='v26.01.31.01'
 
 	isoLabel='kiro-next-'$kiroVersion'-x86_64.iso'
 
@@ -314,7 +314,14 @@ echo
 	case "$nvidia_driver" in
 
 	    open)
-	        echo "Using NVIDIA open drivers"
+	    	echo
+			echo "################################################################## "
+			tput setaf 2
+			echo "Using NVIDIA open drivers"
+			tput sgr0
+			echo "################################################################## "
+			echo
+			sleep 2
 
 	        # Ensure open drivers are present
 	        sed -i '/^nvidia-580xx/d' "$PACKAGES_FILE"
@@ -329,7 +336,13 @@ echo
 	        ;;
 
 	    580xx)
-	        echo "Using NVIDIA 580xx legacy drivers"
+	    	echo "################################################################## "
+			tput setaf 2
+			echo "Using NVIDIA 580xx legacy drivers"
+			tput sgr0
+			echo "################################################################## "
+			echo  
+	        sleep 2
 
 	        # Remove open drivers
 	        sed -i '/^nvidia-open-dkms/d' "$PACKAGES_FILE"
