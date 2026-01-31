@@ -302,7 +302,7 @@ echo
 	echo
 
 	# Nvidia driver selection
-	# open | 580xx
+	# open | 580xx | 390xx
 	nvidia_driver="open"
 
 	##############################################
@@ -325,6 +325,7 @@ echo
 
 	        # Ensure open drivers are present
 	        sed -i '/^nvidia-580xx/d' "$PACKAGES_FILE"
+	        sed -i '/^nvidia-390xx/d' "$PACKAGES_FILE"
 
 	        sed -i '/^nvidia-open-dkms/d' "$PACKAGES_FILE"
 	        sed -i '/^nvidia-utils/d' "$PACKAGES_FILE"
