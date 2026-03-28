@@ -499,6 +499,7 @@ dmenu
 feh
 gcc
 lolcat
+lxappearance
 make
 picom-git
 polkit-gnome
@@ -507,7 +508,7 @@ sxhkd
 ttf-font-awesome
 ttf-jetbrains-mono-nerd
 ttf-meslo-nerd-font-powerlevel10k
-volumeicon
+volctl
 xorg-xsetroot
 
 ananicy-cpp
