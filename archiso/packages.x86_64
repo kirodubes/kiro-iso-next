@@ -287,7 +287,7 @@ bat
 catfish
 cronie
 dconf-editor
-dex
+#dex
 #discord
 duf
 evince
@@ -493,22 +493,29 @@ xcolor
 
 alacritty
 edu-chadwm-git
-autorandr
+ohmychadwm-git
 dash
 dmenu
+fastcompmgr-git
 feh
 gcc
 lolcat
 lxappearance
+maim
 make
+ncdu
+octopi
 picom-git
 polkit-gnome
+redshift
 rofi
 sxhkd
 ttf-font-awesome
 ttf-jetbrains-mono-nerd
 ttf-meslo-nerd-font-powerlevel10k
 volctl
+xautolock
+xclip
 xorg-xsetroot
 
 ananicy-cpp
