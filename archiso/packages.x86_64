@@ -133,7 +133,7 @@ dnsutils
 libadwaita
 linux-headers
 logrotate
-ntp
+#ntp
 upd72020x-fw
 wd719x-firmware
 wget
@@ -178,7 +178,6 @@ os-prober
 alsa-firmware
 alsa-plugins
 alsa-lib
-alsa-utils
 gst-libav
 gst-plugins-bad
 gst-plugins-base
@@ -318,11 +317,12 @@ qt5ct
 ripgrep
 simple-scan
 #telegram-desktop
-tlp
+#tlp
 tree
 unace
 unrar
 unzip
+upower
 xapp
 xdg-desktop-portal-gtk
 yt-dlp
@@ -465,7 +465,7 @@ chaotic-mirrorlist
 #edu-vimix-dark-tela-git
 arc-gtk-theme
 archlinux-logout-gtk4-git
-archlinux-tweak-tool-git
+archlinux-tweak-tool-gtk4-git
 edu-arc-dawn-git
 edu-arc-kde
 edu-dot-files-git
