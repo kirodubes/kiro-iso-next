@@ -1,4 +1,4 @@
-# KIRO ISO
+# KIRO ISO NEXT
 
 ![Kiro Logo](images/kiro.jpg)
 
