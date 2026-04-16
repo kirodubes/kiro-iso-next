@@ -200,14 +200,12 @@ pulseaudio-bluetooth
 avahi
 nss-mdns
 mobile-broadband-provider-info
-modemmanager
 networkmanager
 network-manager-applet
 networkmanager-openconnect
 networkmanager-openvpn
 networkmanager-pptp
 networkmanager-vpnc
-networkmanager
 
 ###file management
 gvfs
@@ -260,7 +258,6 @@ numlockx
 qbittorrent
 scrot
 simplescreenrecorder-git
-variety
 vlc
 vlc-plugins-all
 
@@ -314,7 +311,6 @@ playerctl
 polkit
 polkit-gnome
 qt5ct
-ripgrep
 simple-scan
 #telegram-desktop
 #tlp
@@ -327,6 +323,7 @@ xapp
 xdg-desktop-portal-gtk
 yt-dlp
 zenity
+zram-generator
 zsh
 zsh-completions
 zsh-syntax-highlighting
@@ -352,7 +349,6 @@ surfn-icons-git
 mkinitcpio-openswap
 
 ###utilities
-alacritty
 appstream
 archlinux-tools
 downgrade
@@ -370,8 +366,6 @@ sublime-text-4
 the_silver_searcher
 unifetch
 visual-studio-code-bin
-wttr
-yad
 yay-git
 
 ###########################################################################
@@ -430,7 +424,6 @@ time
 tldr
 ttf-ms-fonts
 ttf-font-awesome
-ttf-jetbrains-mono-nerd
 variety
 vimix-cursors
 yad
@@ -483,12 +476,10 @@ edu-shells-git
 edu-variety-config-git
 edu-xfce-git
 flameshot-git
-hardcode-fixer-git
 lastpass
 neo-candy-icons-git
 pacman-hook-kernel-install
 pamac-aur
-sparklines-git
 speedtest-cli
 ttf-material-design-iconic-font
 wttr
@@ -501,8 +492,6 @@ xcolor
 alacritty
 edu-chadwm-git
 ohmychadwm-git
-dash
-dmenu
 fastcompmgr-git
 feh
 gcc
@@ -513,11 +502,9 @@ make
 ncdu
 octopi
 picom-git
-polkit-gnome
 redshift
 rofi
 sxhkd
-ttf-font-awesome
 ttf-jetbrains-mono-nerd
 ttf-meslo-nerd-font-powerlevel10k
 volctl
@@ -527,6 +514,10 @@ xorg-xsetroot
 
 ananicy-cpp
 cachyos-ananicy-rules-git
+irqbalance
+glances
+tuned
+pciutils
 
 ###########################################################################
 ####                           PERSONAL_REPO aka LOCAL REPO
