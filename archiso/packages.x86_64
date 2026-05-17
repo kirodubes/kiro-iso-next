@@ -459,6 +459,7 @@ chaotic-mirrorlist
 arc-gtk-theme
 archlinux-logout-gtk4-git
 archlinux-tweak-tool-gtk4-git
+alacritty-tweak-tool-git
 edu-arc-dawn-git
 edu-arc-kde
 edu-dot-files-git
@@ -469,6 +470,7 @@ edu-neo-candy-arc-mint-red-git
 edu-neo-candy-qogir-git
 edu-neo-candy-tela-git
 edu-polybar-git
+edu-powermenu-git
 edu-rofi-git
 edu-rofi-themes-git
 edu-sddm-simplicity-git
@@ -515,6 +517,7 @@ xorg-xsetroot
 
 ananicy-cpp
 cachyos-ananicy-rules-git
+capitaine-cursors
 cpuid
 irqbalance
 glances
