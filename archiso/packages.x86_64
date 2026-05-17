@@ -522,6 +522,7 @@ cpuid
 irqbalance
 glances
 tuned
+vte4
 pciutils
 sysz
 
