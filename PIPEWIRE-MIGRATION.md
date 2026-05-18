@@ -15,7 +15,7 @@ As of **v26.05.18** the Kiro Next live ISO uses PipeWire instead of PulseAudio f
 - `pipewire-audio` — audio session support
 - `pipewire-pulse` — PulseAudio drop-in replacement (same socket, same clients)
 - `wireplumber` — session/policy manager
-- `pamixer` — CLI volume control
+- `pamixer` — CLI volume control (replaces `amixer` in ohmychadwm keybindings)
 - `gst-plugin-pipewire` — GStreamer integration
 
 ## What this means for you
@@ -24,6 +24,7 @@ As of **v26.05.18** the Kiro Next live ISO uses PipeWire instead of PulseAudio f
 - Bluetooth audio works without `pulseaudio-bluetooth` — PipeWire handles it natively.
 - Lower latency and better pro-audio support are available if you use JACK-aware software.
 - `pavucontrol` is still included and works as the GUI mixer.
+- Volume keys in ohmychadwm now call `pamixer` instead of `amixer` — this is intentional and required for PipeWire.
 
 ## Installed system
 
