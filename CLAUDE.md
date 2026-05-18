@@ -2,6 +2,33 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Repository Role
+
+**BETA / TESTING** — this is the experimental ISO for validating new features before they go to production.
+
+| Repo | Role | Calamares config |
+|---|---|---|
+| `kiro-iso` | **Production** — stable kernel, tested packages, released to users | `kiro-calamares-config` |
+| `kiro-iso-next` | **Beta/Testing** — experimental features, kernel changes, new packages under evaluation | `kiro-calamares-config-next` |
+
+Changes here must be build-tested and boot-tested before being mirrored to `kiro-iso`.
+The current experiment: **Liquorix kernel** (`linux-lqx` from Chaotic-AUR) replacing the stock `linux` kernel.
+
+## Beta Build Workflow
+
+**Always follow this order when testing changes across both repos:**
+
+```
+1. Make changes in kiro-calamares-config-next
+2. Commit and push: cd ~/KIRO/kiro-calamares-config-next && ./up.sh
+3. Wait 5–10 minutes for kiro_repo (GitHub Pages) to rebuild and serve the new package
+4. Then build the ISO: cd ~/KIRO/kiro-iso-next/build-scripts && bash build-the-iso.sh
+```
+
+**Do not build the ISO immediately after pushing calamares config changes** — the repo won't have the updated package yet and the build will pull the old version.
+
+If you only changed files inside `kiro-iso-next` (packages.x86_64, bootloader entries, syslinux, airootfs), you can skip steps 1–3 and build directly.
+
 ## Project
 
 Custom Arch Linux ISO builder based on ArchISO. Produces a live/installable ISO with XFCE4 + ohmychadwm desktop, pre-configured packages, and systemd optimizations.
