@@ -168,17 +168,52 @@ check_audio() {
 check_calamares_cleanup() {
     log_section "Calamares cleanup"
 
-    pkg_missing calamares         && pass "calamares binary removed"        || fail "calamares still installed"
-    pkg_missing mkinitcpio-archiso && pass "mkinitcpio-archiso removed"     || fail "mkinitcpio-archiso still installed"
-    pkg_missing memtest86+         && pass "memtest86+ removed"             || warn "memtest86+ still installed"
-
-    if [[ -d /etc/calamares ]]; then
-        warn "/etc/calamares config directory left on system (binary gone, config not cleaned)"
+    pkg_missing calamares              && pass "calamares binary removed"              || fail "calamares still installed"
+    pkg_missing mkinitcpio-archiso     && pass "mkinitcpio-archiso removed"            || fail "mkinitcpio-archiso still installed"
+    pkg_missing memtest86+             && pass "memtest86+ removed"                    || warn "memtest86+ still installed"
+    if pkg_missing kiro-calamares-config-next; then
+        pass "kiro-calamares-config-next removed"
+        [[ -d /etc/calamares ]] && warn "/etc/calamares config dir still present after package removal" || pass "/etc/calamares directory removed"
     else
-        pass "/etc/calamares directory removed"
+        fail "kiro-calamares-config-next still installed (kiro_final removal step failed)"
     fi
 
-    [[ -f /root/.automated_script.sh ]] && fail "/root/.automated_script.sh archiso leftover present" || pass "No /root/.automated_script.sh (good)"
+    # kiro_final live-only artifact cleanup
+    [[ -f /root/.automated_script.sh ]]              && fail "/root/.automated_script.sh archiso leftover present"    || pass "No /root/.automated_script.sh (good)"
+    [[ -f /root/.zlogin ]]                           && fail "/root/.zlogin archiso leftover present"                 || pass "No /root/.zlogin (good)"
+    [[ -d /etc/systemd/system/getty@tty1.service.d ]] && fail "getty@tty1 autologin not cleaned up"                  || pass "getty@tty1 autologin removed (good)"
+    [[ -f /etc/sudoers.d/g_wheel ]]                  && fail "/etc/sudoers.d/g_wheel live-only rule still present"   || pass "/etc/sudoers.d/g_wheel removed (good)"
+    [[ -f /etc/polkit-1/rules.d/49-nopasswd_global.rules ]] && fail "49-nopasswd_global.rules live-only rule still present" || pass "49-nopasswd_global.rules removed (good)"
+}
+
+check_kiro_final_config() {
+    log_section "kiro_final configuration"
+
+    # /root permissions
+    local root_perm
+    root_perm=$(stat -c '%a' /root 2>/dev/null)
+    [[ "${root_perm}" == "700" ]] && pass "/root permissions: 700" || fail "/root permissions wrong: ${root_perm} (expected 700)"
+
+    # sudoers.d permissions
+    local sudoers_perm
+    sudoers_perm=$(stat -c '%a' /etc/sudoers.d 2>/dev/null)
+    [[ "${sudoers_perm}" == "750" ]] && pass "/etc/sudoers.d permissions: 750" || fail "/etc/sudoers.d permissions wrong: ${sudoers_perm} (expected 750)"
+
+    # polkit-1/rules.d permissions
+    local polkit_perm
+    polkit_perm=$(stat -c '%a' /etc/polkit-1/rules.d 2>/dev/null || echo "missing")
+    [[ "${polkit_perm}" == "750" ]] && pass "/etc/polkit-1/rules.d permissions: 750" || fail "/etc/polkit-1/rules.d permissions wrong: ${polkit_perm} (expected 750)"
+
+    # EDITOR=nano in /etc/profile
+    grep -q 'EDITOR=nano' /etc/profile 2>/dev/null && pass "EDITOR=nano set in /etc/profile" || fail "EDITOR=nano not set in /etc/profile"
+
+    # Bluetooth AutoEnable
+    grep -q '^AutoEnable=true' /etc/bluetooth/main.conf 2>/dev/null && pass "Bluetooth AutoEnable=true" || warn "Bluetooth AutoEnable not set (no Bluetooth hardware?)"
+
+    # makepkg.conf optimizations (kiro_before)
+    grep -q '^MAKEFLAGS="-j' /etc/makepkg.conf 2>/dev/null && pass "makepkg.conf MAKEFLAGS set" || fail "makepkg.conf MAKEFLAGS not optimized"
+    grep -q "^PKGEXT='.pkg.tar.zst'" /etc/makepkg.conf 2>/dev/null && pass "makepkg.conf PKGEXT=.pkg.tar.zst" || fail "makepkg.conf PKGEXT not set to .pkg.tar.zst"
+    grep -qP '^OPTIONS=.*!debug' /etc/makepkg.conf 2>/dev/null && pass "makepkg.conf !debug in OPTIONS" || fail "makepkg.conf debug not disabled in OPTIONS"
 }
 
 check_pacman_repos() {
@@ -279,6 +314,28 @@ check_nvidia() {
     fi
 }
 
+check_package_integrity() {
+    log_section "Package integrity (pacman -Qk)"
+
+    local missing
+    missing=$(pacman -Qk 2>/dev/null \
+        | grep -v ' 0 missing files$' \
+        | grep 'missing files' \
+        | grep -v '^ohmychadwm-git:' \
+        | grep -v '^bind:' \
+        | grep -v '^cups:' \
+        | grep -v '^nfs-utils:') || true
+
+    if [[ -z "${missing}" ]]; then
+        pass "All packages have no missing files"
+    else
+        fail "Packages with missing files:"
+        echo "${missing}" | while read -r line; do
+            echo "        ${line}"
+        done
+    fi
+}
+
 check_bootloader() {
     log_section "Bootloader"
 
@@ -311,6 +368,7 @@ main() {
     check_mkinitcpio
     check_audio
     check_calamares_cleanup
+    check_kiro_final_config
     check_pacman_repos
     check_desktop
     check_sddm
@@ -320,6 +378,7 @@ main() {
     check_dev_rel
     check_nvidia
     check_bootloader
+    check_package_integrity
 
     log_section "Audit Summary"
     echo "  ${GREEN}PASS: ${PASS}${RESET}"
