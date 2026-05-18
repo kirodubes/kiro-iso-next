@@ -14,6 +14,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Changes here must be build-tested and boot-tested before being mirrored to `kiro-iso`.
 The current experiment: **Liquorix kernel** (`linux-lqx` from Chaotic-AUR) replacing the stock `linux` kernel.
 
+### Current state (2026-05-18)
+
+All validation items are done except one: NVIDIA `driver=nonfree` boot + DKMS against `linux-lqx-headers` on real hardware. UEFI boot, BIOS/syslinux boot, PipeWire stack, and Calamares post-install hooks (microcode, linux.preset cleanup) are all verified.
+
 ## Beta Build Workflow
 
 **Always follow this order when testing changes across both repos:**
@@ -103,10 +107,27 @@ Defined in `archiso/pacman.conf` (used during ISO build) and `build-scripts/pacm
 - `archiso/packages.x86_64` — full package list (one package per line, comments with `#`)
 - `archiso/profiledef.sh` — ArchISO profile: name, label, version, bootmodes, compression
 - `archiso/pacman.conf` — pacman config used inside the ISO build
+- `archiso/efiboot/loader/entries/` — UEFI boot entries (kernel + initrd paths; must match kernel in packages.x86_64)
 - `build-scripts/build-the-iso.sh` — full build pipeline
 - `build-scripts/get-pacman-repos-keys-and-mirrors.sh` — installs chaotic-keyring/mirrorlist if missing
 - `change-version.sh` — version bump script
-- `up.sh` — git pull → commit → push helper
+- `up.sh` — git pull → `git add --all` + commit `"update"` + push; quick-push only, not for structured commits
+- `audit.sh` — installed system health checker; run on a freshly installed Kiro VM to verify all Calamares modules ran correctly
+
+## isoLabel Must Match profiledef.sh
+
+`isoLabel` in `build-the-iso.sh` is constructed as `kiro-next-${kiroVersion}-x86_64.iso`. It must start with `iso_name` from `profiledef.sh` (`kiro-next`) — not just `kiro`. Mismatch causes the checksum phase to fail with "No such file or directory".
+
+## Known Issues
+
+- **`kiro-calamares-config-next` not removed post-install** — `kiro_final`'s final cleanup step runs `pacman -R --noconfirm kiro-calamares-config-next` inside a `try/except` that swallows failures silently. The package is removable manually (`sudo pacman -R kiro-calamares-config-next`) but the root cause (likely a pacman lock race during Calamares) needs investigation. Confirmed on v26.05.18.01 VirtualBox install.
+
+## pacman.conf — Installed System vs Build Time
+
+There are three pacman.conf files with different roles:
+- `archiso/pacman.conf` — used by `mkarchiso` during the ISO build; includes `kiro_repo`
+- `archiso/airootfs/etc/pacman.conf` — ends up on the installed system; does NOT include `kiro_repo` (intentional — kiro_repo is used by Calamares at install time only)
+- `build-scripts/pacman.conf` — host-side reference for setting up Chaotic-AUR on the build machine
 
 ## Changelog Style
 
