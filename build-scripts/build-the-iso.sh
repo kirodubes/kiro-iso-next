@@ -95,7 +95,7 @@ remove_build_folder="no"      # yes | no — set to yes to clean up after build
 
 buildFolder="${HOME}/kiro-build"
 outFolder="${HOME}/kiro-Out"
-isoLabel="kiro-${kiroVersion}-x86_64.iso"
+isoLabel="kiro-next-${kiroVersion}-x86_64.iso"
 PACKAGES_FILE="${buildFolder}/archiso/packages.x86_64"
 
 #####################################################################
