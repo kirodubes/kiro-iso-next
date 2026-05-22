@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-05-21 — LIQUORIX.md synced from stable + filename uppercase
+
+**What changed.** `liquorix.md` (lowercase) renamed to [LIQUORIX.md](./LIQUORIX.md) (uppercase) to match the top-level-md UPPERCASE filename convention used across Kiro / EDU / KIRO repos. Content overwritten with the user-facing rewrite from `kiro-iso/LIQUORIX.md` — the two files are now byte-identical.
+
+**Why.** Stable promoted the kernel switch and rewrote the doc to reflect "we shipped this" instead of "should we?" Per the ECOSYSTEM cascade rule, any stable change that should land in both ISO tracks is applied to both — so `-next` gets the same doc to keep `kiro-iso` ↔ `kiro-iso-next` parity for shared assets.
+
+**Files modified.**
+- [LIQUORIX.md](./LIQUORIX.md) (renamed from `liquorix.md` + content rewritten)
+
 ## 2026-05-18 — TODO housekeeping
 
 Short session. No code changed — this was a pure status-tracking pass after earlier build and boot testing.
