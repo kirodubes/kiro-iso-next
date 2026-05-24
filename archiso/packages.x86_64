@@ -521,12 +521,14 @@ xorg-xsetroot
 ananicy-cpp
 cachyos-ananicy-rules-git
 capitaine-cursors
+claude-code
 cpuid
 irqbalance
 glances
 hblock
 libgepub
 tuned
+tuned-ppd
 vte4
 pciutils
 sysz
