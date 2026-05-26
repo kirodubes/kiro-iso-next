@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-05-26 — cups: airootfs trimmed to socket-only
+
+Mirror of the production `kiro-iso` fix. The live ISO airootfs enabled CUPS three different ways: **`sockets.target.wants/cups.socket`**, **`printer.target.wants/cups.service`**, and **`multi-user.target.wants/cups.path`**. The service and path symlinks were redundant — socket activation alone starts `cupsd` on demand when a client opens the print socket. Removed **`printer.target.wants/cups.service`** and **`multi-user.target.wants/cups.path`** (and the now-empty `printer.target.wants/` directory), leaving only **`cups.socket`**.
+
+**Why this matters.** These airootfs symlinks only affect the *live* session — they are not carried into the installed system, where service enablement is driven by Calamares. Printing was off after a fresh install + reboot. The matching fix lives in **`kiro-calamares-config-next`**, which now explicitly enables **`cups.socket`** (socket activation only) on the installed system. Socket-only everywhere keeps live and installed behaviour consistent.
+
+**Files modified.**
+- `archiso/airootfs/etc/systemd/system/printer.target.wants/cups.service` (removed)
+- `archiso/airootfs/etc/systemd/system/multi-user.target.wants/cups.path` (removed)
+
 ## 2026-05-26 — README: community framing + "development" not "experimental"
 
 Same de-"personal" reword as `kiro-iso`: the overview now leads with Kiro as a **community Arch-based Linux distribution**, this repo as its **development** ISO builder (the `-next` track). Per a new HQ convention, the `-next` track is described as "development", never "experimental". Both rules codified in [Kiro-HQ/ASSISTANT.md](../../Insync/Kiro/Kiro-HQ/ASSISTANT.md). README only — no build artifacts affected, no rebuild needed.
