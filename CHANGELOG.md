@@ -4,6 +4,10 @@
 
 ---
 
+## 2026-05-26 — README: community framing + "development" not "experimental"
+
+Same de-"personal" reword as `kiro-iso`: the overview now leads with Kiro as a **community Arch-based Linux distribution**, this repo as its **development** ISO builder (the `-next` track). Per a new HQ convention, the `-next` track is described as "development", never "experimental". Both rules codified in [Kiro-HQ/ASSISTANT.md](../../Insync/Kiro/Kiro-HQ/ASSISTANT.md). README only — no build artifacts affected, no rebuild needed.
+
 ## 2026-05-21 — LIQUORIX.md synced from stable + filename uppercase
 
 **What changed.** `liquorix.md` (lowercase) renamed to [LIQUORIX.md](./LIQUORIX.md) (uppercase) to match the top-level-md UPPERCASE filename convention used across Kiro / EDU / KIRO repos. Content overwritten with the user-facing rewrite from `kiro-iso/LIQUORIX.md` — the two files are now byte-identical.
