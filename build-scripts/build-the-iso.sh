@@ -133,7 +133,7 @@ apply_version_bump() {
 
     # Re-derive in-memory values so this build uses the freshly bumped version
     kiroVersion="${newversion}"
-    isoLabel="kiro-${kiroVersion}-x86_64.iso"
+    isoLabel="kiro-next-${kiroVersion}-x86_64.iso"   # must match iso_name=kiro-next in profiledef.sh
 
     log_info "Version bump summary:
   dev-rel     : $(grep '^ISO_RELEASE=' "${devrel}")
