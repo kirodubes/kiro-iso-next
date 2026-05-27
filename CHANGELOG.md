@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-05-27 — kernel selector: gum picker (truecolor Arc Dark) with dialog fallback
+
+`select_kernels()` now prefers **`gum`** for the `kernel="ask"` picker, falling back to **`dialog`** when gum isn't installed. gum renders **truecolor**, so it hits the exact Arc Dark palette the dialog theme could only approximate: blue accent `#5294e2`, text `#d3dae3`, muted header `#8b9bb4`. Refactored into `_select_kernels_gum` (`gum choose --no-limit` + a second `gum choose` for the live-boot kernel) and `_select_kernels_dialog` (existing checklist/radiolist, unchanged); the parent runs `detect_available_kernels` once and dispatches on `command -v gum`. gum is host-only (not in the ISO), which is fine — the selector runs host-side at build time.
+
+**Files Modified**
+
+- **build-scripts/build-the-iso.sh** — split `select_kernels` into gum + dialog backends.
+
 ## 2026-05-27 — live ISO: pre-trust the "Install kiro" launcher
 
 Mirror of the `kiro-iso` fix. The live desktop's **Install kiro** launcher triggered XFCE/Thunar's "Untrusted application launcher" prompt before Calamares would start. Added a live-session autostart — **`/usr/local/bin/kiro-trust-desktop-launchers`** via **`~/.config/autostart/trust-desktop-launchers.desktop`** (liveuser only) — that sets `metadata::trusted` + the XFCE `metadata::xfce-exe-checksum` (computed at runtime) on `~/Desktop/*.desktop` at login, so the launcher opens straight into Calamares. Confirmed on the live VM (Thunar 4.20.8). Live-session scope only; installed systems unaffected.
