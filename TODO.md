@@ -6,10 +6,9 @@
 
 ## Backlog
 
-- **Live-ISO "Install kiro" launcher triggers XFCE "Untrusted application launcher" prompt** — clicking `cal-kiro.desktop` on the live desktop pops Thunar's _"insecure location / not marked as secure"_ dialog (Launch Anyway / Mark As Secure And Launch / Cancel) before Calamares starts (`Exec=/usr/local/bin/calamares-wrapper`). The launcher is already `chmod 755` (shipped by the `calamares-next` pkg to `/home/liveuser/Desktop/`), but XFCE/Thunar also needs the GIO trust flag (`metadata::trusted=true`, or legacy `metadata::xfce-exe-checksum`). **Fix candidate:** a live-session autostart (ISO airootfs `/etc/skel/.config/autostart/` or edu-system-files) that runs `gio set ~/Desktop/*.desktop metadata::trusted true` (and ensures +x) at login so the launcher is pre-trusted and clicks straight through. Affects both prod and -next ISOs — mirror. (flagged 2026-05-27)
-
 ## Done
 
+- **Live-ISO "Install kiro" untrusted-launcher prompt — fixed** — added a live-session autostart (`/usr/local/bin/kiro-trust-desktop-launchers` via `~/.config/autostart/trust-desktop-launchers.desktop`, liveuser only) that sets `metadata::trusted` + the XFCE `metadata::xfce-exe-checksum` (computed at runtime) on `~/Desktop/*.desktop` at login. Confirmed on Thunar 4.20.8 — launcher opens straight into Calamares, no prompt. `kiro_final` removes the helper from installed systems; the autostart goes with the deleted liveuser home. Mirrored to kiro-iso. (fixed 2026-05-27)
 - **Fix `isoLabel` mismatch in `build-the-iso.sh`** — `apply_version_bump()` re-derived `isoLabel="kiro-${kiroVersion}-…"` (dropping `next`), mismatching `iso_name="kiro-next"`. With the default `bump_version=yes` this made `create_checksums` checksum the wrong ISO (a stale `kiro-…` leftover) and leave the real `kiro-next-…` unchecksummed; without a leftover it would fail at `sha1sum`. Fixed both derivations to `kiro-next-…`. (flagged + fixed 2026-05-27)
 - **Fix wrong microcode left installed after Calamares install** — `kiro_ucode` now removes the non-matching ucode package after installing the correct one. Verified working.
 - **Fix grub.cfg and loopback.cfg kernel paths for linux-lqx** — all paths updated to `vmlinuz-linux-lqx` / `initramfs-linux-lqx.img`. Verified working.

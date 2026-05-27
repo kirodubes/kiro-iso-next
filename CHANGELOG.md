@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-05-27 — live ISO: pre-trust the "Install kiro" launcher
+
+Mirror of the `kiro-iso` fix. The live desktop's **Install kiro** launcher triggered XFCE/Thunar's "Untrusted application launcher" prompt before Calamares would start. Added a live-session autostart — **`/usr/local/bin/kiro-trust-desktop-launchers`** via **`~/.config/autostart/trust-desktop-launchers.desktop`** (liveuser only) — that sets `metadata::trusted` + the XFCE `metadata::xfce-exe-checksum` (computed at runtime) on `~/Desktop/*.desktop` at login, so the launcher opens straight into Calamares. Confirmed on the live VM (Thunar 4.20.8). Live-session scope only; installed systems unaffected.
+
+**Files Modified**
+
+- **archiso/airootfs/usr/local/bin/kiro-trust-desktop-launchers** (new)
+- **archiso/airootfs/home/liveuser/.config/autostart/trust-desktop-launchers.desktop** (new)
+
 ## 2026-05-27 — kernel selector: build any kernel(s) into the ISO
 
 `build-the-iso.sh` no longer hardcodes `linux-lqx`. A new `kernel=` config var (default `linux-lqx`; set to `ask` for an interactive **`dialog`** checklist) lets you build the ISO with **any kernel(s)** the enabled repos offer — single or multiple. This pairs with the new `kiro_kernel` Calamares module (`kiro-calamares-config-next`), which installs whatever kernel(s) the ISO ships; together the whole pipeline (live ISO + installed system) is kernel-agnostic from one selection point.
