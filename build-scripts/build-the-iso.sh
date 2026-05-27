@@ -95,11 +95,11 @@ trap 'on_error "$LINENO" "$BASH_COMMAND"' ERR
 # Build configuration — edit these before building
 #####################################################################
 desktop="xfce4/ohmychadwm"
-kiroVersion='v26.05.27'
+kiroVersion='v26.05.28'
 bump_version="yes"            # yes | no — bump version to vYY.MM.DD before building; set to no for same-day rebuilds
 nvidia_driver="open"          # open | 580xx | 390xx
 kernel="linux-lqx"            # space-separated kernel package(s); "ask" = interactive menu. First = the kernel the live ISO boots.
-picker="diag"                 # auto | gum | dialog — picker UI for kernel="ask" (auto = gum if installed, else dialog)
+picker="auto"               # auto | gum | dialog — picker UI for kernel="ask" (auto = gum if installed, else dialog)
 chaoticsrepo=true
 clean_pacman_cache="no"       # yes | no
 remove_build_folder="no"      # yes | no — set to yes to clean up after build
@@ -135,7 +135,7 @@ apply_version_bump() {
     sed -i "s|^kiroVersion='[^']*'|kiroVersion='${newversion}'|" "${buildiso}"
 
     echo "Updating iso_label in ${profiledef}"
-    sed -i "s|^iso_label=\"kiro-.*\"|iso_label=\"kiro-${newversion}\"|" "${profiledef}"
+    sed -i "s|^iso_label=\"kiro-.*\"|iso_label=\"kiro-next-${newversion}\"|" "${profiledef}"
 
     echo "Updating iso_version in ${profiledef}"
     sed -i "s|^iso_version=\"v.*\"|iso_version=\"${newversion}\"|" "${profiledef}"
@@ -402,14 +402,29 @@ detect_available_kernels() {
 select_kernels() {
     log_section "Selecting kernel(s)"
 
+    case "${picker}" in
+        auto|gum|dialog) ;;
+        *) log_error "Invalid picker='${picker}'. Valid options: auto | gum | dialog"; exit 1 ;;
+    esac
+
+    detect_available_kernels
+
     if [[ "${kernel}" != "ask" ]]; then
         read -ra SELECTED_KERNELS <<< "${kernel}"
+        local bad
+        for bad in "${SELECTED_KERNELS[@]}"; do
+            if ! pacman -Si "${bad}" &>/dev/null || ! pacman -Si "${bad}-headers" &>/dev/null; then
+                log_error "Unknown kernel '${bad}' — no '${bad}' + '${bad}-headers' in the enabled repos.
+Use kernel=\"ask\" to pick interactively, or one of these:
+$(printf '  %s\n' "${AVAILABLE_KERNELS[@]}")"
+                exit 1
+            fi
+        done
         PRIMARY_KERNEL="${SELECTED_KERNELS[0]}"
         log_info "Kernel(s) from config: ${SELECTED_KERNELS[*]} (live boot: ${PRIMARY_KERNEL})"
         return 0
     fi
 
-    detect_available_kernels
     if [[ "${#AVAILABLE_KERNELS[@]}" -eq 0 ]]; then
         log_error "No kernels with a matching -headers package found in the enabled repos"
         exit 1
@@ -421,7 +436,7 @@ select_kernels() {
             command -v gum &>/dev/null || { log_error "picker=gum but gum is not installed"; exit 1; }
             _select_kernels_gum ;;
         dialog) _select_kernels_dialog ;;
-        auto|*) if command -v gum &>/dev/null; then _select_kernels_gum; else _select_kernels_dialog; fi ;;
+        auto)   if command -v gum &>/dev/null; then _select_kernels_gum; else _select_kernels_dialog; fi ;;
     esac
 
     if [[ "${#SELECTED_KERNELS[@]}" -eq 0 || -z "${PRIMARY_KERNEL}" ]]; then
