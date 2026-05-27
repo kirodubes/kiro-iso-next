@@ -6,6 +6,8 @@
 
 ## Backlog
 
+- **`isoLabel` mismatch in `build-the-iso.sh`** — line ~99 sets `isoLabel="kiro-next-${kiroVersion}-…"` but `apply_version_bump()` re-derives it as `kiro-${kiroVersion}-…` (drops `next`). Self-corrects when `bump_version=yes`; with `bump_version=no` it can mismatch the produced ISO name and fail the checksum phase. Pre-existing, unrelated to the kernel work. (flagged 2026-05-27)
+
 ## Done
 
 - **Fix wrong microcode left installed after Calamares install** — `kiro_ucode` now removes the non-matching ucode package after installing the correct one. Verified working.
