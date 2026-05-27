@@ -6,6 +6,8 @@
 
 ## Backlog
 
+- **Live-ISO "Install kiro" launcher triggers XFCE "Untrusted application launcher" prompt** — clicking `cal-kiro.desktop` on the live desktop pops Thunar's _"insecure location / not marked as secure"_ dialog (Launch Anyway / Mark As Secure And Launch / Cancel) before Calamares starts (`Exec=/usr/local/bin/calamares-wrapper`). The launcher is already `chmod 755` (shipped by the `calamares-next` pkg to `/home/liveuser/Desktop/`), but XFCE/Thunar also needs the GIO trust flag (`metadata::trusted=true`, or legacy `metadata::xfce-exe-checksum`). **Fix candidate:** a live-session autostart (ISO airootfs `/etc/skel/.config/autostart/` or edu-system-files) that runs `gio set ~/Desktop/*.desktop metadata::trusted true` (and ensures +x) at login so the launcher is pre-trusted and clicks straight through. Affects both prod and -next ISOs — mirror. (flagged 2026-05-27)
+
 ## Done
 
 - **Fix `isoLabel` mismatch in `build-the-iso.sh`** — `apply_version_bump()` re-derived `isoLabel="kiro-${kiroVersion}-…"` (dropping `next`), mismatching `iso_name="kiro-next"`. With the default `bump_version=yes` this made `create_checksums` checksum the wrong ISO (a stale `kiro-…` leftover) and leave the real `kiro-next-…` unchecksummed; without a leftover it would fail at `sha1sum`. Fixed both derivations to `kiro-next-…`. (flagged + fixed 2026-05-27)
