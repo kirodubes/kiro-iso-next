@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-05-27 — kernel selector: build any kernel(s) into the ISO
+
+`build-the-iso.sh` no longer hardcodes `linux-lqx`. A new `kernel=` config var (default `linux-lqx`; set to `ask` for an interactive **`dialog`** checklist) lets you build the ISO with **any kernel(s)** the enabled repos offer — single or multiple. This pairs with the new `kiro_kernel` Calamares module (`kiro-calamares-config-next`), which installs whatever kernel(s) the ISO ships; together the whole pipeline (live ISO + installed system) is kernel-agnostic from one selection point.
+
+**How it works.** `select_kernels()` detects available kernels by checking a candidate list (`linux`, `-lts`, `-zen`, `-hardened`, `-rt`, `-rt-lts`, `-lqx`, `-cachyos`) plus **every `linux-cachyos*` flavor dynamically** — CachyOS kernels topped our benchmark study, so all flavors are exposed and discovered at runtime rather than hardcoded. Only kernels with a matching `-headers` are offered (DKMS NVIDIA needs them). When multiple are picked, a second `dialog` chooses which one the **live ISO boots** (the "primary"). `apply_kernel()` then rewrites the **build-tree** copies (not the repo): all selected kernels + `-headers` into `packages.x86_64`, and the primary into the boot entries (`efiboot`/`syslinux`/`grub`) and the live presets (`kiro`, `linux.preset`). The repo keeps `linux-lqx` as its canonical default, mirroring the existing `inject_nvidia_packages()` pattern. The selector runs **host-only** (terminal-native `dialog`, so it works over SSH/tty).
+
+**Files Modified**
+
+- **`build-scripts/build-the-iso.sh`** — `kernel=` config var; `detect_available_kernels()`, `select_kernels()`, `apply_kernel()`; wired into `main()` + `show_overview`.
+
 ## 2026-05-26 — cups: airootfs trimmed to socket-only
 
 Mirror of the production `kiro-iso` fix. The live ISO airootfs enabled CUPS three different ways: **`sockets.target.wants/cups.socket`**, **`printer.target.wants/cups.service`**, and **`multi-user.target.wants/cups.path`**. The service and path symlinks were redundant — socket activation alone starts `cupsd` on demand when a client opens the print socket. Removed **`printer.target.wants/cups.service`** and **`multi-user.target.wants/cups.path`** (and the now-empty `printer.target.wants/` directory), leaving only **`cups.socket`**.
