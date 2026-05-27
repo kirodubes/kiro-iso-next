@@ -87,10 +87,10 @@ trap 'on_error "$LINENO" "$BASH_COMMAND"' ERR
 # Build configuration — edit these before building
 #####################################################################
 desktop="xfce4/ohmychadwm"
-kiroVersion='v26.05.26'
+kiroVersion='v26.05.27'
 bump_version="yes"            # yes | no — bump version to vYY.MM.DD before building; set to no for same-day rebuilds
 nvidia_driver="open"          # open | 580xx | 390xx
-kernel="linux-lqx"            # space-separated kernel package(s); "ask" = interactive dialog menu. First = the kernel the live ISO boots.
+kernel="ask"            # space-separated kernel package(s); "ask" = interactive dialog menu. First = the kernel the live ISO boots.
 chaoticsrepo=true
 clean_pacman_cache="no"       # yes | no
 remove_build_folder="no"      # yes | no — set to yes to clean up after build
@@ -336,6 +336,7 @@ select_kernels() {
     fi
 
     ensure_package dialog
+    [[ -f "${SCRIPT_DIR}/kiro.dialogrc" ]] && export DIALOGRC="${SCRIPT_DIR}/kiro.dialogrc"
     detect_available_kernels
     if [[ "${#AVAILABLE_KERNELS[@]}" -eq 0 ]]; then
         log_error "No kernels with a matching -headers package found in the enabled repos"
@@ -350,7 +351,7 @@ select_kernels() {
     done
 
     local selection
-    selection="$(dialog --stdout --checklist \
+    selection="$(dialog --stdout --backtitle "Kiro ISO builder" --title "Select kernel(s)" --checklist \
         "Select kernel(s) to install on the ISO (the live-boot kernel is chosen next):" \
         20 76 12 "${items[@]}")" \
         || { clear; log_error "Kernel selection cancelled — aborting"; exit 1; }
@@ -368,7 +369,7 @@ select_kernels() {
             rstate="off"; [[ "${k}" == "${SELECTED_KERNELS[0]}" ]] && rstate="on"
             ritems+=("${k}" "" "${rstate}")
         done
-        PRIMARY_KERNEL="$(dialog --stdout --radiolist \
+        PRIMARY_KERNEL="$(dialog --stdout --backtitle "Kiro ISO builder" --title "Live-boot kernel" --radiolist \
             "Which kernel should the LIVE ISO boot?" 18 70 10 "${ritems[@]}")" \
             || { clear; log_error "Primary-kernel selection cancelled — aborting"; exit 1; }
     fi
