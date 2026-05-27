@@ -98,7 +98,8 @@ desktop="xfce4/ohmychadwm"
 kiroVersion='v26.05.27'
 bump_version="yes"            # yes | no — bump version to vYY.MM.DD before building; set to no for same-day rebuilds
 nvidia_driver="open"          # open | 580xx | 390xx
-kernel="linux-lqx"            # space-separated kernel package(s); "ask" = interactive dialog menu. First = the kernel the live ISO boots.
+kernel="linux-lqx"            # space-separated kernel package(s); "ask" = interactive menu. First = the kernel the live ISO boots.
+picker="diag"                 # auto | gum | dialog — picker UI for kernel="ask" (auto = gum if installed, else dialog)
 chaoticsrepo=true
 clean_pacman_cache="no"       # yes | no
 remove_build_folder="no"      # yes | no — set to yes to clean up after build
@@ -365,7 +366,7 @@ inject_nvidia_packages() {
 # build-tree copies to whatever the user picks. Pairs with the calamares
 # kiro_kernel module, which installs whatever kernel(s) the ISO ships.
 #####################################################################
-KERNEL_CANDIDATES=(linux linux-lts linux-zen linux-hardened linux-rt linux-rt-lts linux-lqx linux-cachyos linux-xanmod)
+KERNEL_CANDIDATES=(linux linux-lts linux-zen linux-hardened linux-rt linux-rt-lts linux-lqx linux-mainline)
 CANONICAL_KERNEL="linux-lqx"   # the kernel token the repo's archiso tree ships by default
 AVAILABLE_KERNELS=()
 SELECTED_KERNELS=()
@@ -382,18 +383,20 @@ detect_available_kernels() {
         fi
     done
 
-    # Plus EVERY CachyOS kernel flavor the enabled repos offer. CachyOS kernels
-    # topped our benchmark study (see KERNEL_COMPARISON), so expose them all and
-    # discover dynamically rather than hardcode a list that goes stale as new
-    # flavors appear. The "<name>-headers exists" test filters out non-kernel
-    # companion packages (zfs, nvidia, etc.).
+    # Plus every flavor of the multi-variant families the repos offer — CachyOS,
+    # XanMod, and the pinned-LTS series — discovered dynamically so the list never
+    # goes stale as new flavors land. The "<name>-headers exists" test filters out
+    # non-kernel companion packages (zfs, nvidia, etc.). We deliberately do NOT
+    # match the CPU-microarch builds (linux-x64v*, linux-znver*) or niche kernels
+    # (cjktty, nitrous, tachyon, vfio): low demand, and the microarch ones silently
+    # fail to boot on the wrong CPU level — a bad default for a general ISO.
     local c
     while IFS= read -r c; do
         [[ -z "${c}" || "${c}" == *-headers ]] && continue
         pacman -Si "${c}-headers" &>/dev/null || continue
         [[ " ${AVAILABLE_KERNELS[*]} " == *" ${c} "* ]] && continue
         AVAILABLE_KERNELS+=("${c}")
-    done < <(pacman -Slq 2>/dev/null | grep -E '^linux-cachyos' || true)
+    done < <(pacman -Slq 2>/dev/null | grep -E '^(linux-cachyos|linux-xanmod|linux-lts[0-9])' || true)
 }
 
 select_kernels() {
@@ -412,12 +415,14 @@ select_kernels() {
         exit 1
     fi
 
-    # gum gives a truecolor, Arc-Dark-themed picker; fall back to dialog on a bare host.
-    if command -v gum &>/dev/null; then
-        _select_kernels_gum
-    else
-        _select_kernels_dialog
-    fi
+    # Picker UI for kernel="ask": gum (truecolor Arc Dark) or dialog. "auto" = gum if installed.
+    case "${picker}" in
+        gum)
+            command -v gum &>/dev/null || { log_error "picker=gum but gum is not installed"; exit 1; }
+            _select_kernels_gum ;;
+        dialog) _select_kernels_dialog ;;
+        auto|*) if command -v gum &>/dev/null; then _select_kernels_gum; else _select_kernels_dialog; fi ;;
+    esac
 
     if [[ "${#SELECTED_KERNELS[@]}" -eq 0 || -z "${PRIMARY_KERNEL}" ]]; then
         log_error "No kernel selected — aborting"
