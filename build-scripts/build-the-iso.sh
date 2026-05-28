@@ -98,15 +98,15 @@ desktop="xfce4/ohmychadwm"
 kiroVersion='v26.05.28'
 bump_version="yes"            # yes | no — bump version to vYY.MM.DD before building; set to no for same-day rebuilds
 nvidia_driver="open"          # open | 580xx | 390xx
-kernel="linux-lqx"            # space-separated kernel package(s); "ask" = interactive menu. First = the kernel the live ISO boots.
-picker="auto"                 # auto | gum | dialog — picker UI for kernel="ask" (auto = dialog if installed, else gum)
+kernel="linux-cachyos linux-zen"   # space-separated kernel package(s); "ask" = interactive menu. First = the kernel the live ISO boots.
+picker="auto"                 # auto | dialog | gum — picker UI for kernel="ask" (auto = dialog if installed, else gum)
 chaoticsrepo=true
 clean_pacman_cache="no"       # yes | no
 remove_build_folder="no"      # yes | no — set to yes to clean up after build
 
 buildFolder="${HOME}/kiro-build"
 outFolder="${HOME}/kiro-Out"
-isoLabel="kiro-next-${kiroVersion}-x86_64.iso"
+isoLabel="kiro-${kiroVersion}-x86_64.iso"
 PACKAGES_FILE="${buildFolder}/archiso/packages.x86_64"
 
 #####################################################################
@@ -366,8 +366,8 @@ inject_nvidia_packages() {
 # build-tree copies to whatever the user picks. Pairs with the calamares
 # kiro_kernel module, which installs whatever kernel(s) the ISO ships.
 #####################################################################
-KERNEL_CANDIDATES=(linux linux-lts linux-zen linux-hardened linux-rt linux-rt-lts linux-lqx linux-mainline)
-CANONICAL_KERNEL="linux-lqx"   # the kernel token the repo's archiso tree ships by default
+KERNEL_CANDIDATES=(linux linux-lts linux-zen linux-hardened linux-rt linux-rt-lts linux-mainline)
+CANONICAL_KERNEL="linux-cachyos"   # the kernel token the repo's archiso tree ships by default
 AVAILABLE_KERNELS=()
 SELECTED_KERNELS=()
 PRIMARY_KERNEL=""
@@ -554,6 +554,67 @@ build_iso() {
     sudo mkarchiso -v -w "${buildFolder}" -o "${outFolder}" "${buildFolder}/archiso/"
 }
 
+record_build_time() {
+    # Append a row to ../BUILD_TIMES.md ## ISO Builds with this build's
+    # duration, kernel(s), live squashfs setting, and ISO size. Non-fatal —
+    # failure here logs a warning but doesn't abort the build.
+    #
+    # Hostname gate: only run on Erik's dev box ('hq'). End users who clone
+    # kiro-iso and run build-the-iso.sh shouldn't end up with a dirty
+    # working tree from a row they don't care about — they hit this early
+    # return silently. Erik's machine is the only one that ever builds the
+    # canonical ISO, so this is a safe identity check.
+    if [[ "$(hostname)" != "hq" ]]; then
+        return 0
+    fi
+
+    [[ -z "${build_start_epoch:-}" ]] && { log_warn "record_build_time: build_start_epoch unset — skipping"; return 0; }
+
+    local end_epoch duration mins secs stamp iso_file iso_size compression kernels_used row btf tmp
+    end_epoch=$(date +%s)
+    duration=$((end_epoch - build_start_epoch))
+    mins=$((duration / 60))
+    secs=$((duration % 60))
+    stamp="$(date '+%Y-%m-%d %H:%M')"
+
+    iso_file="$(ls -1t "${outFolder}"/*.iso 2>/dev/null | head -1)"
+    iso_size="$(du -h "${iso_file}" 2>/dev/null | cut -f1)"
+
+    # Squashfs setting read live from profiledef.sh so we always log what
+    # the build actually used, not a stale constant.
+    compression="$(grep -E '^airootfs_image_tool_options=' "${REPO_DIR}/archiso/profiledef.sh" 2>/dev/null \
+        | sed -E "s/.*'-comp' '([^']+)'.*-Xcompression-level' '([0-9]+)'.*'-b' '([^']+)'.*/\\1 L\\2 -b \\3/")"
+    compression="${compression:-?}"
+
+    # Prefer SELECTED_KERNELS (what the build actually shipped, in order)
+    # over the kernel= config value (which is "ask" in interactive mode).
+    if [[ ${#SELECTED_KERNELS[@]} -gt 0 ]]; then
+        kernels_used="${SELECTED_KERNELS[*]}"
+    else
+        kernels_used="${kernel}"
+    fi
+
+    row="| ${stamp} | ${kiroVersion} | ${kernels_used} | ${compression} | ${mins}m${secs}s | ${iso_size:-?} | |"
+    btf="${REPO_DIR}/BUILD_TIMES.md"
+
+    if [[ ! -f "${btf}" ]] || ! grep -q '^## ISO Builds$' "${btf}"; then
+        log_warn "BUILD_TIMES.md missing or malformed — skipping time record (would have been: ${row})"
+        return 0
+    fi
+
+    # Insert the new row right after the |--- separator line inside the
+    # ## ISO Builds section. awk gives us a safe in-section anchor.
+    tmp="$(mktemp)"
+    awk -v row="${row}" '
+        /^## ISO Builds$/ { in_section = 1 }
+        /^## / && !/^## ISO Builds$/ { in_section = 0 }
+        { print }
+        /^\|---/ && in_section && !injected { print row; injected = 1 }
+    ' "${btf}" > "${tmp}" && mv "${tmp}" "${btf}"
+
+    log_info "Build time recorded in BUILD_TIMES.md — ${mins}m${secs}s, ${iso_size:-?} ISO"
+}
+
 create_checksums() {
     log_section "Phase 9 — Creating checksums and pkglist"
     cd "${outFolder}"
@@ -573,6 +634,9 @@ create_checksums() {
 # Main
 #####################################################################
 main() {
+    local build_start_epoch
+    build_start_epoch=$(date +%s)
+
     check_not_root
     warn_btrfs
     setup_chaotic
@@ -581,6 +645,7 @@ main() {
     verify_version_sync
 
     log_section "Phase 2c — Comparing skel .bashrc with edu-shells"
+    log_section "As user ignore this check - for iso building pc"
     # Informational only — print the colored OK/NOK and keep going regardless.
     files_are_identical \
         "${REPO_DIR}/archiso/airootfs/etc/skel/.bashrc" \
@@ -601,6 +666,8 @@ main() {
     create_checksums
 
     remove_buildfolder "${remove_build_folder}"
+
+    record_build_time
 
     log_success "$(basename "$0") done — ISO is in ${outFolder}"
 }

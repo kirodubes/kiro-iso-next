@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-05-28 — Default kernel: `linux-lqx` → `linux-cachyos` (synced from production)
+
+Mirror of the same-date `kiro-iso` change. Both `build-scripts/build-the-iso.sh` (lines 369-370) and every load-bearing archiso template were updated: `KERNEL_CANDIDATES` dropped `linux-lqx`, `CANONICAL_KERNEL` set to `linux-cachyos`, and all boot/initramfs templates (3 efiboot entries, 2 syslinux configs, 2 grub configs, 2 mkinitcpio.d presets, plus `packages.x86_64`) now reference `linux-cachyos`. Cachyos variants (`-bore`, `-lts`, `-rc`) continue to be discovered dynamically from the enabled repos at picker time. `LIQUORIX.md` is retained as a historical record with a banner noting the switch. The previous bug — picker pre-selecting `linux-lqx` and the builder's auto-rewrite (line 526) being a no-op for canonical picks, so default-path ISOs shipped lqx unchanged — is fixed by aligning canonical with the cachyos decision.
+
+---
+
 ## 2026-05-28 — squashfs compression L6 → L3 (synced from production)
 
 Mirror of the same-date `kiro-iso` change. `archiso/profiledef.sh` (line 19) now uses `-Xcompression-level 3` instead of `6`, with the old L6 line preserved as a commented fallback right above the active line. Trade: ~3.4% ISO size growth (5.9 → 6.1 GB) for faster squashfs decompression during the Calamares `unpackfs` phase. Validated on the production ISO already — unpackfs at ~2 min 13 s on a VirtualBox VM, install total ~3 min 10 s.

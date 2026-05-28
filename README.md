@@ -14,7 +14,7 @@
 
 ## Overview
 
-**KIRO** is a community Arch-based Linux distribution. This repository is its development ISO builder (the `-next` track) — it uses the official ArchISO toolchain to produce reproducible builds with pre-configured packages, desktop environments, system optimizations, and custom configurations baked in.
+**KIRO** is a community Arch-based Linux distribution. This repository is its ISO builder — it uses the official ArchISO toolchain to produce reproducible builds with pre-configured packages, desktop environments, system optimizations, and custom configurations baked in, ready to install and use out of the box.
 
 KIRO is designed with specific preferences in mind:
 
@@ -73,14 +73,31 @@ KIRO comes pre-loaded with:
 ### Build Workflow
 
 ```bash
-# 1. Bump the version string across all version files
-bash change-version.sh
-
-# 2. Build the ISO (run as normal user from build-scripts/)
+# One command does everything — version bump and build are merged
+# (run as normal user from build-scripts/; the script calls sudo internally)
 cd build-scripts && bash build-the-iso.sh
 ```
 
-Build output lands in `~/kiro-Out/`. Checksums (sha1, sha256, md5) and a package list are generated alongside the ISO.
+The build bumps the version (`vYY.MM.DD`) across all version files as its **Phase 2**, gated by the `bump_version="yes"` flag in the config block — set it to `no` for a same-day rebuild of the currently-pinned version. Build output lands in `~/kiro-Out/`. Checksums (sha1, sha256, md5) and a package list are generated alongside the ISO.
+
+### Kernel Selection
+
+The default build ships **`linux-cachyos`** as the live-boot + post-install default and **`linux-zen`** as a secondary installed kernel selectable from the boot loader menu. Both are set on one line in the `build-scripts/build-the-iso.sh` config block:
+
+```bash
+kernel="linux-cachyos linux-zen"   # space-separated; first entry = live-boot kernel
+picker="auto"                       # auto | gum | dialog — only used when kernel="ask"
+```
+
+**Fixed list (default):** any space-separated combination of kernels available in your enabled repos works — `linux-zen linux-lts`, `linux-hardened`, `linux-cachyos-bore`, etc. The first kernel in the list is what the live ISO boots and what the installed system defaults to; additional kernels are installed alongside it, each selectable from systemd-boot's menu.
+
+**Interactive (`kernel="ask"`):** the build pauses and shows a TUI of every kernel + `-headers` pair available in your enabled repos. Pick one or more, then pick which one the live ISO should boot. Two TUIs are supported — `picker="dialog"` (ncurses) or `picker="gum"` (truecolor Arc-Dark); `picker="auto"` uses dialog if installed, else gum:
+
+![dialog kernel picker](images/choose-kernel-dialog.webp)
+
+![gum kernel picker](images/choose-kernel-gum.webp)
+
+The `kiro_kernel` Calamares module is kernel-agnostic — it copies whichever kernel(s) the live medium ships into the target system, with the live-boot kernel becoming the default for the installed system. No manual edits to `packages.x86_64` or boot loader configs are needed; `apply_kernel()` in the build script rewrites all of that from the single `kernel=` variable.
 
 ### NVIDIA Driver Selection
 
@@ -122,7 +139,6 @@ kiro-iso/
 │   └── pacman.conf             # pacman config installed on the build host
 ├── images/                     # Screenshots and branding assets
 ├── CHANGELOG.md                # Full project history
-├── change-version.sh           # Bumps version across all version files
 ├── setup.sh                    # Git remote and identity setup
 └── up.sh                       # Pull → commit → push helper
 ```
