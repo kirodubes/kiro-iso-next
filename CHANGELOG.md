@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-05-28 — Live-boot fallback kernel: `linux-zen` entries added to UEFI / BIOS-syslinux / GRUB menus (synced from production)
+
+Mirror of the same-date `kiro-iso` change. A 4th menu entry, **"fallback kernel linux-zen"**, was added to each live boot menu so a user whose hardware refuses `linux-cachyos` can pick `linux-zen` at the boot screen rather than being stranded before Calamares. New file [archiso/efiboot/loader/entries/04-fallback-zen.conf](archiso/efiboot/loader/entries/04-fallback-zen.conf) (UEFI, sort-key 04); new `LABEL arch_fallback_zen` block in [archiso/syslinux/archiso_sys-linux.cfg](archiso/syslinux/archiso_sys-linux.cfg); new `menuentry id='kirofallback'` in [archiso/grub/grub.cfg](archiso/grub/grub.cfg), all wrapped in `# >>> KIRO_ZEN_FALLBACK_BEGIN/END <<<` markers. `apply_kernel()` in [build-scripts/build-the-iso.sh](build-scripts/build-the-iso.sh) gained a strip-step that deletes the UEFI file and sed-removes the marker-wrapped blocks when `linux-zen` isn't in the user's `kernel=` list — keeps the build robust to non-default kernel selections without leaving broken boot entries. Pattern informed by CachyOS's own live ISO (their main kernel + cachyos-lts fallback in the same menu).
+
+---
+
 ## 2026-05-28 — Default kernel: `linux-lqx` → `linux-cachyos` (synced from production)
 
 Mirror of the same-date `kiro-iso` change. Both `build-scripts/build-the-iso.sh` (lines 369-370) and every load-bearing archiso template were updated: `KERNEL_CANDIDATES` dropped `linux-lqx`, `CANONICAL_KERNEL` set to `linux-cachyos`, and all boot/initramfs templates (3 efiboot entries, 2 syslinux configs, 2 grub configs, 2 mkinitcpio.d presets, plus `packages.x86_64`) now reference `linux-cachyos`. Cachyos variants (`-bore`, `-lts`, `-rc`) continue to be discovered dynamically from the enabled repos at picker time. `LIQUORIX.md` is retained as a historical record with a banner noting the switch. The previous bug — picker pre-selecting `linux-lqx` and the builder's auto-rewrite (line 526) being a no-op for canonical picks, so default-path ISOs shipped lqx unchanged — is fixed by aligning canonical with the cachyos decision.
