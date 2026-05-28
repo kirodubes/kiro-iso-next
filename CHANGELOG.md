@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-05-28 — launcher trust moved out of airootfs; kernel selector hardening
+
+Mirrors the production `kiro-iso` change of the same date.
+
+- **Launcher trust out of airootfs.** The autostart helper shipped `644` (the overlay doesn't preserve git's `100755`), so the "Untrusted application launcher" prompt persisted. Helper **removed from airootfs** (`archiso/airootfs/usr/local/bin/kiro-trust-desktop-launchers` deleted); trust now ships from the **`calamares-next`/`calamares` package** as a systemd **user** service — `ExecStart=/bin/bash …` (exec-bit-proof), `WantedBy=default.target` (XFCE doesn't activate `graphical-session.target`).
+- **Kernel selector hardening** in `build-the-iso.sh`: strict `picker=` validation (bad value errors with the valid set), kernel-name validation (typo errors with the valid names), `detect_available_kernels` skipped for a fixed kernel (only two local-DB lookups), and `auto` resolves to **dialog-first**.
+
+**Files Modified**
+
+- **[build-scripts/build-the-iso.sh](./build-scripts/build-the-iso.sh)** — picker/kernel validation, no scan on fixed kernel, `auto` dialog-first.
+- **archiso/airootfs/usr/local/bin/kiro-trust-desktop-launchers** — removed.
+
 ## 2026-05-27 — kernel selector: `picker=` toggle + broader dynamic discovery
 
 Two refinements to the `kernel="ask"` selector:
