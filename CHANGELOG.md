@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-05-28 — squashfs compression L6 → L3 (synced from production)
+
+Mirror of the same-date `kiro-iso` change. `archiso/profiledef.sh` (line 19) now uses `-Xcompression-level 3` instead of `6`, with the old L6 line preserved as a commented fallback right above the active line. Trade: ~3.4% ISO size growth (5.9 → 6.1 GB) for faster squashfs decompression during the Calamares `unpackfs` phase. Validated on the production ISO already — unpackfs at ~2 min 13 s on a VirtualBox VM, install total ~3 min 10 s.
+
+The beta-only divergence in `profiledef.sh` (`iso_name="kiro-next"`, `iso_label="kiro-next-v26.05.28"`) is preserved — only the compression line was touched.
+
+**Files Modified**
+- `archiso/profiledef.sh`
+
+---
+
 ## 2026-05-28 — launcher trust moved out of airootfs; kernel selector hardening
 
 Mirrors the production `kiro-iso` change of the same date.
