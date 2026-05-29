@@ -4,6 +4,47 @@
 
 ---
 
+## 2026-05-29 — Dark Calamares installer: ship KiroDark Kvantum theme
+
+**What Changed**
+
+The Calamares installer now renders **dark** (navy + sky-blue, matching the website) instead of the light-grey default. The ISO ships a custom **KiroDark** Kvantum theme for root, which the installer (run as root via pkexec) picks up.
+
+**Technical Details**
+
+- New: `airootfs/root/.config/Kvantum/KiroDark/{KiroDark.kvconfig,KiroDark.svg}` — KiroDark theme (ArcDark remapped to Kiro's navy/sky-blue palette, fully opaque, white button text).
+- New: `airootfs/root/.config/Kvantum/kvantum.kvconfig` → `theme=KiroDark`.
+- `packages.x86_64`: added `kvantum` (qt6 style plugin) explicitly — it was only present as a dependency of `kvantum-qt5`; Calamares is Qt6 and needs the qt6 Kvantum style, so this makes it a first-class requirement.
+- Paired with `kiro-calamares-config-next` (dark branding) and the KIRO-PKG-BUILD `calamares-next` launcher change (`-style kvantum`).
+
+**Files Modified**
+- `archiso/airootfs/root/.config/Kvantum/KiroDark/KiroDark.kvconfig` (new)
+- `archiso/airootfs/root/.config/Kvantum/KiroDark/KiroDark.svg` (new)
+- `archiso/airootfs/root/.config/Kvantum/kvantum.kvconfig` (new)
+- `archiso/packages.x86_64`
+
+---
+
+## 2026-05-29 — Fix: cachyos repo "unknown trust" on the live ISO
+
+**What Changed**
+
+The freshly-enabled `[cachyos]` repo failed every `pacman -Sy` on the live ISO with a `signature from "CachyOS ..." is unknown trust` error, aborting the whole sync (and breaking `kiro-fix-pacman-keys`, which couldn't install `archlinux-keyring`). The previous push enabled the repo and shipped `cachyos-keyring`/`cachyos-mirrorlist`, but never populated the cachyos key into the prebuilt live keyring — so the repo was untrusted from first boot.
+
+**Technical Details**
+
+- **[build-scripts/build-the-iso.sh](build-scripts/build-the-iso.sh)** — `prepopulate_keyring()` now also runs `pacman-key --populate cachyos`, alongside the existing `archlinux` and `chaotic` populates. Installing `cachyos-keyring` only drops `cachyos.gpg` into `/usr/share/pacman/keyrings/`; it does not sign the key into `/etc/pacman.d/gnupg`, which is built once at ISO-build time — so the key must be populated here, exactly as chaotic is. Build host already carries the key material.
+- **`SigLevel` deliberately left off `[cachyos]`** — it inherits `Required DatabaseOptional`, matching chaotic. With the key now populated this is the secure, correct config; not dropped to `SigLevel = Never`.
+- Added the missing trailing newline to both **[archiso/airootfs/etc/pacman.conf](archiso/airootfs/etc/pacman.conf)** and **[archiso/pacman.conf](archiso/pacman.conf)**.
+
+**Files Modified**
+
+- [build-scripts/build-the-iso.sh](build-scripts/build-the-iso.sh)
+- [archiso/airootfs/etc/pacman.conf](archiso/airootfs/etc/pacman.conf)
+- [archiso/pacman.conf](archiso/pacman.conf)
+
+---
+
 ## 2026-05-29 — Live ISO boot now shows the K splash
 
 **What Changed**
