@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-05-29 — Sync committed skel `.bashrc` with the renamed kiro-* helpers
+
+**What Changed**
+
+Updated the committed **[archiso/airootfs/etc/skel/.bashrc](archiso/airootfs/etc/skel/.bashrc)** so its aliases point at the renamed `kiro-*` helper scripts instead of the old `edu-*` names (and dropped the dead `rvariety`/`rkmix`/`rconky` aliases, whose `edu-remove-*` scripts were removed, not renamed). Purely a sync change — at build time `build-the-iso.sh` fetches the live `.bashrc-latest` from `erikdubois/edu-shells` into the build tree, so the *shipped* `.bashrc` always comes from edu-shells. The point of this edit is the **Phase 2c consistency check** (`files_are_identical` against the local edu-shells `.bashrc-latest`): without it, that check would print NOK once edu-shells is pushed with the renamed aliases. Real fix lives in (and must be pushed from) `edu-shells`.
+
+**Technical Details**
+
+- Renames (old → new): `edu-which-vga` → `kiro-which-vga`; `edu-fix-pacman-databases-and-keys` → `kiro-fix-pacman-keys` (7 alias variants); `edu-fix-pacman-conf` → `kiro-fix-pacman-conf`; `edu-fix-pacman-gpg-conf` → `kiro-fix-gpg-conf`; `edu-fix-archlinux-servers` → `kiro-fix-mirrors`; `edu-probe` → `kiro-probe`. File still parses clean (`bash -n`).
+
+**Files Modified**
+
+- [archiso/airootfs/etc/skel/.bashrc](archiso/airootfs/etc/skel/.bashrc)
+
+---
+
 ## 2026-05-29 — Dark Calamares installer: ship KiroDark Kvantum theme
 
 **What Changed**
