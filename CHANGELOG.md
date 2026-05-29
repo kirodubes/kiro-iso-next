@@ -4,6 +4,70 @@
 
 ---
 
+## 2026-05-29 — Live ISO boot now shows the K splash
+
+**What Changed**
+
+Made the `kiro-logo` Plymouth splash render during the **live ISO boot** (mirrored from production `kiro-iso`). The theme already shipped on the ISO and showed on installed systems, but never drew at live boot because the live environment lacked the two prerequisites Plymouth needs: the `plymouth` initramfs hook and the `splash` kernel parameter.
+
+**Technical Details**
+
+- **[archiso/airootfs/etc/mkinitcpio.conf](archiso/airootfs/etc/mkinitcpio.conf)** — added the `plymouth` hook after `udev` in the live `HOOKS` line (KMS hook already present; `mkarchiso` rebuilds the initramfs at build time).
+- **`quiet splash`** added to the KMS boot entries across all three bootloaders — Plymouth needs both tokens or it falls back to the text theme:
+  - systemd-boot (**[archiso/efiboot/loader/entries/](archiso/efiboot/loader/entries/)**): `01-archiso-linux`, `02-nvidianouveau`, `04-fallback-zen` (had `quiet loglevel=3`, so only `splash` added).
+  - GRUB (**[archiso/grub/grub.cfg](archiso/grub/grub.cfg)**) and syslinux (**[archiso/syslinux/archiso_sys-linux.cfg](archiso/syslinux/archiso_sys-linux.cfg)**): had neither, so `quiet splash` appended to the free / NVIDIA / zen-fallback entries.
+- **`03-nomodeset` left untouched** in every bootloader — no KMS means Plymouth can't render, so the safe-graphics fallback stays bare and verbose.
+- Theme selection unchanged (`kiro-logo`, set at build time by the package `.install`).
+
+**Files Modified**
+
+- [archiso/airootfs/etc/mkinitcpio.conf](archiso/airootfs/etc/mkinitcpio.conf)
+- [archiso/efiboot/loader/entries/01-archiso-linux.conf](archiso/efiboot/loader/entries/01-archiso-linux.conf)
+- [archiso/efiboot/loader/entries/02-nvidianouveau.conf](archiso/efiboot/loader/entries/02-nvidianouveau.conf)
+- [archiso/efiboot/loader/entries/04-fallback-zen.conf](archiso/efiboot/loader/entries/04-fallback-zen.conf)
+- [archiso/grub/grub.cfg](archiso/grub/grub.cfg)
+- [archiso/syslinux/archiso_sys-linux.cfg](archiso/syslinux/archiso_sys-linux.cfg)
+
+---
+
+## 2026-05-28 — Hardware-aware install via **chwd**: package list prepared (paired with `kiro-calamares-config-next`)
+
+First step of the install-time driver-selection experiment. The companion change in [kiro-calamares-config-next](../kiro-calamares-config-next/) adds a Calamares Python module that runs `chwd --autoconfigure` inside the chroot — this repo's job is to make sure every package chwd might want to install, and every firmware/microcode/detection helper it depends on, is already present on the live ISO.
+
+### What Changed
+
+Four edits to **[archiso/packages.x86_64](archiso/packages.x86_64)** to sync this repo with production's hardware-detection baseline:
+
+- **Enabled `b43-fwcutter`** (was commented) — Broadcom B43/B43legacy firmware extractor. Older Broadcom Wi-Fi chipsets need the firmware unpacked at runtime; without this, those laptops have no wireless on first boot.
+- **Enabled `broadcom-wl-dkms`** (was commented) — Broadcom proprietary `wl` kernel module (DKMS). Covers the BCM43xx generations that need the closed-source blob rather than the open `b43` driver. chwd has a dedicated `broadcom-wl` profile (priority 1) that expects this package to be available.
+- **Added `chwd`** — CachyOS's [Hardware Detection Tool](https://github.com/CachyOS/chwd) (Rust, GPL-3.0). Pulled from `nemesis_repo`. Inspects PCI/USB hardware, matches it against TOML profiles, and installs the right driver bundle. Same tool the live ISO will use during install and that users can re-run post-install (`sudo chwd -a`) after kernel or hardware changes.
+- **Added `hwdetect`** — console hardware-detect helper (CachyOS ships it on their live ISO too). Useful for diagnostics from the live env, complements `hwinfo` / `inxi` / `hw-probe`.
+
+### Why
+
+Kiro previously chose the NVIDIA driver **at build time** via the `nvidia_driver` variable in `build-the-iso.sh` (`open` / `580xx` / `390xx`) — one ISO per choice. With chwd, the live ISO can ship a single sensible default (`nvidia-open-dkms`, modern GPUs) and **chwd picks the right variant at install time** from the detected device IDs. Same ISO covers Turing+ (nvidia-open), Maxwell/Pascal (proprietary 580xx), and older legacy hardware (470xx). Hybrid graphics laptops automatically get the `.prime` variant with `switcheroo-control` + RTD3 wiring.
+
+The existing GRUB-menu `driver=free|nonfree` choice (handled by `kiro_remove_nvidia`) is preserved: chwd only runs on `driver=nonfree`. Users who explicitly pick the open-source path at boot still get nouveau, untouched.
+
+### Validation pre-merge
+
+Smoke-tested on the dev host (`hq`, Intel iGPU): `chwd-arch-git` from AUR (shorin fork) detected the Intel GPU and matched the `intel` profile (priority 4) and `fallback` (priority 3) — exactly what upstream's TOML says it should pick. Bare `chwd` (no args) only lists matches; `chwd -a` triggers actual install. The companion `chwd-kernel` binary correctly enumerated every kernel in the enabled repos (linux-cachyos, linux-zen, hardened, rt, lts variants).
+
+### Architecture decisions
+
+- **`build-the-iso.sh` `inject_nvidia_packages` left as-is for now.** The default `nvidia_driver=open` keeps `nvidia-open-dkms` baked into the live ISO so NVIDIA hardware boots cleanly into the installer. chwd swaps in the proper variant during install if needed. The per-build switch will be retired in a follow-up once chwd's selection is validated in the field.
+- **`kiro_remove_nvidia` kept.** It owns the `driver=free` cleanup path; chwd owns the `driver=nonfree` smart-pick path. Complementary, no overlap.
+
+### Pairs With
+
+- [kiro-calamares-config-next](../kiro-calamares-config-next/) — new `chwd` Python module in `usr/lib/calamares/modules/chwd/` and corresponding entry in `settings.conf`'s exec sequence (between `kiro_remove_nvidia` and `initcpiocfg`).
+
+**Files Modified**
+
+- **[archiso/packages.x86_64](archiso/packages.x86_64)** — uncommented `b43-fwcutter` (line 5), uncommented `broadcom-wl-dkms` (line 11), added `chwd` and `hwdetect`.
+
+---
+
 ## 2026-05-28 — Live-boot fallback kernel: `linux-zen` entries added to UEFI / BIOS-syslinux / GRUB menus (synced from production)
 
 Mirror of the same-date `kiro-iso` change. A 4th menu entry, **"fallback kernel linux-zen"**, was added to each live boot menu so a user whose hardware refuses `linux-cachyos` can pick `linux-zen` at the boot screen rather than being stranded before Calamares. New file [archiso/efiboot/loader/entries/04-fallback-zen.conf](archiso/efiboot/loader/entries/04-fallback-zen.conf) (UEFI, sort-key 04); new `LABEL arch_fallback_zen` block in [archiso/syslinux/archiso_sys-linux.cfg](archiso/syslinux/archiso_sys-linux.cfg); new `menuentry id='kirofallback'` in [archiso/grub/grub.cfg](archiso/grub/grub.cfg), all wrapped in `# >>> KIRO_ZEN_FALLBACK_BEGIN/END <<<` markers. `apply_kernel()` in [build-scripts/build-the-iso.sh](build-scripts/build-the-iso.sh) gained a strip-step that deletes the UEFI file and sed-removes the marker-wrapped blocks when `linux-zen` isn't in the user's `kernel=` list — keeps the build robust to non-default kernel selections without leaving broken boot entries. Pattern informed by CachyOS's own live ISO (their main kernel + cachyos-lts fallback in the same menu).
