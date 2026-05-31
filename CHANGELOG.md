@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-05-31 — Three NVIDIA boot options: proprietary modern / proprietary auto-detect (mirrored from production)
+
+**What Changed**
+- Mirrors the production kiro-iso change: the NVIDIA boot entry splits into **"NVIDIA proprietary, modern"** (`driver=nonfree`, keeps the baked `nvidia-open-dkms`, no chwd) and a new **"NVIDIA proprietary, auto-detect"** (`driver=nonfreechwd`, runs chwd), across systemd-boot / GRUB / syslinux. Open entry unchanged (`driver=free`).
+
+**Why**
+- A chwd-free express lane to the baked driver for modern Turing+ GPUs; chwd stays for older cards. Driver-mode logic lives in [kiro-calamares-config-next](../kiro-calamares-config-next).
+
+**Files Modified**
+- `archiso/efiboot/loader/entries/02-nvidianouveau.conf` (relabel) + `02b-nvidiachwd.conf` (new)
+- `archiso/grub/grub.cfg`, `archiso/syslinux/archiso_sys-linux.cfg`
+
 ## 2026-05-29 — Sync committed skel `.bashrc` with the renamed kiro-* helpers
 
 **What Changed**
