@@ -95,7 +95,7 @@ trap 'on_error "$LINENO" "$BASH_COMMAND"' ERR
 # Build configuration — edit these before building
 #####################################################################
 desktop="xfce4/ohmychadwm"
-kiroVersion='v26.05.29'
+kiroVersion='v26.05.31'
 bump_version="yes"            # yes | no — bump version to vYY.MM.DD before building; set to no for same-day rebuilds
 nvidia_driver="open"          # open | 580xx | 390xx
 kernel="linux-cachyos linux-zen"   # space-separated kernel package(s); "ask" = interactive menu. First = the kernel the live ISO boots.
@@ -236,34 +236,6 @@ ensure_package() {
         log_error "${pkg} could not be installed — aborting"
         exit 1
     fi
-}
-
-files_are_identical() {
-    # Reports whether two files are a byte-for-byte exact copy. Returns 0 when
-    # identical, non-zero otherwise — meant to be used in an `if`, not bare.
-    local src="$1"
-    local dst="$2"
-
-    if [[ ! -f "${src}" ]]; then
-        status_nok "Source file missing: ${src}"
-        return 1
-    fi
-    if [[ ! -f "${dst}" ]]; then
-        status_nok "Compare target missing: ${dst}"
-        return 1
-    fi
-
-    if cmp -s "${src}" "${dst}"; then
-        status_ok "Identical:
-        ${src}
-        == ${dst}"
-        return 0
-    fi
-
-    status_nok "Differ:
-        ${src}
-        != ${dst}"
-    return 1
 }
 
 setup_chaotic() {
@@ -661,11 +633,21 @@ main() {
     verify_version_sync
 
     if [[ "$(hostname)" == "hq" ]]; then
-        log_section "Phase 2c — Comparing skel .bashrc with edu-shells"
-        # Informational only — print the colored OK/NOK and keep going regardless.
-        files_are_identical \
-            "${REPO_DIR}/archiso/airootfs/etc/skel/.bashrc" \
-            "${HOME}/EDU/edu-shells/etc/skel/.bashrc-latest" || true
+        log_section "Phase 2c — Refreshing skel .bashrc from edu-shells"
+        local skel_dir="${REPO_DIR}/archiso/airootfs/etc/skel"
+        local skel_bashrc="${skel_dir}/.bashrc"
+        local skel_bashrc_latest="${skel_dir}/.bashrc-latest"
+        local edu_bashrc_latest="${HOME}/EDU/edu-shells/etc/skel/.bashrc-latest"
+        # Pull the latest .bashrc-latest in, drop the old .bashrc, then promote the
+        # fresh copy into its place so skel always ships the current edu-shells .bashrc.
+        if [[ -f "${edu_bashrc_latest}" ]]; then
+            cp "${edu_bashrc_latest}" "${skel_bashrc_latest}"
+            rm -f "${skel_bashrc}"
+            mv "${skel_bashrc_latest}" "${skel_bashrc}"
+            status_ok "${GREEN}.bashrc refreshed from edu-shells${RESET}"
+        else
+            log_warn "edu-shells .bashrc-latest not found at ${edu_bashrc_latest}"
+        fi
     fi
 
     log_section "Phase 1 — Checking required packages"
