@@ -386,7 +386,7 @@ kiro-calamares-config-next
 ####                               PLYMOUTH
 ###########################################################################
 
-plymouth-theme-kiro-logo-nemesis
+plymouth-theme-kiro-logo
 
 adobe-source-han-sans-jp-fonts
 adobe-source-han-sans-kr-fonts
