@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-04 — Ship the wedge-fixed `-nemesis` Plymouth theme (encrypted-boot LUKS card)
+
+**What Changed**
+- **`archiso/packages.x86_64`**: swapped **`plymouth-theme-kiro-logo`** → **`plymouth-theme-kiro-logo-nemesis`** under the PLYMOUTH section.
+
+**Why**
+- The graphical LUKS passphrase **card** (dark box + Kiro-blue border, lock icon, typed characters as blue dots, "enter passphrase" label) and the corrected self-assembling-K **wedge timing** live only in the **`-nemesis`** variant. Production `plymouth-theme-kiro-logo` (`26.06-01`) still has the old slow wedge — the green never appears inside the brief splash window — and lacks the card images, so a fresh `-next` install would have rendered the old prompt. Shipping `-nemesis` is what makes a fresh encrypted install actually exercise the fix that was proven (hand-patched) on the Kiro-next VM.
+- `-nemesis` is published in **nemesis_repo** (`26.06-08`, db-indexed) with the wedge fix (`FADE_END=8 / SLIDE_BEG=3 / SLIDE_END=18`) and all five card images (`box`/`bullet`/`lock`/`logo-body`/`logo-wedge`). It `conflicts` (not `replaces`) the original, so this is an opt-in swap on the **beta** ISO only — production `kiro-iso` is untouched.
+- Pairs with `kiro-calamares-config-next`'s `useSystemdHook: true`: `sd-encrypt` asks via `systemd-ask-password`, which Plymouth's built-in password agent renders using this theme. Plymouth reaches the install target via `unpackfs` (this very package), so stock `detect_plymouth()` adds the `plymouth` hook **before** `initcpiocfg` runs — no `kiro_plymouth`, no `plymouthcfg` needed (the package `.install` runs `plymouth-set-default-theme kiro-logo`).
+- Ships in **v26.06.04**. Next: build the `-next` ISO, then run a fresh **encrypted** install *and* a plain **unencrypted** install (the systemd-hook switch affects all installs and drops the busybox recovery shell) to confirm end-to-end.
+
+**Files Modified**
+- `archiso/packages.x86_64`
+
+---
+
 ## 2026-05-31 — Three NVIDIA boot options: proprietary modern / proprietary auto-detect (mirrored from production)
 
 **What Changed**
