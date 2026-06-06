@@ -12,11 +12,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `kiro-iso-next` | **Beta/Testing** — experimental features, kernel changes, new packages under evaluation | `kiro-calamares-config-next` |
 
 Changes here must be build-tested and boot-tested before being mirrored to `kiro-iso`.
-The current experiment: **Liquorix kernel** (`linux-lqx` from Chaotic-AUR) replacing the stock `linux` kernel.
 
-### Current state (2026-05-18)
+**Kernel stack: `linux-cachyos` (default) + `linux-zen` (fallback).** Kiro dropped `linux-lqx`
+(Liquorix) on 2026-05-28 — never propose restoring it. The build is kernel-agnostic; the active
+kernel is set via the `kernel=` knob in `build-the-iso.sh`. See the kernel rule in
+[Kiro-HQ/ASSISTANT.md](/home/erik/Insync/Kiro/Kiro-HQ/ASSISTANT.md).
 
-All validation items are done except one: NVIDIA `driver=nonfree` boot + DKMS against `linux-lqx-headers` on real hardware. UEFI boot, BIOS/syslinux boot, PipeWire stack, and Calamares post-install hooks (microcode, linux.preset cleanup) are all verified.
+### Package Suffix Convention (`-next` vs `-nemesis`)
+
+The beta ISO carries packages with two different suffixes. They both mean "the testing variant,"
+but they diverge from production by **different mechanisms and repos** — do not treat them as
+interchangeable:
+
+| Suffix      | Meaning                                                                                          | Repo           | Example packages                                                  |
+|-------------|--------------------------------------------------------------------------------------------------|----------------|-------------------------------------------------------------------|
+| `-next`     | The **beta Calamares chain** — a parallel package installed *instead of* its production sibling.  | `kiro_repo`    | `calamares-next`, `kiro-calamares-config-next`                    |
+| `-nemesis`  | A **patched downstream variant** that `conflicts` (not `replaces`) its production counterpart, so it is an **opt-in swap on the beta ISO only**. Used to prove a fix before promoting it to production. | `nemesis_repo` | `kiro-calamares-tweak-tool-nemesis`, `plymouth-theme-kiro-logo-nemesis` |
+
+Rule of thumb:
+- A `-next` package is the beta **installer engine/config** itself (served from `kiro_repo`,
+  rebuilt via the [Beta Build Workflow](#beta-build-workflow) below).
+- A `-nemesis` package is a **single component carrying a not-yet-promoted patch** (served from
+  `nemesis_repo`); when the patch is proven, the production package absorbs it and the `-nemesis`
+  line goes away.
+
+**Production `kiro-iso` carries neither suffix** — it ships the plain `calamares` /
+`kiro-calamares-config` / `kiro-calamares-tweak-tool` / `plymouth-theme-kiro-logo`. When promoting
+a beta change, swap the `-next`/`-nemesis` package back to its plain name in the production
+`packages.x86_64`.
+
+### Current state
+
+UEFI boot, BIOS/syslinux boot, the PipeWire stack, and the Calamares post-install hooks (microcode, linux.preset cleanup) are verified. NVIDIA `driver=nonfree` boot + DKMS build against the shipped kernel headers (`linux-cachyos-headers` / `linux-zen-headers`) is the standing item to re-verify on real hardware after any kernel-related change.
 
 ## Beta Build Workflow
 
