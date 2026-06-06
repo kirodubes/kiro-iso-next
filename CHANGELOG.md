@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-06-06 — Declutter repo root: move docs into `docs/` + drop stray `BEST_PRACTICES.md` (mirrored from production)
+
+**What Changed**
+- Moved the loose documentation off the repo root into a structured **`docs/`** tree (via `git mv`, history preserved), mirroring the layout just applied to production `kiro-iso`:
+  - `docs/` — `OVERVIEW.md`, `PIPEWIRE-MIGRATION.md`
+  - `docs/kernels/` — `LIQUORIX.md`
+- Removed **`BEST_PRACTICES.md`** — a 161 KB stray copy of the Kiro-HQ best-practices file that did not belong here (canonical copy lives in Kiro-HQ; nothing linked it).
+- Fixed the affected internal links (`docs/OVERVIEW.md` → `../README.md`; the historical `LIQUORIX.md` links in this CHANGELOG). A link-resolution pass confirmed **zero** broken targets introduced.
+
+**Why**
+- Keeps the beta repo's root as clean as production's and the two trees structurally parallel — beta carries fewer docs (no `BYOI.md`/`RELEASES.md`/comparison set), so its `docs/` is a subset, but the organizing principle is identical. Root now holds only `README`, `CHANGELOG`, `CLAUDE`, and the tooling-bound `DISTRO_TESTING.md`.
+- No effect on the ISO — repo docs only.
+
+**Files Modified**
+- `OVERVIEW.md`, `PIPEWIRE-MIGRATION.md`, `LIQUORIX.md` relocated under `docs/` (renames); `BEST_PRACTICES.md` deleted
+- Link fixes: `CHANGELOG.md`, `docs/OVERVIEW.md`
+
 ## 2026-06-06 — One-command build (`./build.sh`) + host-prep extracted to a sourced helper
 
 **What Changed**
@@ -291,12 +308,12 @@ Same de-"personal" reword as `kiro-iso`: the overview now leads with Kiro as a *
 
 ## 2026-05-21 — LIQUORIX.md synced from stable + filename uppercase
 
-**What changed.** `liquorix.md` (lowercase) renamed to [LIQUORIX.md](./LIQUORIX.md) (uppercase) to match the top-level-md UPPERCASE filename convention used across Kiro / EDU / KIRO repos. Content overwritten with the user-facing rewrite from `kiro-iso/LIQUORIX.md` — the two files are now byte-identical.
+**What changed.** `liquorix.md` (lowercase) renamed to [LIQUORIX.md](./docs/kernels/LIQUORIX.md) (uppercase) to match the top-level-md UPPERCASE filename convention used across Kiro / EDU / KIRO repos. Content overwritten with the user-facing rewrite from `kiro-iso/LIQUORIX.md` — the two files are now byte-identical.
 
 **Why.** Stable promoted the kernel switch and rewrote the doc to reflect "we shipped this" instead of "should we?" Per the ECOSYSTEM cascade rule, any stable change that should land in both ISO tracks is applied to both — so `-next` gets the same doc to keep `kiro-iso` ↔ `kiro-iso-next` parity for shared assets.
 
 **Files modified.**
-- [LIQUORIX.md](./LIQUORIX.md) (renamed from `liquorix.md` + content rewritten)
+- [LIQUORIX.md](./docs/kernels/LIQUORIX.md) (renamed from `liquorix.md` + content rewritten)
 
 ## 2026-05-18 — TODO housekeeping
 
