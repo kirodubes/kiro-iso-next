@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-06-06 — Reorganize `packages.x86_64` into risk tiers + drop paid app (community-ISO hygiene)
+
+**What Changed**
+- Reorganized **`archiso/packages.x86_64`** from repo-origin grouping into **three risk tiers**, grouped by function within each tier, with banner comments that make the "never remove" packages unmistakable:
+  - **TIER 1 — FROZEN**: archiso base (preserved verbatim in upstream order), archiso-extra, graphics/xorg, NVIDIA, build essentials, repo keyrings + mirrorlists, installer/Calamares, live guest tools, display manager, default session.
+  - **TIER 2 — KIRO CORE**: audio, bluetooth, network, file-management, printing, thumbnails, desktop integration, theming engines, system tuning, Ohmychadwm runtime, shell/terminal, kiro-* branding, icons/cursors/themes, fonts.
+  - **TIER 3 — USER-CHANGEABLE**: browsers, media, editors, CLI utilities, system info, package tools, archive tools, misc extras.
+- Removed **`spotify`** — a paid streaming app has no place pushed onto users of a community ISO.
+- Pruned the trailing commented-out "uncomment-to-enable" optionals (`#flat-remix`, `#colloid-cursors-git`, `#dex`, `#ckb-next-git`, `#discord`, `#telegram-desktop`, `#tlp`) — personal-taste suggestions that belong in the arcolinux-nemesis post-install scripts, not seeded as hints on the ISO.
+
+**Why**
+- The list had grown with no signal telling a builder *which packages are safe to remove without breaking the build/boot/install* and which are load-bearing. The tiering makes the blast radius explicit and pushes the freely-editable apps to the end.
+- Kiro is now a **community** ISO, not a personal one — paid apps (spotify) and personal optionals come off; users make up their own mind and **`sublime-text-4`** stays (the unlicensed nag is liveable) as does **`claude-code`** (free to install).
+- The reorg is **build-safe**: `build-the-iso.sh` operates on a copy and only needs `nvidia-*` and `linux-cachyos`/`-headers` as plain column-0 lines (verified intact); pacman ignores order. A token-set diff confirmed the reshuffle lost/toggled **zero** packages before the paid-app removal.
+- Net: **396 active** packages (was 397), 36 commented (was 43, all upstream archiso + xf86-video stubs kept). Structure mirrored to production **`kiro-iso`** is a follow-up once validated here.
+
+**Files Modified**
+- `archiso/packages.x86_64`
+
+---
+
 ## 2026-06-04 — Ship the wedge-fixed `-nemesis` Plymouth theme (encrypted-boot LUKS card)
 
 **What Changed**
