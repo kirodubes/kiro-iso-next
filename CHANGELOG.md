@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-06 — One-command build (`./build.sh`) + host-prep extracted to a sourced helper
+
+**What Changed**
+- Added **`build.sh`** at the repo root as the single entry point for building the ISO. It is a thin, template-conformant wrapper that hands off to **`build-scripts/build-the-iso.sh`**, so the command is identical on every machine: **`./build.sh`**. A builder no longer needs to know the internal script layout or `cd` into `build-scripts/`.
+- Extracted the host-preparation helpers (**`ensure_package`**, **`setup_chaotic`**, and the new **`setup_cachyos`**) out of `build-the-iso.sh` into a new **`build-scripts/host-prep.sh`**, which `build-the-iso.sh` now **sources**. `host-prep.sh` is a function-only library (no `main()`) with a load-once guard, keeping all "make the host ready to build" logic in one place.
+- Wired **`setup_cachyos`** into `main()` alongside `setup_chaotic`. It trusts the CachyOS signing key, enables the `[cachyos]` CDN77 geo-mirror in `/etc/pacman.conf` if absent, and installs `cachyos-keyring` + `cachyos-mirrorlist` — idempotently (already-configured hosts are detected and skipped).
+
+**Why**
+- The build pulls `linux-cachyos` (the default live kernel) from `[cachyos]`, and `prepopulate_keyring` runs `pacman-key --populate cachyos`; a host lacking the cachyos keyring/mirrorlist fails the build. Folding that prep into the sourced helper makes the build **self-contained on any Arch-based host** (Arch, Kiro, EndeavourOS, CachyOS, Garuda) with no manual setup.
+- Splitting host-prep from the build pipeline keeps each file focused — `build-the-iso.sh` is the pipeline, `host-prep.sh` is the environment — and means the same one command (`./build.sh`) works everywhere, matching the "users never need to know the internal layout" goal.
+
+**Files Modified**
+- `build.sh` (new)
+- `build-scripts/host-prep.sh` (new)
+- `build-scripts/build-the-iso.sh`
+
 ## 2026-06-06 — Reorganize `packages.x86_64` into risk tiers + drop paid app (community-ISO hygiene)
 
 **What Changed**
