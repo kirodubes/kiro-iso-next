@@ -208,19 +208,6 @@ check_not_root() {
     fi
 }
 
-warn_btrfs() {
-    if lsblk -f | grep -q btrfs; then
-        log_warn "Btrfs filesystem detected.
-This script may cause issues on Btrfs. Make backups before continuing.
-Press CTRL+C to stop now."
-        for i in $(seq 10 -1 1); do
-            echo -ne "Continuing in ${i} seconds... \r"
-            sleep 1
-        done
-        echo
-    fi
-}
-
 preflight_checks() {
     # Fail fast before the long mkarchiso run: not enough disk, or no network,
     # both surface here with a clear message instead of dying mid-build.
@@ -256,6 +243,13 @@ packages and fetch the latest .bashrc. Check your network and re-run."
             exit 1
         fi
     done
+
+    # Refresh pacman sync databases before any repo-dependent step. On a fresh
+    # host (e.g. a just-installed CachyOS) the sync DBs may not be populated yet,
+    # which breaks the later keyring/package installs. Runs on every host since
+    # setup_cachyos short-circuits where the cachyos repo is already present.
+    log_info "Refreshing pacman databases"
+    sudo pacman -Sy
 }
 
 clean_cache() {
@@ -675,7 +669,6 @@ main() {
     build_start_epoch=$(date +%s)
 
     check_not_root
-    warn_btrfs
     preflight_checks
     setup_chaotic
     setup_cachyos
