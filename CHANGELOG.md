@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-06-06 — Build hardening: Chaotic 303-redirect fix, portable `$HOSTNAME` gate, Phase 0 preflight, `parallel_downloads` floor (mirrored from production)
+
+**What Changed**
+- **`get-pacman-repos-keys-and-mirrors.sh`** — both filename-discovery calls now use **`curl -sL`** instead of `curl -s`. The Chaotic-AUR geo-mirror (`geo-mirror.chaotic.cx`) now returns an **HTTP 303 redirect**; `curl` doesn't follow redirects without `-L`, so the `chaotic-keyring-*` / `chaotic-mirrorlist-*` parse came back empty and the script died under `set -euo pipefail` before reaching its own "Failed to resolve" guard — a silent exit with no error banner. `wget` (the actual download) already follows redirects, so only the two `curl` lines needed it.
+- **`build-the-iso.sh` — portable hostname gate.** The two `$(hostname)` checks (`hq`-only skel `.bashrc` refresh, and the `record_build_time` gate) now use the bash builtin **`$HOSTNAME`** — a minimal Arch host has no `hostname` binary (`inetutils` isn't in `base`), so `$(hostname)` spewed `command not found` to stderr on every clean-host build. Behavior preserved; noise gone.
+- **`build-the-iso.sh` — new Phase 0 preflight (`preflight_checks`).** Fails fast on low disk (least-free of `buildFolder` / `outFolder` vs a 15 G minimum) or no network (`wget --spider` against `archlinux.org` + `github.com`) before any long work.
+- **`build-the-iso.sh` — new `parallel_downloads` parameter (default `10`).** Sets pacman `ParallelDownloads` in the **build-tree** `archiso/pacman.conf` per-build (never the committed file). Behaves as a **floor**: only raises a lower active value or enables an inactive/commented/absent one, never lowers a higher shipped value; alerts with an orange `log_warn` when it changes anything.
+
+**Why**
+- Mirrored from production `kiro-iso`, where all four changes were proven by a full end-to-end build on a clean, vanilla Arch host (produced a 6.1 G ISO, zero errors). The Chaotic redirect was the real blocker; the `$HOSTNAME` and preflight changes harden the "self-contained on any Arch host" claim that `host-prep.sh` makes. `-next`'s build-the-iso.sh now matches production except its two intentional `kiro-next` naming lines.
+
+**Files Modified**
+- `build-scripts/build-the-iso.sh` — `$HOSTNAME` gate (×2), `preflight_checks` (Phase 0), `parallel_downloads` param + floor block in `prepare_build_tree`
+- `build-scripts/get-pacman-repos-keys-and-mirrors.sh` — `curl -s` → `curl -sL` (×2)
+
 ## 2026-06-06 — Declutter repo root: move docs into `docs/` + drop stray `BEST_PRACTICES.md` (mirrored from production)
 
 **What Changed**

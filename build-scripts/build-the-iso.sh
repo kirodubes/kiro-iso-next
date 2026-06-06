@@ -96,12 +96,15 @@ trap 'on_error "$LINENO" "$BASH_COMMAND"' ERR
 #####################################################################
 desktop="xfce4/ohmychadwm"
 kiroVersion='v26.06.06'
+
 bump_version="yes"            # yes | no — bump version to vYY.MM.DD before building; set to no for same-day rebuilds
 nvidia_driver="open"          # open | 580xx | 390xx
 kernel="linux-cachyos linux-zen"   # space-separated kernel package(s); "ask" = interactive menu. First = the kernel the live ISO boots.
+
 picker="auto"                 # auto | dialog | gum — picker UI for kernel="ask" (auto = dialog if installed, else gum)
 chaoticsrepo=true
 clean_pacman_cache="no"       # yes | no
+parallel_downloads="10"       # minimum pacman ParallelDownloads for the ISO install; only raised if shipped value is lower, never lowered
 remove_build_folder="no"      # yes | no — set to yes to clean up after build
 build_location="home"         # home | local — home = build in $HOME; local = build beside the cloned repo
 
@@ -218,6 +221,43 @@ Press CTRL+C to stop now."
     fi
 }
 
+preflight_checks() {
+    # Fail fast before the long mkarchiso run: not enough disk, or no network,
+    # both surface here with a clear message instead of dying mid-build.
+    log_section "Phase 0 — Preflight checks (disk space + connectivity)"
+
+    # Disk space — buildFolder and outFolder may live on different filesystems,
+    # so check whichever has the least free space against the minimum the build needs.
+    local min_free_gb=15
+    local b_free o_free least_free
+    mkdir -p "${buildFolder}" "${outFolder}"
+    b_free=$(df --output=avail -BG "${buildFolder}" | tail -1 | tr -dc '0-9')
+    o_free=$(df --output=avail -BG "${outFolder}"  | tail -1 | tr -dc '0-9')
+    least_free=$(( b_free < o_free ? b_free : o_free ))
+    if (( least_free < min_free_gb )); then
+        log_error "Not enough free disk space — need at least ${min_free_gb}G free.
+  build folder (${buildFolder}): ${b_free}G free
+  out folder   (${outFolder}): ${o_free}G free
+Free up space and re-run."
+        exit 1
+    fi
+    status_ok "Disk space OK — ${least_free}G free (need ${min_free_gb}G)"
+
+    # Connectivity — the build syncs pacman databases and fetches the latest
+    # .bashrc over HTTPS. wget is a hard build dependency, so use it as the probe.
+    ensure_package wget
+    local host
+    for host in https://archlinux.org https://github.com; do
+        if wget -q --spider --timeout=10 --tries=1 "${host}"; then
+            status_ok "Reachable: ${host}"
+        else
+            log_error "No connectivity to ${host} — the build needs internet to sync
+packages and fetch the latest .bashrc. Check your network and re-run."
+            exit 1
+        fi
+    done
+}
+
 clean_cache() {
     if [[ "${clean_pacman_cache}" == "yes" ]]; then
         log_section "Cleaning pacman package cache"
@@ -260,6 +300,27 @@ prepare_build_tree() {
     remove_buildfolder yes
     mkdir -p "${buildFolder}"
     cp -r "${REPO_DIR}/archiso" "${buildFolder}/archiso"
+
+    # Pacman ParallelDownloads in the build-tree pacman.conf (the file mkarchiso
+    # uses for the airootfs install) is treated as a floor: raise it to
+    # ${parallel_downloads} only when the shipped value is lower or inactive —
+    # never lower a higher value. Edits only the build copy, never the repo file.
+    local btree_pacman="${buildFolder}/archiso/pacman.conf"
+    local current_pd
+    current_pd=$(grep -oP '^\s*ParallelDownloads\s*=\s*\K[0-9]+' "${btree_pacman}" | head -1)
+    if [[ -z "${current_pd}" ]]; then
+        if grep -qE '^\s*#\s*ParallelDownloads' "${btree_pacman}"; then
+            sed -i "s|^\s*#\s*ParallelDownloads.*|ParallelDownloads = ${parallel_downloads}|" "${btree_pacman}"
+        else
+            sed -i "/^\[options\]/a ParallelDownloads = ${parallel_downloads}" "${btree_pacman}"
+        fi
+        log_warn "ParallelDownloads was inactive in build-tree pacman.conf — enabling it at ${parallel_downloads}"
+    elif (( current_pd < parallel_downloads )); then
+        sed -i "s|^\s*ParallelDownloads.*|ParallelDownloads = ${parallel_downloads}|" "${btree_pacman}"
+        log_warn "Raising ParallelDownloads ${current_pd} -> ${parallel_downloads} in build-tree pacman.conf"
+    else
+        log_info "ParallelDownloads already ${current_pd} (>= ${parallel_downloads}) — leaving it unchanged"
+    fi
 
     log_section "Phase 4 — Refreshing skel and package list"
 
@@ -540,7 +601,7 @@ record_build_time() {
     # working tree from a row they don't care about — they hit this early
     # return silently. Erik's machine is the only one that ever builds the
     # canonical ISO, so this is a safe identity check.
-    if [[ "$(hostname)" != "hq" ]]; then
+    if [[ "${HOSTNAME}" != "hq" ]]; then
         return 0
     fi
 
@@ -615,13 +676,14 @@ main() {
 
     check_not_root
     warn_btrfs
+    preflight_checks
     setup_chaotic
     setup_cachyos
 
     apply_version_bump
     verify_version_sync
 
-    if [[ "$(hostname)" == "hq" ]]; then
+    if [[ "${HOSTNAME}" == "hq" ]]; then
         log_section "Phase 2c — Refreshing skel .bashrc from kiro-shells"
         local skel_dir="${REPO_DIR}/archiso/airootfs/etc/skel"
         local skel_bashrc="${skel_dir}/.bashrc"
