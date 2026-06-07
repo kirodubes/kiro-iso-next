@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-07 — Move nine must-not-remove packages from TIER 3 → TIER 2
+
+**What Changed**
+- Moved nine packages out of TIER 3 (USER-CHANGEABLE / OPTIONAL) and into TIER 2 (KIRO CORE / SYSTEM) in `archiso/packages.x86_64`:
+  - **Safety cases (5):** **`git`**, **`imagemagick`**, **`paru-git`**, **`yay-git`**, **`libgepub`**.
+  - **Curated-baseline cases (4):** **`inetutils`**, **`ripgrep`**, **`ripgrep-all`**, **`tldr`**.
+- Category placement:
+  - `libgepub` → existing **THUMBNAILS — tumbler + thumbnailers** (it is the tumbler epub-thumbnailer dependency, not a user-facing app).
+  - `git`, `imagemagick`, `paru-git`, `yay-git` → new **PACKAGE / DEV TOOLS — depended on by Kiro tooling & AUR** category.
+  - `inetutils` → **NETWORK**.
+  - `ripgrep`, `ripgrep-all`, `tldr` → **SHELL / TERMINAL ENV**.
+
+**Why**
+- TIER 3 is the exact source `gen-streamline-list.py` reads to build ATT's **Streamline** page, so every TIER 3 entry becomes a one-click "remove" for the user.
+  - **`paru-git` / `yay-git`** are leaf packages (pacman won't block their removal), yet **ATT shells out to yay/paru in 117 places** — removing them breaks ATT's own Software/AUR pages.
+  - **`git`** and **`imagemagick`** are required by shipped components (WMs + AUR helpers; variety/betterlockscreen/pywal/zbar), so pacman blocks removal — but they still appeared in the Streamline UI and would throw a terminal error when clicked.
+  - **`libgepub`** is a library, not an app — meaningless to list in a user removal UI.
+  - **`inetutils` / `ripgrep` / `ripgrep-all` / `tldr`** are technically safe to remove, but are kept as part of the curated Kiro core baseline rather than offered for removal.
+- TIER 1/TIER 2 are deliberately excluded from the generated Streamline list, so the page can no longer offer any of these nine.
+
+**Files Modified**
+- `archiso/packages.x86_64` — TIER 2 gains a `PACKAGE / DEV TOOLS` category (git, imagemagick, paru-git, yay-git), `libgepub` under THUMBNAILS, `inetutils` under NETWORK, `ripgrep`/`ripgrep-all`/`tldr` under SHELL / TERMINAL ENV; all nine removed from TIER 3.
+
 ## 2026-06-06 — Build hardening: Chaotic 303-redirect fix, portable `$HOSTNAME` gate, Phase 0 preflight, `parallel_downloads` floor (mirrored from production)
 
 **What Changed**

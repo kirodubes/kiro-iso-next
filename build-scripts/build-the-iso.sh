@@ -92,21 +92,28 @@ on_error() {
 trap 'on_error "$LINENO" "$BASH_COMMAND"' ERR
 
 #####################################################################
-# Build configuration — edit these before building
+# Build configuration
+#   User-editable knobs live in build.conf (sourced below) so the CLI
+#   and the kiro-iso-builder GUI share one source of truth. Edit them
+#   there, or through the GUI — not here.
 #####################################################################
-desktop="xfce4/ohmychadwm"
 kiroVersion='v26.06.07'
 
-bump_version="yes"            # yes | no — bump version to vYY.MM.DD before building; set to no for same-day rebuilds
-nvidia_driver="open"          # open | 580xx | 390xx
-kernel="linux-cachyos linux-zen"   # space-separated kernel package(s); "ask" = interactive menu. First = the kernel the live ISO boots.
-
-picker="auto"                 # auto | dialog | gum — picker UI for kernel="ask" (auto = dialog if installed, else gum)
-chaoticsrepo=true
-clean_pacman_cache="no"       # yes | no
-parallel_downloads="10"       # minimum pacman ParallelDownloads for the ISO install; only raised if shipped value is lower, never lowered
-remove_build_folder="no"      # yes | no — set to yes to clean up after build
-build_location="home"         # home | local — home = build in $HOME; local = build beside the cloned repo
+# kiroVersion stays in THIS file: apply_version_bump (Phase 2) seds it and
+# verify_version_sync greps it. build.conf is sourced right after it — the
+# derived paths below depend on build_location/kiroVersion — but it never
+# carries the version itself.
+# build.conf is the gitignored live working copy. Seed it from the tracked
+# canonical defaults on first use so local tweaks never get committed.
+if [[ ! -f "${SCRIPT_DIR}/build.conf" ]]; then
+    if [[ -f "${SCRIPT_DIR}/build.conf.defaults" ]]; then
+        cp "${SCRIPT_DIR}/build.conf.defaults" "${SCRIPT_DIR}/build.conf"
+    else
+        echo "FATAL: neither build.conf nor build.conf.defaults found beside build-the-iso.sh (${SCRIPT_DIR})" >&2
+        exit 1
+    fi
+fi
+source "${SCRIPT_DIR}/build.conf"
 
 if [[ "${build_location}" == "local" ]]; then
     # Build/out folders sit next to the clone (one level above the repo) so the
@@ -267,10 +274,43 @@ clean_cache() {
     fi
 }
 
+unmount_stale_build_mounts() {
+    # An interrupted mkarchiso leaves bind-mounts (dev/proc/sys/run/tmp/pts/shm/
+    # efivars) under the work dir. They block 'rm -rf', break the next build, and
+    # clutter the file manager. Lazily unmount anything still mounted under
+    # buildFolder — deepest path first — so the folder can be removed cleanly.
+    [[ -d "${buildFolder}" ]] || return 0
+    local target
+    while read -r target; do
+        [[ -n "${target}" ]] || continue
+        log_warn "Unmounting stale build mount: ${target}"
+        sudo umount -R -l "${target}" 2>/dev/null || sudo umount -l "${target}" 2>/dev/null || true
+    done < <(findmnt -rno TARGET 2>/dev/null \
+        | awk -v b="${buildFolder}" 'index($0, b"/") == 1 || $0 == b' | sort -r)
+}
+
+cleanup_on_interrupt() {
+    # Ctrl-C / kill leaves mkarchiso's bind-mounts live under the work dir,
+    # which can wedge the host. Unmount them before exiting so an interrupted
+    # build never leaves the system in a broken state.
+    echo
+    log_warn "Interrupted — unmounting stale build mounts before exit."
+    unmount_stale_build_mounts
+}
+# EXIT catches every exit path — signal, `set -e` failure, or normal end — and
+# is the real net: it's a no-op after a clean build (mkarchiso already unmounted,
+# so findmnt finds nothing) but always unmounts a half-finished one. The INT/TERM
+# traps add the log line and a correct exit code on top. Registered here, after
+# buildFolder is set, so the trap never references it unbound under `set -u`.
+trap unmount_stale_build_mounts EXIT
+trap 'cleanup_on_interrupt; exit 130' INT
+trap 'cleanup_on_interrupt; exit 143' TERM
+
 remove_buildfolder() {
     local action="${1:-no}"
     if [[ "${action}" == "yes" ]]; then
         if [[ -d "${buildFolder}" ]]; then
+            unmount_stale_build_mounts
             status_ok "Build folder present — proceeding to delete"
             log_warn "Deleting build folder: ${buildFolder}"
             sudo rm -rf "${buildFolder}"
@@ -364,6 +404,28 @@ prepare_build_tree() {
 
     echo "Refreshing packages.x86_64..."
     cp -f "${REPO_DIR}/archiso/packages.x86_64" "${PACKAGES_FILE}"
+    apply_package_selection
+}
+
+apply_package_selection() {
+    # Comment out the TIER 3 packages the kiro-iso-builder GUI marked for
+    # exclusion in build-scripts/package-selection.conf (one package per line).
+    # Literal whole-line match via awk — no regex metachar pitfalls — and it
+    # only ever prefixes '#', so it can never pull in a package, only drop an
+    # optional one. Missing/empty file = ship the full list (default).
+    local sel="${SCRIPT_DIR}/package-selection.conf"
+    [[ -f "${sel}" ]] || return 0
+    local tmp
+    tmp="$(mktemp)"
+    awk '
+        NR==FNR { line=$0; sub(/#.*/,"",line); gsub(/[ \t]/,"",line)
+                  if (line!="") excl[line]=1; next }
+        { key=$0; sub(/[ \t]+$/,"",key)
+          if (key in excl) print "#" $0; else print $0 }
+    ' "${sel}" "${PACKAGES_FILE}" > "${tmp}" && mv "${tmp}" "${PACKAGES_FILE}"
+    local n
+    n="$(grep -cvE '^[[:space:]]*(#|$)' "${sel}" || true)"
+    log_info "Package selection: applied ${sel##*/} (${n} TIER 3 package(s) excluded)"
 }
 
 prepopulate_keyring() {
@@ -417,37 +479,17 @@ inject_nvidia_packages() {
 # build-tree copies to whatever the user picks. Pairs with the calamares
 # kiro_kernel module, which installs whatever kernel(s) the ISO ships.
 #####################################################################
-KERNEL_CANDIDATES=(linux linux-lts linux-zen linux-hardened linux-rt linux-rt-lts linux-mainline)
 CANONICAL_KERNEL="linux-cachyos"   # the kernel token the repo's archiso tree ships by default
 AVAILABLE_KERNELS=()
 SELECTED_KERNELS=()
 PRIMARY_KERNEL=""
 
+# Kernel discovery lives in list-kernels.sh (shared with the kiro-iso-builder
+# GUI's "Detect" button) so the CLI and GUI always agree on what is offerable.
+# It prints the kernels that have a matching -headers package, one per line —
+# the same "only real kernels, no false positives" filter that used to live here.
 detect_available_kernels() {
-    AVAILABLE_KERNELS=()
-    local k
-    for k in "${KERNEL_CANDIDATES[@]}"; do
-        # Only offer a kernel if both it and its -headers exist in the enabled repos
-        # (-headers is required for the DKMS NVIDIA drivers to build).
-        if pacman -Si "${k}" &>/dev/null && pacman -Si "${k}-headers" &>/dev/null; then
-            AVAILABLE_KERNELS+=("${k}")
-        fi
-    done
-
-    # Plus every flavor of the multi-variant families the repos offer — CachyOS,
-    # XanMod, and the pinned-LTS series — discovered dynamically so the list never
-    # goes stale as new flavors land. The "<name>-headers exists" test filters out
-    # non-kernel companion packages (zfs, nvidia, etc.). We deliberately do NOT
-    # match the CPU-microarch builds (linux-x64v*, linux-znver*) or niche kernels
-    # (cjktty, nitrous, tachyon, vfio): low demand, and the microarch ones silently
-    # fail to boot on the wrong CPU level — a bad default for a general ISO.
-    local c
-    while IFS= read -r c; do
-        [[ -z "${c}" || "${c}" == *-headers ]] && continue
-        pacman -Si "${c}-headers" &>/dev/null || continue
-        [[ " ${AVAILABLE_KERNELS[*]} " == *" ${c} "* ]] && continue
-        AVAILABLE_KERNELS+=("${c}")
-    done < <(pacman -Slq 2>/dev/null | grep -E '^(linux-cachyos|linux-xanmod|linux-lts[0-9])' || true)
+    mapfile -t AVAILABLE_KERNELS < <(bash "${SCRIPT_DIR}/list-kernels.sh")
 }
 
 select_kernels() {

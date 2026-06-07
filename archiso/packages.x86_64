@@ -261,6 +261,7 @@ bluez-utils
 ###  NETWORK
 avahi
 hblock
+inetutils
 mobile-broadband-provider-info
 network-manager-applet
 networkmanager
@@ -297,6 +298,7 @@ system-config-printer
 ###  THUMBNAILS — tumbler + thumbnailers
 ffmpegthumbnailer
 freetype2
+libgepub
 libgsf
 libopenraw
 poppler-glib
@@ -319,6 +321,7 @@ vte4
 
 ###  SYSTEM TUNING / SERVICES
 ananicy-cpp
+archlinux-tools
 cachyos-ananicy-rules-git
 cronie
 firewall-config
@@ -331,6 +334,12 @@ tuned
 tuned-ppd
 upower
 zram-generator
+
+###  PACKAGE / DEV TOOLS — depended on by Kiro tooling & AUR
+git
+imagemagick
+paru-git
+yay-git
 
 ###  OHMYCHADWM RUNTIME — tools the shipped Ohmychadwm session needs to work
 alacritty
@@ -359,6 +368,9 @@ fastfetch-git
 fish
 lolcat
 oh-my-zsh-git
+ripgrep
+ripgrep-all
+tldr
 ttf-jetbrains-mono-nerd
 ttf-meslo-nerd-font-powerlevel10k
 unifetch
@@ -374,6 +386,7 @@ archlinux-tweak-tool-gtk4
 kiro-arc-dawn
 kiro-arc-kde
 kiro-dot-files
+kiro-iso-builder
 kiro-keybindings
 kiro-neo-candy-arc
 kiro-neo-candy-arc-mint-grey
@@ -437,7 +450,6 @@ vivaldi-ffmpeg-codecs
 gcolor3
 gimp
 gpick
-imagemagick
 inkscape
 nomacs
 obs-studio
@@ -469,11 +481,8 @@ fd
 glances
 most
 ncdu
-ripgrep
-ripgrep-all
 speedtest-cli
 the_silver_searcher
-tldr
 tree
 wttr
 yt-dlp
@@ -491,7 +500,6 @@ resources
 
 ###  PACKAGE / SYSTEM TOOLS
 appstream
-archlinux-tools
 devtools
 downgrade
 expac
@@ -502,15 +510,13 @@ pacquery
 pamac-aur
 paru-git
 pkgfile
-python-pylint
 python-pyparted
 python-pywal
 rate-mirrors
 time
-yay-git
 
 ###  ARCHIVE TOOLS
-p7zip
+7zip
 unace
 unrar
 unzip
@@ -520,11 +526,8 @@ arandr
 claude-code
 dconf-editor
 font-manager
-git
 gittyup
-inetutils
 laptop-detect
-libgepub
 lsb-release
 menulibre
 mintstick
