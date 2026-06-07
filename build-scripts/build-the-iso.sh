@@ -125,7 +125,7 @@ else
     buildFolder="${HOME}/kiro-build"
     outFolder="${HOME}/kiro-Out"
 fi
-isoLabel="kiro-${kiroVersion}-x86_64.iso"
+isoLabel="kiro-next-${kiroVersion}-x86_64.iso"
 PACKAGES_FILE="${buildFolder}/archiso/packages.x86_64"
 
 #####################################################################

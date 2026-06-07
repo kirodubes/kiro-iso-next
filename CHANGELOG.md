@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-06-07 — Fix initial `isoLabel` so same-day rebuilds don't break
+
+**What Changed**
+- In **`build-scripts/build-the-iso.sh`**, the initial `isoLabel` (line 128) was constructed as `kiro-${kiroVersion}-x86_64.iso` — missing the `-next` segment — while the actual ISO `mkarchiso` produces is `kiro-next-${kiroVersion}-x86_64.iso` (driven by `iso_name="kiro-next"` in **`archiso/profiledef.sh`**). Changed it to `kiro-next-${kiroVersion}-x86_64.iso` so it matches.
+
+**Why**
+- The version-bump path (`apply_version_bump`, line 169) already set the correct `kiro-next-…` label, so a normal bumped build worked — the wrong line 128 was only reached on a **same-day rebuild** (`bump_version="no"`), where the bump is skipped. In that case the checksum/copy phase looked for `kiro-${kiroVersion}-x86_64.iso` while the produced file was `kiro-next-${kiroVersion}-x86_64.iso`, failing with "No such file or directory". This brings line 128 in line with line 169, `profiledef.sh`'s `iso_name`, and the repo's own "isoLabel Must Match profiledef.sh" rule in `CLAUDE.md`.
+
+**Files Modified**
+- `build-scripts/build-the-iso.sh` — line 128 `isoLabel` now starts with `kiro-next-`.
+
+---
+
 ## 2026-06-07 — Move ten must-not-remove packages from TIER 3 → TIER 2
 
 **What Changed**
@@ -22,11 +35,11 @@
   - **`paru-git` / `yay-git`** are leaf packages (pacman won't block their removal), yet **ATT shells out to yay/paru in 117 places** — removing them breaks ATT's own Software/AUR pages.
   - **`git`** and **`imagemagick`** are required by shipped components (WMs + AUR helpers; variety/betterlockscreen/pywal/zbar), so pacman blocks removal — but they still appeared in the Streamline UI and would throw a terminal error when clicked.
   - **`libgepub`** is a library, not an app — meaningless to list in a user removal UI.
-  - **`inetutils` / `ripgrep` / `ripgrep-all` / `tldr`** are technically safe to remove, but are kept as part of the curated Kiro core baseline rather than offered for removal.
-- TIER 1/TIER 2 are deliberately excluded from the generated Streamline list, so the page can no longer offer any of these nine.
+  - **`inetutils` / `ripgrep` / `ripgrep-all` / `tldr` / `archlinux-tools`** are technically safe to remove, but are kept as part of the curated Kiro core baseline rather than offered for removal.
+- TIER 1/TIER 2 are deliberately excluded from the generated Streamline list, so the page can no longer offer any of these ten.
 
 **Files Modified**
-- `archiso/packages.x86_64` — TIER 2 gains a `PACKAGE / DEV TOOLS` category (git, imagemagick, paru-git, yay-git), `libgepub` under THUMBNAILS, `inetutils` under NETWORK, `ripgrep`/`ripgrep-all`/`tldr` under SHELL / TERMINAL ENV; all nine removed from TIER 3.
+- `archiso/packages.x86_64` — TIER 2 gains a `PACKAGE / DEV TOOLS` category (git, imagemagick, paru-git, yay-git), `libgepub` under THUMBNAILS, `inetutils` under NETWORK, `ripgrep`/`ripgrep-all`/`tldr` under SHELL / TERMINAL ENV, `archlinux-tools` under SYSTEM TUNING / SERVICES; all ten removed from TIER 3.
 
 ## 2026-06-06 — Build hardening: Chaotic 303-redirect fix, portable `$HOSTNAME` gate, Phase 0 preflight, `parallel_downloads` floor (mirrored from production)
 
