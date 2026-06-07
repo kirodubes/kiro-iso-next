@@ -4,17 +4,18 @@
 
 ---
 
-## 2026-06-07 — Move nine must-not-remove packages from TIER 3 → TIER 2
+## 2026-06-07 — Move ten must-not-remove packages from TIER 3 → TIER 2
 
 **What Changed**
-- Moved nine packages out of TIER 3 (USER-CHANGEABLE / OPTIONAL) and into TIER 2 (KIRO CORE / SYSTEM) in `archiso/packages.x86_64`:
+- Moved ten packages out of TIER 3 (USER-CHANGEABLE / OPTIONAL) and into TIER 2 (KIRO CORE / SYSTEM) in `archiso/packages.x86_64`:
   - **Safety cases (5):** **`git`**, **`imagemagick`**, **`paru-git`**, **`yay-git`**, **`libgepub`**.
-  - **Curated-baseline cases (4):** **`inetutils`**, **`ripgrep`**, **`ripgrep-all`**, **`tldr`**.
+  - **Curated-baseline cases (5):** **`inetutils`**, **`ripgrep`**, **`ripgrep-all`**, **`tldr`**, **`archlinux-tools`**.
 - Category placement:
   - `libgepub` → existing **THUMBNAILS — tumbler + thumbnailers** (it is the tumbler epub-thumbnailer dependency, not a user-facing app).
   - `git`, `imagemagick`, `paru-git`, `yay-git` → new **PACKAGE / DEV TOOLS — depended on by Kiro tooling & AUR** category.
   - `inetutils` → **NETWORK**.
   - `ripgrep`, `ripgrep-all`, `tldr` → **SHELL / TERMINAL ENV**.
+  - `archlinux-tools` → **SYSTEM TUNING / SERVICES**.
 
 **Why**
 - TIER 3 is the exact source `gen-streamline-list.py` reads to build ATT's **Streamline** page, so every TIER 3 entry becomes a one-click "remove" for the user.
