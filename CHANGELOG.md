@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-06-08 — Give Timeshift its own BACKUP / SNAPSHOTS tier-3 heading
+
+**What Changed**
+- In **`archiso/packages.x86_64`**, moved **`timeshift`** out of the tail of the `### SYSTEM INFO / DIAGNOSTICS` group and into a new dedicated **`### BACKUP / SNAPSHOTS`** TIER 3 category.
+
+**Why**
+- `timeshift` was already a TIER 3 (user-removable) package in `kiro-iso-next`, but it was sitting under the wrong heading, so the **kiro-iso-builder** "Choose packages" screen listed it as a diagnostics tool. A dedicated **Backup / Snapshots** category names the function correctly in the GUI. The demotion itself is safe — verified against the TIER 3 gate: Timeshift has **no enabled systemd unit** (no autosnap by design, nothing in `services-systemd.conf` to leave dangling), its only installed-system reference is the `timeshift-gtk.desktop` launcher in **kiro-system-files** which uses `TryExec=` and self-hides when the binary is absent, and **nothing else in the shipped set depends on it**, so un-ticking it in the builder genuinely removes it with no lingering enablement. The Calamares slideshow still mentions Timeshift, which stays accurate for the default ISO (Timeshift ships unless a user deliberately removes it).
+
+**Files Modified**
+- `archiso/packages.x86_64` — new `### BACKUP / SNAPSHOTS` heading, `timeshift` moved under it.
+
 ## 2026-06-08 — Fix `exit 141` (SIGPIPE) crash in the mirror health check
 
 **What Changed**
