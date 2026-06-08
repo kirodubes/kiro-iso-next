@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-06-08 — Clean up the build folder after each build by default
+
+**What Changed**
+- Flipped `remove_build_folder` in **`build-scripts/build.conf.defaults`** from `no` to `yes`.
+
+**Why**
+- The build already wipes and recreates the work dir at the start of every run (`prepare_build_tree` → `remove_buildfolder yes`), so keeping `kiro-build` after a build cached nothing — it only left a **root-owned** folder behind that tripped the `kiro-iso-builder` leftover-folder pre-flight warning and its keep/delete prompts (the confusing loop a user hit on Discussions #39). Cleaning up after each build leaves a clean state at no build-speed cost. The GUI toggle (Configure → Advanced) still lets you keep the tree to inspect it.
+
 ## 2026-06-08 — Ship `spice-vdagent` for QEMU/SPICE guests (clipboard)
 
 **What Changed**
