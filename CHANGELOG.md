@@ -10,7 +10,7 @@
 - Added **`spice-vdagent`** to **`archiso/packages.x86_64`** (LIVE-ENV GUEST TOOLS section).
 
 **Why**
-- Gives QEMU/KVM guests **host↔guest clipboard sharing**. The daemon is socket-activated (`spice-vdagentd.service`/`.socket` are `static`), and on the default XFCE desktop the session agent autostarts via `/etc/xdg/autostart` and triggers it — so shipping the package is all that's needed, no service to enable. `kiro_final` strips it on VirtualBox and bare metal (see kiro-calamares-config-next, same date). **Note:** this is *not* a resolution/auto-resize fix — spice-vdagent's auto-resize is broken on XFCE (GNOME Mutter backend); 1920×1080 is set via XFCE Display settings. Clipboard is the win.
+- Gives QEMU/KVM guests **host↔guest clipboard sharing**. The daemon is socket-activated (`spice-vdagentd.service`/`.socket` are `static`), and on the default XFCE desktop the session agent autostarts via `/etc/xdg/autostart` and triggers it — so shipping the package is all that's needed, no service to enable. `kiro_final` keeps it only on qemu/kvm and strips it everywhere else (VMware, VirtualBox, bare metal) — see kiro-calamares-config-next, same date. **Note:** this is *not* a resolution/auto-resize fix — spice-vdagent's auto-resize is broken on XFCE (GNOME Mutter backend); 1920×1080 is set via XFCE Display settings. Clipboard is the win.
 
 **Files Modified**
 - `archiso/packages.x86_64` — add `spice-vdagent`.
