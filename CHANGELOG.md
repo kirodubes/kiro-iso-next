@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-06-08 — Bundle the GRUB boot-safety hooks (`kiro-bootloader-grub-nemesis`)
+
+**What Changed**
+- Added **`kiro-bootloader-grub-nemesis`** to **`archiso/packages.x86_64`** (INSTALLER / CALAMARES section), so it is baked into the airootfs and reaches every install via `unpackfs` — no install-time internet needed.
+
+**Why**
+- Every GRUB install (all legacy-BIOS machines, plus UEFI users who pick GRUB in the Calamares Tweak Tool) is exposed to the classic Arch brick: a `grub` package upgrade refreshes `/boot/grub` modules but not the on-disk boot image (`error: symbol 'grub_*' not found`). The package ships two pacman hooks that re-run `grub-install` (BIOS disk auto-detected via `grub-probe`+`lsblk`, never a hardcoded `/dev/sda`) and `grub-mkconfig`, keeping the system bootable across upgrades.
+- It follows the **same lifecycle as `grub` itself**: shipped in `packages.x86_64`, then **removed on systemd-boot installs** by `kiro_final` (see kiro-calamares-config-next, same date) — so the UEFI/systemd-boot majority end up with neither `grub` nor these hooks. The hooks also self-guard at runtime (`kiro-grub-is-active`), no-op unless GRUB is the live bootloader.
+
+**Files Modified**
+- `archiso/packages.x86_64` — add `kiro-bootloader-grub-nemesis`.
+
+---
+
 ## 2026-06-07 — Fix initial `isoLabel` so same-day rebuilds don't break
 
 **What Changed**
