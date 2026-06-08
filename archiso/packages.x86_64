@@ -215,6 +215,7 @@ plymouth-theme-kiro-logo-nemesis
 
 ###  LIVE-ENV GUEST TOOLS  (open-vm-tools / qemu-guest-agent live in ARCHISO BASE)
 virtualbox-guest-utils
+spice-vdagent
 
 ###  DISPLAY MANAGER — boot to the login screen
 accountsservice
