@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-06-09 — Live ISO default session: prefer flagship ohmychadwm
+
+**What Changed**
+- In **`build-scripts/build-the-iso.sh`** (`apply_editions`), when `default_session` isn't one of the selected `editions`, the fallback now **prefers `ohmychadwm`** (Kiro's flagship WM) if it's among the editions, instead of blindly taking the first edition.
+
+**Why**
+- The live ISO autologin session is `Session=` in `/etc/sddm.conf.d/kde_settings.conf`, which `apply_editions` bakes from `default_session`. The shipped `default_session="xfce"` is **not in** the standard `editions=` list, so the old guard fell back to the *first* edition — alphabetically `awesome`, or whatever led the list (e.g. `chadwm` in a `chadwm ohmychadwm` test build). That meant the live ISO never booted the flagship **ohmychadwm**, even though it was baked in. The new fallback honours ohmychadwm as the default whenever it's present; only a build with no ohmychadwm still falls to the first edition. (Separately, this does **not** touch Calamares' `kiro_displaymanager` — its installed-system default deliberately lets full DEs like XFCE rank ahead of the WMs, which is intended.)
+
+**Files Modified**
+- `build-scripts/build-the-iso.sh` — `apply_editions` fallback.
+
 ## 2026-06-09 — Add KDE Plasma edition
 
 **What Changed**
