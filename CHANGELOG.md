@@ -7,7 +7,7 @@
 ## 2026-06-09 — EXTRA APPS: opt-in apps that aren't shipped by default
 
 **What Changed**
-- **`archiso/packages.x86_64`** — new **EXTRA APPS** section at the end of the file (past `PERSONAL_REPO`), holding commented per-app blocks (`### >>> EXTRA-APP <key> | <label> | <repo> >>>` … `#pkg` … `### <<< EXTRA-APP <key> <<<`). First cut: **Office** (LibreOffice/OnlyOffice/WPS, mail, editors, PDF & notes, scanning) and **AI** (aichat, Jan — Ollama is offered by ATT post-install, not duplicated here) — 26 apps / 6 categories, all resolving in enabled build repos.
+- **`archiso/packages.x86_64`** — new **EXTRA APPS** section at the end of the file (past `PERSONAL_REPO`), holding commented per-app blocks (`### >>> EXTRA-APP <key> | <label> | <repo> >>>` … `#pkg` … `### <<< EXTRA-APP <key> <<<`). First cut: **Office** (LibreOffice/OnlyOffice/WPS, mail, editors, PDF & notes, scanning) — 24 apps / 5 categories, all resolving in enabled build repos. (An AI category was prototyped then dropped — AI tooling is a post-install concern that lives in ATT's AI page, not baked into the ISO.)
 - **`build-scripts/build-the-iso.sh`** — new `apply_package_additions()` (called right after `apply_package_selection` in the refresh step). It **uncomments** the EXTRA-APP block(s) whose key is listed in `build-scripts/package-additions.conf`. A stale/unknown key **warns and skips** instead of aborting — an opt-in extra must never break a build.
 - **`build-scripts/package-additions.conf`** — new tracked overlay (one app key per line; empty by default = add nothing). Mirror of `package-selection.conf`.
 
