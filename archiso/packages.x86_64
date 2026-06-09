@@ -304,6 +304,7 @@ sddm-git
 ### >>> EDITION-BLOCK cinnamon >>>
 #cinnamon
 #cinnamon-translations
+#kiro-cinnamon
 #gnome-screenshot
 #gnome-system-monitor
 #gnome-terminal
@@ -364,6 +365,11 @@ sddm-git
 #xfce4-taskmanager
 #xfce4-terminal
 ### <<< EDITION-BLOCK leftwm <<<
+### >>> EDITION-BLOCK mate >>>
+#mate
+#mate-extra
+#kiro-mate
+### <<< EDITION-BLOCK mate <<<
 ### >>> EDITION-BLOCK ohmychadwm >>>
 #ohmychadwm
 #alacritty

@@ -4,12 +4,27 @@
 
 ---
 
+## 2026-06-09 — Add MATE edition
+
+**What Changed**
+- New **`EDITION-BLOCK mate`** in `archiso/packages.x86_64` (alphabetical, between `leftwm` and `ohmychadwm`): `mate` + `mate-extra` + `kiro-mate`, commented like the other blocks.
+
+**Why**
+- MATE is the second full desktop edition after Cinnamon. `mate` + `mate-extra` is a complete, self-sufficient MATE desktop; `kiro-mate` adds the Kiro theming. KIB auto-discovers it via `list_editions()` and classifies it as a desktop (in the `DESKTOPS` set); the `kiro_displaymanager` priority list already ranks `mate` in the DE tier, so it logs in correctly.
+
+**Files Modified**
+- `archiso/packages.x86_64` — `mate` edition block.
+
 ## 2026-06-09 — Desktop/WM editions: build-time block toggle (ohmychadwm + i3)
 
 **What Changed**
 - New **`apply_editions`** phase in **`build-scripts/build-the-iso.sh`** (modelled on `inject_nvidia_packages`): for each edition listed in the new **`editions`** knob, it uncomments that edition's package block in the build-tree `packages.x86_64`. Added to the build summary and the `main()` phase sequence.
 - **`archiso/packages.x86_64` — editions system.** Desktop/WM choices are opt-in **`EDITION-BLOCK`s** (commented blocks the build uncomments per `build.conf editions=`), in **alphabetical** order: `awesome, bspwm, chadwm, cinnamon, i3, leftwm, ohmychadwm, qtile, xfce`. **XFCE is no longer force-installed** — it's a block like the rest, so `editions="cinnamon"` yields **pure Cinnamon, zero XFCE, none in SDDM**. Blocks are copied verbatim from ATT's canonical `desktopr.py` (de-git'd: `archlinux-logout-gtk4` non-git; genuine AUR `-git` like `fastcompmgr-git`/`leftwm-git` kept); **ohmychadwm** keeps its proven ISO runtime set; **cinnamon** is self-sufficient (pulls its own nemo/polkit/network-applet/session, no DM dep, no conflict). Duplicate package lines are harmless (pacman/mkarchiso dedupe). Block file-order = the KIB checkbox order (`list_editions()`).
-- **Live login session follows `default_session`** — `build-the-iso.sh`'s `apply_editions` seds the airootfs SDDM `Session=` to it, so a non-XFCE build boots its own desktop instead of a now-absent XFCE. Default = `editions="xfce ohmychadwm"`, `default_session="xfce"` → **unchanged default ISO**. (Installed-system greeter default to be verified post-install; no custom Calamares module pre-built.)
+- **Live login session follows `default_session`** — `build-the-iso.sh`'s `apply_editions` seds the airootfs SDDM `Session=` to it, so a non-XFCE build boots its own desktop instead of a now-absent XFCE. Default = `editions="xfce ohmychadwm"`, `default_session="xfce"` → **unchanged default ISO**. A guard falls `default_session` back to the first edition if it isn't among the selected editions (prevents autologin to a missing session). (Installed-system greeter default to be verified post-install; no custom Calamares module pre-built.)
+- **Safeguard — no session-less ISO.** `apply_editions` now **aborts the build** if `editions` is
+  empty (no desktop or window manager selected), instead of silently producing an ISO that boots
+  to nothing. (GUI mirrors this — Save is blocked with nothing ticked.)
+- **`inject_nvidia_packages` gains a `none` option** — for AMD/Intel/VM users: strips every NVIDIA package and bakes none (in-kernel drivers + mesa handle those GPUs). NVIDIA knob kept (not retired) — chwd alone isn't fully relied on.
 - **`build-scripts/build.conf.defaults`** adds `editions="ohmychadwm"` (space-separated editions, e.g. `"ohmychadwm"`, `"i3"`, `"ohmychadwm i3"`; `""` = pure XFCE) and a **reserved** `default_session="xfce"` (kept `xfce` for now; wired up only when the future full-DE phase lands).
 
 **Why**

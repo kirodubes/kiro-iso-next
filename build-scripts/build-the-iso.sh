@@ -467,8 +467,18 @@ inject_nvidia_packages() {
             sed -i '/^nvidia-580xx/d' "${PACKAGES_FILE}"
             printf 'nvidia-390xx-dkms\nnvidia-390xx-utils\nnvidia-390xx-settings\n' >> "${PACKAGES_FILE}"
             ;;
+        none)
+            # No NVIDIA GPU (AMD / Intel / VM): strip every NVIDIA package, add none.
+            # AMD/Intel run on in-kernel drivers + mesa, which are already on the ISO.
+            sed -i '/^nvidia-open-dkms/d' "${PACKAGES_FILE}"
+            sed -i '/^nvidia-580xx/d' "${PACKAGES_FILE}"
+            sed -i '/^nvidia-390xx/d' "${PACKAGES_FILE}"
+            sed -i '/^nvidia-utils/d' "${PACKAGES_FILE}"
+            sed -i '/^nvidia-settings/d' "${PACKAGES_FILE}"
+            log_info "NVIDIA driver: none — AMD/Intel/VM, relying on in-kernel drivers + mesa."
+            ;;
         *)
-            log_error "Unknown NVIDIA driver option: ${nvidia_driver}\nValid options: open | 580xx | 390xx"
+            log_error "Unknown NVIDIA driver option: ${nvidia_driver}\nValid options: open | 580xx | 390xx | none"
             exit 1
             ;;
     esac
@@ -488,14 +498,21 @@ apply_editions() {
     local sel="${editions-xfce ohmychadwm}"
     local default_sess="${default_session-xfce}"
     log_section "Desktop / WM editions — ${sel:-none}  (login session: ${default_sess})"
+    # SAFEGUARD: an ISO must ship at least one session — refuse a desktop-less / WM-less build.
+    if [[ -z "${sel// /}" ]]; then
+        log_error "No editions selected (editions=\"\") — an ISO needs at least one desktop or window manager. Set 'editions' in build.conf."
+        exit 1
+    fi
+    # Guard: the login session must be one of the installed editions, else the live ISO
+    # would autologin to a session that isn't there. Fall back to the first edition.
+    if [[ " ${sel} " != *" ${default_sess} "* ]]; then
+        log_warn "default_session='${default_sess}' is not in editions='${sel}' — using '${sel%% *}'."
+        default_sess="${sel%% *}"
+    fi
     # Live ISO autologin session follows default_session, so a non-XFCE build (e.g.
     # editions="cinnamon") boots its own desktop instead of a now-absent XFCE.
     local sddm_conf="${buildFolder}/archiso/airootfs/etc/sddm.conf.d/kde_settings.conf"
     [[ -f "${sddm_conf}" ]] && sed -i "s/^Session=.*/Session=${default_sess}/" "${sddm_conf}"
-    if [[ -z "${sel// /}" ]]; then
-        log_info "No editions selected — nothing to install"
-        return
-    fi
     local ed
     for ed in ${sel}; do
         if ! grep -qF ">>> EDITION-BLOCK ${ed} >>>" "${PACKAGES_FILE}"; then
