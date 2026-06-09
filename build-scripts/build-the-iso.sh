@@ -484,12 +484,16 @@ inject_nvidia_packages() {
 #####################################################################
 apply_editions() {
     # Unset (e.g. an old live build.conf seeded before this knob existed) falls back to
-    # the shipped default "ohmychadwm" so the standard ISO never silently loses it;
-    # an explicit empty string ("") means pure XFCE.
-    local sel="${editions-ohmychadwm}"
-    log_section "Desktop / WM editions — ${sel:-pure XFCE}"
+    # the shipped default so the standard ISO never silently changes.
+    local sel="${editions-xfce ohmychadwm}"
+    local default_sess="${default_session-xfce}"
+    log_section "Desktop / WM editions — ${sel:-none}  (login session: ${default_sess})"
+    # Live ISO autologin session follows default_session, so a non-XFCE build (e.g.
+    # editions="cinnamon") boots its own desktop instead of a now-absent XFCE.
+    local sddm_conf="${buildFolder}/archiso/airootfs/etc/sddm.conf.d/kde_settings.conf"
+    [[ -f "${sddm_conf}" ]] && sed -i "s/^Session=.*/Session=${default_sess}/" "${sddm_conf}"
     if [[ -z "${sel// /}" ]]; then
-        log_info "No editions selected — pure XFCE base"
+        log_info "No editions selected — nothing to install"
         return
     fi
     local ed

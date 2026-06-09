@@ -221,16 +221,14 @@ spice-vdagent
 accountsservice
 sddm-git
 
-###  XFCE BASE — the always-on desktop + fallback session (never an edition block)
-xfce4
-xfce4-goodies
-
 ###  DESKTOP / WM EDITIONS — MANAGED BY build-the-iso.sh
 ###  Commented blocks; the build uncomments the block(s) named in build.conf
-###  editions= (e.g. "ohmychadwm i3"). Each block is the session's full set from
-###  ATT's desktopr.py; duplicates with the base are harmless (pacman dedupes).
-###  XFCE stays the login/fallback session — these only ADD a session.
-###  ohmychadwm is the DEFAULT edition (build.conf.defaults editions="ohmychadwm").
+###  editions= (e.g. "xfce ohmychadwm i3"). Each block is the session's full set
+###  from ATT's desktopr.py; duplicate package lines are harmless (pacman dedupes).
+###  XFCE is an edition too now (NO longer force-installed): a build can omit it
+###  entirely — e.g. editions="cinnamon" = pure Cinnamon, no XFCE, none in SDDM.
+###  Default editions = "xfce ohmychadwm" (build.conf.defaults) → default ISO unchanged.
+###  The login session is set from build.conf default_session (see build-the-iso.sh).
 ### >>> EDITION-BLOCK awesome >>>
 #alacritty
 #kiro-awesome
@@ -408,6 +406,10 @@ xfce4-goodies
 #volctl
 #xfce4-terminal
 ### <<< EDITION-BLOCK qtile <<<
+### >>> EDITION-BLOCK xfce >>>
+#xfce4
+#xfce4-goodies
+### <<< EDITION-BLOCK xfce <<<
 
 
 #############################################################################
