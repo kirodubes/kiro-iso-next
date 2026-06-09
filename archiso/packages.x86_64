@@ -732,3 +732,112 @@ zenity
 #  PERSONAL_REPO / LOCAL REPO                                               #
 #  Add packages from your own local repo below (empty by default).         #
 #############################################################################
+
+
+#############################################################################
+#  EXTRA APPS — OPT-IN — NOT shipped by default                             #
+#  Apps Kiro deliberately leaves off the base image. The kiro-iso-builder   #
+#  "Add apps" page lists these; the build UNCOMMENTS the block(s) whose key #
+#  is in build-scripts/package-additions.conf. Empty/missing file = add     #
+#  nothing (= the standard production Kiro). Managed by build-the-iso.sh.    #
+#  Block marker:  ### >>> EXTRA-APP <key> | <label> | <repo> >>>            #
+#  Only list packages that resolve in an enabled build repo                 #
+#  (core/extra/nemesis_repo/chaotic-aur/cachyos) — AUR/pip/npm will fail.   #
+#############################################################################
+
+### CATEGORY: Office — Suites
+### >>> EXTRA-APP libreoffice | LibreOffice | extra >>>
+#libreoffice-fresh
+### <<< EXTRA-APP libreoffice <<<
+### >>> EXTRA-APP onlyoffice | OnlyOffice | chaotic-aur >>>
+#onlyoffice-bin
+### <<< EXTRA-APP onlyoffice <<<
+### >>> EXTRA-APP wps | WPS Office | chaotic-aur >>>
+#wps-office
+#wps-office-fonts
+#wps-office-mime
+#ttf-wps-fonts
+#libtiff5
+### <<< EXTRA-APP wps <<<
+
+### CATEGORY: Office — Mail
+### >>> EXTRA-APP thunderbird | Thunderbird | extra >>>
+#thunderbird
+### <<< EXTRA-APP thunderbird <<<
+### >>> EXTRA-APP betterbird | Betterbird | chaotic-aur >>>
+#betterbird-bin
+### <<< EXTRA-APP betterbird <<<
+### >>> EXTRA-APP geary | Geary | extra >>>
+#geary
+### <<< EXTRA-APP geary <<<
+### >>> EXTRA-APP evolution | Evolution | extra >>>
+#evolution
+### <<< EXTRA-APP evolution <<<
+### >>> EXTRA-APP clawsmail | Claws Mail | extra >>>
+#claws-mail
+### <<< EXTRA-APP clawsmail <<<
+### >>> EXTRA-APP kmail | KMail | extra >>>
+#kmail
+### <<< EXTRA-APP kmail <<<
+
+### CATEGORY: Office — Editors
+### >>> EXTRA-APP geany | Geany | extra >>>
+#geany
+### <<< EXTRA-APP geany <<<
+### >>> EXTRA-APP kate | Kate | extra >>>
+#kate
+### <<< EXTRA-APP kate <<<
+### >>> EXTRA-APP mousepad | Mousepad | extra >>>
+#mousepad
+### <<< EXTRA-APP mousepad <<<
+### >>> EXTRA-APP gedit | Gedit | extra >>>
+#gedit
+### <<< EXTRA-APP gedit <<<
+### >>> EXTRA-APP gnometext | GNOME Text Editor | extra >>>
+#gnome-text-editor
+### <<< EXTRA-APP gnometext <<<
+### >>> EXTRA-APP featherpad | FeatherPad | extra >>>
+#featherpad
+### <<< EXTRA-APP featherpad <<<
+
+### CATEGORY: Office — PDF & Notes
+### >>> EXTRA-APP okular | Okular | extra >>>
+#okular
+### <<< EXTRA-APP okular <<<
+### >>> EXTRA-APP evince | Evince | extra >>>
+#evince
+### <<< EXTRA-APP evince <<<
+### >>> EXTRA-APP qpdfview | qpdfview | chaotic-aur >>>
+#qpdfview
+### <<< EXTRA-APP qpdfview <<<
+### >>> EXTRA-APP pdfarranger | PDF Arranger | extra >>>
+#pdfarranger
+### <<< EXTRA-APP pdfarranger <<<
+### >>> EXTRA-APP xournalpp | Xournal++ | extra >>>
+#xournalpp
+### <<< EXTRA-APP xournalpp <<<
+### >>> EXTRA-APP cherrytree | CherryTree | extra >>>
+#cherrytree
+### <<< EXTRA-APP cherrytree <<<
+### >>> EXTRA-APP obsidian | Obsidian | extra >>>
+#obsidian
+### <<< EXTRA-APP obsidian <<<
+
+### CATEGORY: Office — Scanning
+### >>> EXTRA-APP simplescan | Simple Scan | extra >>>
+#simple-scan
+### <<< EXTRA-APP simplescan <<<
+### >>> EXTRA-APP gscan2pdf | gscan2pdf | extra >>>
+#gscan2pdf
+### <<< EXTRA-APP gscan2pdf <<<
+
+### CATEGORY: AI
+### >>> EXTRA-APP ollama | Ollama — local LLM runtime | extra >>>
+#ollama
+### <<< EXTRA-APP ollama <<<
+### >>> EXTRA-APP aichat | aichat — terminal AI (works with Claude) | extra >>>
+#aichat
+### <<< EXTRA-APP aichat <<<
+### >>> EXTRA-APP jan | Jan — desktop AI chat app | cachyos >>>
+#jan-bin
+### <<< EXTRA-APP jan <<<

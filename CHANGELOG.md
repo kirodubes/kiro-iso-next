@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-06-09 — EXTRA APPS: opt-in apps that aren't shipped by default
+
+**What Changed**
+- **`archiso/packages.x86_64`** — new **EXTRA APPS** section at the end of the file (past `PERSONAL_REPO`), holding commented per-app blocks (`### >>> EXTRA-APP <key> | <label> | <repo> >>>` … `#pkg` … `### <<< EXTRA-APP <key> <<<`). First cut: **Office** (LibreOffice/OnlyOffice/WPS, mail, editors, PDF & notes, scanning) and **AI** (Ollama, aichat, Jan) — 27 apps / 6 categories, all resolving in enabled build repos.
+- **`build-scripts/build-the-iso.sh`** — new `apply_package_additions()` (called right after `apply_package_selection` in the refresh step). It **uncomments** the EXTRA-APP block(s) whose key is listed in `build-scripts/package-additions.conf`. A stale/unknown key **warns and skips** instead of aborting — an opt-in extra must never break a build.
+- **`build-scripts/package-additions.conf`** — new tracked overlay (one app key per line; empty by default = add nothing). Mirror of `package-selection.conf`.
+
+**Why**
+- The build could only *exclude* TIER-3 packages (`apply_package_selection`). There was no way to **add** an app the ISO doesn't ship. The new kiro-iso-builder "Add apps" page needs a build-side mechanism to bake selected opt-in apps in. Reuses the proven EDITION-BLOCK pattern verbatim (commented blocks the build uncomments), so it's one source of truth and the GUI auto-discovers the catalog. Premise: empty `package-additions.conf` ⇒ all blocks stay commented ⇒ the standard production ISO (structurally guaranteed — the function can only uncomment listed keys).
+
+**Technical Details**
+- Catalog curated to packages that resolve in the build's enabled repos (`core/extra/nemesis_repo/chaotic-aur/cachyos`). ATT AI tools that are AUR/pip/npm-only (claude-code, aider, opencode, open-webui, lm-studio) are **not** bakeable and stay ATT-post-install.
+- Verified statically: empty conf = byte-identical `packages.x86_64`; `{wps, ollama}` uncomments exactly those 6 package lines and leaves the `###` markers commented.
+- **Promotion:** implemented in `-next`; promote the EXTRA APPS section + `apply_package_additions()` to production `kiro-iso` alongside the editions promotion.
+
+**Files Modified**
+- `archiso/packages.x86_64`, `build-scripts/build-the-iso.sh`, `build-scripts/package-additions.conf` (new)
+
 ## 2026-06-09 — Live ISO default session: sane fallback (DE > ohmychadwm > first)
 
 **What Changed**

@@ -406,6 +406,7 @@ prepare_build_tree() {
     echo "Refreshing packages.x86_64..."
     cp -f "${REPO_DIR}/archiso/packages.x86_64" "${PACKAGES_FILE}"
     apply_package_selection
+    apply_package_additions
 }
 
 apply_package_selection() {
@@ -427,6 +428,30 @@ apply_package_selection() {
     local n
     n="$(grep -cvE '^[[:space:]]*(#|$)' "${sel}" || true)"
     log_info "Package selection: applied ${sel##*/} (${n} TIER 3 package(s) excluded)"
+}
+
+apply_package_additions() {
+    # Opt-in EXTRA APPS the kiro-iso-builder "Add apps" page selected. Each app is a
+    # commented EXTRA-APP block in packages.x86_64; this UNcomments the block(s) whose key
+    # is listed in build-scripts/package-additions.conf (one key per line). Missing/empty
+    # file = add nothing (= standard production ISO). Mirror of apply_editions, but a stale
+    # key warns-and-skips instead of aborting — an opt-in extra must never break the build.
+    local add="${SCRIPT_DIR}/package-additions.conf"
+    [[ -f "${add}" ]] || return 0
+    local n=0 key
+    while IFS= read -r key; do
+        key="${key%%#*}"; key="${key//[[:space:]]/}"
+        [[ -z "${key}" ]] && continue
+        if ! grep -qF ">>> EXTRA-APP ${key} " "${PACKAGES_FILE}"; then
+            log_warn "Extra app '${key}' has no block in packages.x86_64 — skipped"
+            continue
+        fi
+        # Uncomment the block's package lines (#pkg -> pkg); leave the ### markers.
+        sed -i "/>>> EXTRA-APP ${key} /,/<<< EXTRA-APP ${key} <<</ s/^#\([^#]\)/\1/" "${PACKAGES_FILE}"
+        log_info "Added extra app: ${key}"
+        n=$((n + 1))
+    done < "${add}"
+    log_info "Package additions: applied ${add##*/} (${n} extra app(s) added)"
 }
 
 prepopulate_keyring() {
