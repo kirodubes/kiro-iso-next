@@ -830,14 +830,3 @@ zenity
 ### >>> EXTRA-APP gscan2pdf | gscan2pdf | extra >>>
 #gscan2pdf
 ### <<< EXTRA-APP gscan2pdf <<<
-
-### CATEGORY: AI
-### >>> EXTRA-APP ollama | Ollama — local LLM runtime | extra >>>
-#ollama
-### <<< EXTRA-APP ollama <<<
-### >>> EXTRA-APP aichat | aichat — terminal AI (works with Claude) | extra >>>
-#aichat
-### <<< EXTRA-APP aichat <<<
-### >>> EXTRA-APP jan | Jan — desktop AI chat app | cachyos >>>
-#jan-bin
-### <<< EXTRA-APP jan <<<
