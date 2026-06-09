@@ -7,13 +7,19 @@
 ## 2026-06-09 — Add KDE Plasma edition
 
 **What Changed**
-- New **`EDITION-BLOCK plasma`** in `archiso/packages.x86_64` (alphabetical, between `ohmychadwm` and `qtile`): the `plasma` group plus `kde-system-meta` and `konsole`, commented like the other blocks.
+- New **`EDITION-BLOCK plasma`** in `archiso/packages.x86_64` (alphabetical, between `ohmychadwm` and `qtile`): the `plasma` group plus `kde-system-meta` and `konsole` — the exact set from **ATT's `desktopr.py`**, which is the reference for every edition's package list.
+- New **`apply_plasma_rules`** phase in **`build-scripts/build-the-iso.sh`** (mirrors `apply_editions`, runs right after it): applies KDE's packaging rules, but **only when `plasma` is in `editions=`**. Plasma-free ISOs are completely untouched.
 
 **Why**
 - Plasma joins Cinnamon, MATE, GNOME, and Budgie as a selectable full desktop. The block ships the **`plasma`** group rather than `plasma-meta` for two reasons: it follows the "group names wherever possible" convention, and — decisively for Kiro's X11-only policy — the `plasma` group includes **`kwin-x11`** (the Plasma X11 session), which `plasma-meta` omits (meta is Wayland-only). The group is a 68-package superset of the meta; it also pulls a couple of extras the meta skips (`plasma-sdk`, `wacomtablet`), an acceptable trade for a working X11 session. On top of the group the block adds **`konsole`** (the plasma group ships no terminal) and **`kde-system-meta`** (KDE system applications), so Plasma is self-sufficient as a standalone session. **Unbranded** (no `kiro-plasma` package), like the `gnome`/`budgie` blocks. KIB already classifies `plasma` as a desktop (in the `DESKTOPS` set) and auto-discovers the block via `list_editions()`, so the builder surfaces it with no GUI change.
+- **KDE packaging rules.** Kiro's "many desktops on one ISO" model clashes with KDE's [packaging recommendations](https://community.kde.org/Distributions/Packaging_Recommendations) (the canonical list of issues people hit with Plasma). When Plasma is baked into an ISO, `apply_plasma_rules` makes that ISO respect Plasma: (1) it **strips `qt5ct`/`qt6ct`** from the package list — they conflict with `plasma-integration` and break the look-and-feel of Qt apps; (2) it **comments `QT_QPA_PLATFORMTHEME`, `QT_STYLE_OVERRIDE`, and `GTK_THEME` in `/etc/environment`** — these override Plasma's own theming and trigger the yellow "could not apply theme" popup (the same fix ATT's `themes.py` applies); (3) it **warns** when `gnome` is also selected, because the `gnome` group transitively pulls `xdg-desktop-portal-gnome`, which conflicts with `xdg-desktop-portal-kde` and can't be commented out of a literal list. The trade is that a Plasma-bearing ISO loses `qt5ct` for any XFCE session it also carries (minor — `kvantum`/`kvantum-qt5` still handle Qt theming); on a single system you can't satisfy both XFCE-Qt-theming and clean Plasma, so a Plasma ISO chooses Plasma.
+
+**Technical Details**
+- `apply_plasma_rules` is a no-op unless `plasma` is in `editions=`. The `qt5ct`/`qt6ct` strip is a whole-line match that only ever prefixes `#`; the `/etc/environment` edit is an idempotent `sed` (already-commented lines don't re-match). Both verified on temp copies.
 
 **Files Modified**
 - `archiso/packages.x86_64` — `plasma` edition block.
+- `build-scripts/build-the-iso.sh` — `apply_plasma_rules` phase + `main()` wiring.
 
 ## 2026-06-09 — Add Budgie edition
 

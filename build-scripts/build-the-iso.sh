@@ -526,6 +526,46 @@ apply_editions() {
 }
 
 #####################################################################
+# Plasma packaging rules — applied only when 'plasma' is in editions=.
+# KDE's packaging recommendations
+# (https://community.kde.org/Distributions/Packaging_Recommendations)
+# assume a Plasma-centric distro and clash with Kiro's "many desktops on
+# one ISO" model. So when Plasma is baked in we make the ISO respect it:
+#   1. Strip qt5ct/qt6ct from the package list — they conflict with
+#      plasma-integration and break the look-and-feel of Qt apps.
+#   2. Comment the QT_*/GTK_THEME overrides in /etc/environment — they
+#      override Plasma's own theming and trigger the yellow "could not
+#      apply theme" popup (the same fix ATT's themes.py applies).
+#   3. Warn (can't auto-fix) when gnome is also selected: the gnome group
+#      pulls xdg-desktop-portal-gnome, which conflicts with
+#      xdg-desktop-portal-kde.
+# ATT (desktopr.py / themes.py) is the reference for these desktop rules.
+#####################################################################
+apply_plasma_rules() {
+    local sel="${editions-}"
+    [[ " ${sel} " == *" plasma "* ]] || return 0
+    log_section "Plasma packaging rules (KDE recommendations)"
+    # 1. Strip the Qt platform-theme conflicts (whole-line match; only ever prefixes '#').
+    local pkg
+    for pkg in qt5ct qt6ct; do
+        if grep -qxF "${pkg}" "${PACKAGES_FILE}"; then
+            sed -i "s/^${pkg}\$/#${pkg}   # removed for Plasma: conflicts with plasma-integration/" "${PACKAGES_FILE}"
+            log_info "Stripped Qt-theme conflict: ${pkg}"
+        fi
+    done
+    # 2. Comment the theme-override vars in /etc/environment (idempotent — already-#'d lines won't match).
+    local env_file="${buildFolder}/archiso/airootfs/etc/environment"
+    if [[ -f "${env_file}" ]]; then
+        sed -i -E 's/^(QT_QPA_PLATFORMTHEME=|QT_STYLE_OVERRIDE=|GTK_THEME=)/#\1/' "${env_file}"
+        log_info "Commented QT_QPA_PLATFORMTHEME / QT_STYLE_OVERRIDE / GTK_THEME in /etc/environment"
+    fi
+    # 3. gnome + plasma: portal conflict we can't comment out (transitive via the gnome group).
+    if [[ " ${sel} " == *" gnome "* ]]; then
+        log_warn "gnome + plasma in one ISO: the gnome group pulls xdg-desktop-portal-gnome, which conflicts with xdg-desktop-portal-kde (KDE packaging rules). Consider separate ISOs."
+    fi
+}
+
+#####################################################################
 # Kernel selection — keeps the ISO independent of any one kernel.
 # The repo ships ${CANONICAL_KERNEL} as its default; this rewrites the
 # build-tree copies to whatever the user picks. Pairs with the calamares
@@ -818,6 +858,7 @@ main() {
     prepopulate_keyring
     inject_nvidia_packages
     apply_editions
+    apply_plasma_rules
     apply_kernel
     stamp_build_date
     build_iso
