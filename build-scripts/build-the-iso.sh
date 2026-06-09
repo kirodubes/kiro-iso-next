@@ -504,10 +504,13 @@ apply_editions() {
         exit 1
     fi
     # Guard: the login session must be one of the installed editions, else the live ISO
-    # would autologin to a session that isn't there. Fall back to the first edition.
+    # would autologin to a session that isn't there. Prefer the flagship ohmychadwm when
+    # it's among the editions; otherwise fall back to the first edition.
     if [[ " ${sel} " != *" ${default_sess} "* ]]; then
-        log_warn "default_session='${default_sess}' is not in editions='${sel}' — using '${sel%% *}'."
-        default_sess="${sel%% *}"
+        local fallback="${sel%% *}"
+        [[ " ${sel} " == *" ohmychadwm "* ]] && fallback="ohmychadwm"
+        log_warn "default_session='${default_sess}' is not in editions='${sel}' — using '${fallback}'."
+        default_sess="${fallback}"
     fi
     # Live ISO autologin session follows default_session, so a non-XFCE build (e.g.
     # editions="cinnamon") boots its own desktop instead of a now-absent XFCE.
