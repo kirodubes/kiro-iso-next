@@ -303,6 +303,14 @@ xfce4-goodies
 #xfce4-taskmanager
 #xfce4-terminal
 ### <<< EDITION-BLOCK chadwm <<<
+### >>> EDITION-BLOCK cinnamon >>>
+#cinnamon
+#cinnamon-translations
+#gnome-screenshot
+#gnome-system-monitor
+#gnome-terminal
+#nemo-fileroller
+### <<< EDITION-BLOCK cinnamon <<<
 ### >>> EDITION-BLOCK i3 >>>
 #alacritty
 #kiro-i3
