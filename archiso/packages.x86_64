@@ -221,10 +221,185 @@ spice-vdagent
 accountsservice
 sddm-git
 
-###  DEFAULT SESSION — the shipped desktop (XFCE4 + Ohmychadwm)
-ohmychadwm
+###  XFCE BASE — the always-on desktop + fallback session (never an edition block)
 xfce4
 xfce4-goodies
+
+###  DESKTOP / WM EDITIONS — MANAGED BY build-the-iso.sh
+###  Commented blocks; the build uncomments the block(s) named in build.conf
+###  editions= (e.g. "ohmychadwm i3"). Each block is the session's full set from
+###  ATT's desktopr.py; duplicates with the base are harmless (pacman dedupes).
+###  XFCE stays the login/fallback session — these only ADD a session.
+###  ohmychadwm is the DEFAULT edition (build.conf.defaults editions="ohmychadwm").
+### >>> EDITION-BLOCK awesome >>>
+#alacritty
+#kiro-awesome
+#awesome
+#dmenu
+#kiro-xfce
+#feh
+#lxappearance
+#noto-fonts
+#fastcompmgr-git
+#polkit-gnome
+#rofi
+#thunar
+#thunar-archive-plugin
+#thunar-volman
+#ttf-hack
+#vicious
+#volctl
+#xfce4-terminal
+### <<< EDITION-BLOCK awesome <<<
+### >>> EDITION-BLOCK bspwm >>>
+#alacritty
+#kiro-bspwm
+#kiro-xfce
+#kiro-polybar
+#archlinux-logout-gtk4
+#kiro-rofi
+#kiro-rofi-themes
+#awesome-terminal-fonts
+#bspwm
+#dmenu
+#feh
+#lxappearance
+#fastcompmgr-git
+#polybar
+#polkit-gnome
+#rofi
+#sxhkd
+#thunar
+#thunar-archive-plugin
+#thunar-volman
+#ttf-hack
+#volctl
+#xfce4-terminal
+### <<< EDITION-BLOCK bspwm <<<
+### >>> EDITION-BLOCK chadwm >>>
+#alacritty
+#archlinux-logout-gtk4
+#kiro-chadwm
+#kiro-rofi
+#kiro-rofi-themes
+#kiro-xfce
+#dmenu
+#feh
+#lxappearance
+#fastcompmgr-git
+#polkit-gnome
+#rofi
+#sxhkd
+#thunar
+#thunar-archive-plugin
+#thunar-volman
+#ttf-hack
+#ttf-jetbrains-mono-nerd
+#volctl
+#xfce4-notifyd
+#xfce4-power-manager
+#xfce4-screenshooter
+#xfce4-settings
+#xfce4-taskmanager
+#xfce4-terminal
+### <<< EDITION-BLOCK chadwm <<<
+### >>> EDITION-BLOCK i3 >>>
+#alacritty
+#kiro-i3
+#archlinux-logout-gtk4
+#kiro-rofi
+#kiro-rofi-themes
+#kiro-xfce
+#autotiling
+#dmenu
+#feh
+#i3blocks
+#i3-wm
+#i3status
+#lxappearance
+#fastcompmgr-git
+#polkit-gnome
+#rofi
+#thunar
+#thunar-archive-plugin
+#thunar-volman
+#ttf-hack
+#volctl
+#xfce4-terminal
+### <<< EDITION-BLOCK i3 <<<
+### >>> EDITION-BLOCK leftwm >>>
+#alacritty
+#archlinux-logout-gtk4
+#kiro-leftwm
+#kiro-polybar
+#kiro-rofi
+#kiro-rofi-themes
+#kiro-xfce
+#dmenu
+#feh
+#leftwm-git
+#leftwm-theme-git
+#lxappearance
+#fastcompmgr-git
+#polybar
+#polkit-gnome
+#rofi
+#sxhkd
+#thunar
+#thunar-archive-plugin
+#thunar-volman
+#ttf-hack
+#ttf-iosevka-nerd
+#ttf-material-design-iconic-font
+#ttf-meslo-nerd-font-powerlevel10k
+#volctl
+#xfce4-appfinder
+#xfce4-screenshooter
+#xfce4-taskmanager
+#xfce4-terminal
+### <<< EDITION-BLOCK leftwm <<<
+### >>> EDITION-BLOCK ohmychadwm >>>
+#ohmychadwm
+#alacritty
+#dmenu
+#fastcompmgr-git
+#feh
+#maim
+#numlockx
+#picom-git
+#playerctl
+#rofi
+#scrot
+#sxhkd
+#volctl
+#xautolock
+#xclip
+#xorg-xsetroot
+### <<< EDITION-BLOCK ohmychadwm <<<
+### >>> EDITION-BLOCK qtile >>>
+#alacritty
+#archlinux-logout-gtk4
+#kiro-qtile
+#kiro-rofi
+#kiro-rofi-themes
+#kiro-xfce
+#awesome-terminal-fonts
+#dmenu
+#feh
+#lxappearance
+#fastcompmgr-git
+#polkit-gnome
+#python-setuptools
+#python-psutil
+#qtile
+#rofi
+#thunar
+#thunar-archive-plugin
+#thunar-volman
+#ttf-hack
+#volctl
+#xfce4-terminal
+### <<< EDITION-BLOCK qtile <<<
 
 
 #############################################################################
@@ -342,22 +517,8 @@ imagemagick
 paru-git
 yay-git
 
-###  OHMYCHADWM RUNTIME — tools the shipped Ohmychadwm session needs to work
-alacritty
-dmenu
-fastcompmgr-git
-feh
-maim
-numlockx
-picom-git
-playerctl
-rofi
-scrot
-sxhkd
-volctl
-xautolock
-xclip
-xorg-xsetroot
+###  OHMYCHADWM RUNTIME — moved into EDITION-BLOCK ohmychadwm above; it's now an
+###  opt-in TWM edition (default), not part of the always-on base.
 
 ###  SHELL / TERMINAL ENV
 bash-completion

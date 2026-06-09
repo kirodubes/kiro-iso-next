@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-06-09 — Desktop/WM editions: build-time block toggle (ohmychadwm + i3)
+
+**What Changed**
+- New **`apply_editions`** phase in **`build-scripts/build-the-iso.sh`** (modelled on `inject_nvidia_packages`): for each edition listed in the new **`editions`** knob, it uncomments that edition's package block in the build-tree `packages.x86_64`. Added to the build summary and the `main()` phase sequence.
+- **`archiso/packages.x86_64`** — **XFCE is now the only always-on base** (`xfce4`, `xfce4-goodies`). All **7 Kiro TWMs are `EDITION-BLOCK`s**, sentinel-marked commented blocks in **alphabetical** order: `awesome, bspwm, chadwm, i3, leftwm, ohmychadwm, qtile`. ohmychadwm is no longer hardcoded base (it keeps its proven ISO runtime set); the other six are copied verbatim from ATT's canonical `desktopr.py` arrays (de-git'd: `archlinux-logout-gtk4` non-git; genuine AUR `-git` like `fastcompmgr-git`/`leftwm-git` kept). Every edition is opt-in and composable (e.g. pure `"xfce4 + i3"`). Duplicate packages across blocks/base are harmless (pacman/mkarchiso dedupe). Alphabetical block order = the KIB checkbox order (`list_editions()` reads file order).
+- **`build-scripts/build.conf.defaults`** adds `editions="ohmychadwm"` (space-separated editions, e.g. `"ohmychadwm"`, `"i3"`, `"ohmychadwm i3"`; `""` = pure XFCE) and a **reserved** `default_session="xfce"` (kept `xfce` for now; wired up only when the future full-DE phase lands).
+
+**Why**
+- First slice of the KIB-selectable desktop-edition feature (full design: HQ `MASTER_IDEAS → kiro-iso`). Phase 1 is **TWMs**, but the mechanism is named generically (`editions` / `EDITION-BLOCK`) so future full DEs (plasma/gnome) reuse it unchanged. These are **add-on** editions: the WM is installed and offered in the SDDM picker, **XFCE stays the login/fallback session** (safe escape hatch if a tiling WM is misconfigured). Because the default session stays XFCE for TWMs, **no Calamares / displaymanager / sddm changes are needed** — the build only flips comments in the package list. The agnostic "set the installed default" work is deferred to the future full-DE phase, the only place it's needed. Beta-first per repo policy.
+
+**Technical Details**
+- Uncomment sed: `s/^#\([^#]\)/\1/` scoped to the `>>> EDITION-BLOCK <name> >>>`…`<<< EDITION-BLOCK <name> <<<` range — uncomments `#pkg` package lines while leaving the `###` marker lines intact; idempotent. Aborts if a named edition has no block.
+- `editions` resolved as `${editions-ohmychadwm}`: an **unset** value (an old gitignored live `build.conf` seeded before this knob existed) falls back to `ohmychadwm`, so the standard ISO never silently loses ohmychadwm; an **explicit empty string** (`""`) means pure XFCE. `set -u` safe.
+
+**Files Modified**
+- `build-scripts/build-the-iso.sh`, `build-scripts/build.conf.defaults`, `archiso/packages.x86_64`, `CHANGELOG.md`
+
+---
+
 ## 2026-06-08 — Make Flameshot an optional (TIER 3) package
 
 **What Changed**

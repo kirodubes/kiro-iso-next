@@ -97,7 +97,7 @@ trap 'on_error "$LINENO" "$BASH_COMMAND"' ERR
 #   and the kiro-iso-builder GUI share one source of truth. Edit them
 #   there, or through the GUI — not here.
 #####################################################################
-kiroVersion='v26.06.08'
+kiroVersion='v26.06.09'
 
 # kiroVersion stays in THIS file: apply_version_bump (Phase 2) seds it and
 # verify_version_sync greps it. build.conf is sourced right after it — the
@@ -326,6 +326,7 @@ remove_buildfolder() {
 show_overview() {
     log_section "Build overview"
     echo "  Desktop      : ${desktop}"
+    echo "  Editions     : ${editions-ohmychadwm}"
     echo "  Version      : ${kiroVersion}"
     echo "  ISO label    : ${isoLabel}"
     echo "  NVIDIA driver: ${nvidia_driver}"
@@ -471,6 +472,36 @@ inject_nvidia_packages() {
             exit 1
             ;;
     esac
+}
+
+#####################################################################
+# Desktop / WM editions — bake extra sessions onto the XFCE base.
+# Each edition has a commented block in packages.x86_64 (marked EDITION-BLOCK <name>);
+# this uncomments the package lines of every edition listed in build.conf
+# editions=. XFCE stays the login/fallback session, so nothing else
+# (sddm / calamares default session) changes — these only ADD a session.
+# Generic by design: TWMs now; full DEs (plasma/gnome) later use the same blocks.
+#####################################################################
+apply_editions() {
+    # Unset (e.g. an old live build.conf seeded before this knob existed) falls back to
+    # the shipped default "ohmychadwm" so the standard ISO never silently loses it;
+    # an explicit empty string ("") means pure XFCE.
+    local sel="${editions-ohmychadwm}"
+    log_section "Desktop / WM editions — ${sel:-pure XFCE}"
+    if [[ -z "${sel// /}" ]]; then
+        log_info "No editions selected — pure XFCE base"
+        return
+    fi
+    local ed
+    for ed in ${sel}; do
+        if ! grep -qF ">>> EDITION-BLOCK ${ed} >>>" "${PACKAGES_FILE}"; then
+            log_error "Edition '${ed}' has no block in packages.x86_64"
+            exit 1
+        fi
+        # Uncomment the block's package lines (#pkg -> pkg); leave the ### markers.
+        sed -i "/>>> EDITION-BLOCK ${ed} >>>/,/<<< EDITION-BLOCK ${ed} <<</ s/^#\([^#]\)/\1/" "${PACKAGES_FILE}"
+        log_info "Enabled edition: ${ed}"
+    done
 }
 
 #####################################################################
@@ -765,6 +796,7 @@ main() {
     prepare_build_tree
     prepopulate_keyring
     inject_nvidia_packages
+    apply_editions
     apply_kernel
     stamp_build_date
     build_iso

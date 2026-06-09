@@ -14,6 +14,8 @@
 #####################################################################
 
 desktop="xfce4/ohmychadwm"
+editions="ohmychadwm"   # space-separated desktop/WM editions to bake in, e.g. "ohmychadwm", "i3", "ohmychadwm i3". Default ships XFCE+ohmychadwm. Empty ("") = pure XFCE. Each ADDS a session in SDDM; XFCE stays the login/fallback. (Future full DEs like plasma use the same mechanism.)
+default_session="xfce"   # installed/login default session. Keep "xfce" for TWM editions (TWMs are add-ons you pick from the SDDM menu). RESERVED for the future full-DE phase (plasma/gnome) — not wired up yet.
 
 bump_version=yes   # yes | no — bump version to vYY.MM.DD before building; set to no for same-day rebuilds
 nvidia_driver=open   # open | 580xx | 390xx
