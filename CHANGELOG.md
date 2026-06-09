@@ -4,6 +4,42 @@
 
 ---
 
+## 2026-06-09 — Add KDE Plasma edition
+
+**What Changed**
+- New **`EDITION-BLOCK plasma`** in `archiso/packages.x86_64` (alphabetical, between `ohmychadwm` and `qtile`): the `plasma` group plus `kde-system-meta` and `konsole`, commented like the other blocks.
+
+**Why**
+- Plasma joins Cinnamon, MATE, GNOME, and Budgie as a selectable full desktop. The block ships the **`plasma`** group rather than `plasma-meta` for two reasons: it follows the "group names wherever possible" convention, and — decisively for Kiro's X11-only policy — the `plasma` group includes **`kwin-x11`** (the Plasma X11 session), which `plasma-meta` omits (meta is Wayland-only). The group is a 68-package superset of the meta; it also pulls a couple of extras the meta skips (`plasma-sdk`, `wacomtablet`), an acceptable trade for a working X11 session. On top of the group the block adds **`konsole`** (the plasma group ships no terminal) and **`kde-system-meta`** (KDE system applications), so Plasma is self-sufficient as a standalone session. **Unbranded** (no `kiro-plasma` package), like the `gnome`/`budgie` blocks. KIB already classifies `plasma` as a desktop (in the `DESKTOPS` set) and auto-discovers the block via `list_editions()`, so the builder surfaces it with no GUI change.
+
+**Files Modified**
+- `archiso/packages.x86_64` — `plasma` edition block.
+
+## 2026-06-09 — Add Budgie edition
+
+**What Changed**
+- New **`EDITION-BLOCK budgie`** in `archiso/packages.x86_64` (alphabetical, between `bspwm` and `chadwm`): the `budgie` group, commented like the other blocks.
+
+**Why**
+- Budgie joins Cinnamon, MATE, and GNOME as a selectable full desktop. The block ships the **`budgie`** group (budgie-desktop, budgie-session, budgie-control-center, budgie-desktop-view, budgie-desktop-services, budgie-backgrounds) — a complete, self-sufficient Budgie desktop, consistent with using group names wherever a group exists (as with `gnome`/`mate`). **Unbranded** (no `kiro-budgie` package), like the `gnome` block. KIB already classifies `budgie` as a desktop (in the `DESKTOPS` set) and auto-discovers the block via `list_editions()`, so the builder surfaces it with no GUI change.
+
+**Files Modified**
+- `archiso/packages.x86_64` — `budgie` edition block.
+
+## 2026-06-09 — Add GNOME edition
+
+**What Changed**
+- New **`EDITION-BLOCK gnome`** in `archiso/packages.x86_64` (alphabetical, between `cinnamon` and `i3`): the `gnome` group plus `gnome-tweaks`, commented like the other blocks.
+
+**Why**
+- GNOME is the next full desktop after Cinnamon and MATE. The `gnome` group is a complete, self-sufficient desktop and pulls `gnome-session`, which provides the SDDM session files; `gnome-tweaks` is added so users can adjust fonts, themes, and shell behaviour out of the box. It ships **unbranded for now** — there is no `kiro-gnome` package yet (unlike `kiro-mate`/`kiro-cinnamon`), so the block carries only upstream GNOME, exactly as the `xfce` block ships plain `xfce4`; a `kiro-gnome` branding package is a separate future task. KIB already classifies `gnome` as a desktop (in the `DESKTOPS` set) and auto-discovers the block via `list_editions()`, so the builder surfaces it with no GUI change.
+
+**Technical Details**
+- Scope is the `gnome` group only (no `gnome-extra`) to keep the footprint lean. GNOME is **not** added to the active `editions=` / `default_session` — it's available-but-not-default, like `mate`. Note: GNOME's default session is Wayland; because it isn't set as `default_session`, nothing forces a Wayland login — SDDM exposes both "GNOME" (Wayland) and "GNOME on Xorg", preserving the X11-only policy. If GNOME is ever promoted to `default_session`, the Xorg session (`Session=gnome-xorg`) would need explicit handling — deferred to the future full-DE phase.
+
+**Files Modified**
+- `archiso/packages.x86_64` — `gnome` edition block.
+
 ## 2026-06-09 — Add MATE edition
 
 **What Changed**

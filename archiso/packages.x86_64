@@ -274,6 +274,9 @@ sddm-git
 #volctl
 #xfce4-terminal
 ### <<< EDITION-BLOCK bspwm <<<
+### >>> EDITION-BLOCK budgie >>>
+#budgie
+### <<< EDITION-BLOCK budgie <<<
 ### >>> EDITION-BLOCK chadwm >>>
 #alacritty
 #archlinux-logout-gtk4
@@ -310,6 +313,10 @@ sddm-git
 #gnome-terminal
 #nemo-fileroller
 ### <<< EDITION-BLOCK cinnamon <<<
+### >>> EDITION-BLOCK gnome >>>
+#gnome
+#gnome-tweaks
+### <<< EDITION-BLOCK gnome <<<
 ### >>> EDITION-BLOCK i3 >>>
 #alacritty
 #kiro-i3
@@ -388,6 +395,11 @@ sddm-git
 #xclip
 #xorg-xsetroot
 ### <<< EDITION-BLOCK ohmychadwm <<<
+### >>> EDITION-BLOCK plasma >>>
+#plasma
+#kde-system-meta
+#konsole
+### <<< EDITION-BLOCK plasma <<<
 ### >>> EDITION-BLOCK qtile >>>
 #alacritty
 #archlinux-logout-gtk4
