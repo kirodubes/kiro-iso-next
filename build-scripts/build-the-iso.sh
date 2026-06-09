@@ -504,11 +504,20 @@ apply_editions() {
         exit 1
     fi
     # Guard: the login session must be one of the installed editions, else the live ISO
-    # would autologin to a session that isn't there. Prefer the flagship ohmychadwm when
-    # it's among the editions; otherwise fall back to the first edition.
+    # would autologin to a session that isn't there. Fallback priority when default_session
+    # isn't valid: a selected full desktop (DE) wins over the WMs — a chosen desktop is the
+    # intended primary, so plasma/gnome/… outrank ohmychadwm; for several DEs the first in
+    # editions= wins. With no DE, the flagship ohmychadwm; with neither, the first edition.
+    # (DE list mirrors KIB's DESKTOPS set in configure_gui.py — keep them in sync.)
     if [[ " ${sel} " != *" ${default_sess} "* ]]; then
-        local fallback="${sel%% *}"
-        [[ " ${sel} " == *" ohmychadwm "* ]] && fallback="ohmychadwm"
+        local desktops="xfce cinnamon plasma gnome mate budgie lxqt deepin"
+        local fallback="" ed
+        for ed in ${sel}; do
+            if [[ " ${desktops} " == *" ${ed} "* ]]; then fallback="${ed}"; break; fi
+        done
+        if [[ -z "${fallback}" ]]; then
+            if [[ " ${sel} " == *" ohmychadwm "* ]]; then fallback="ohmychadwm"; else fallback="${sel%% *}"; fi
+        fi
         log_warn "default_session='${default_sess}' is not in editions='${sel}' — using '${fallback}'."
         default_sess="${fallback}"
     fi
