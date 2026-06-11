@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-06-11 — Kernel discovery lists the full repo offering, with repo tags for the GUI
+
+**`build-scripts/list-kernels.sh`** no longer curates the kernel list — it now reports **every** kernel the enabled repos carry, where "a kernel" is still defined by the same discriminator (a package `X` that has a matching `X-headers`, which both proves it is a real kernel rather than a companion package like `*-zfs`/`*-nvidia` and guarantees the DKMS drivers can build). The old version probed a fixed candidate list plus a few hard-coded families (`linux-cachyos|linux-xanmod|linux-lts[0-9]`) and **deliberately excluded** CPU-microarch builds; that exclusion is gone. The script is also faster and simpler: one `pacman -Sl` pass building a name→repo map and a name set, instead of a `pacman -Si` call per candidate. On the dev box this grew the list from a handful to **42 kernels** (the whole `linux-cachyos-*` family, `linux-xanmod-*`, pinned `linux-lts515/61/66`, and microarch `linux-x64v*`/`linux-znver*`).
+
+The **default stdout is unchanged in shape** — kernel names, one per line (now sorted) — so the build's consumer (`detect_available_kernels()` → `mapfile`, **`build-the-iso.sh`**) is unaffected, and the fixed-kernel path still validates names directly with `pacman -Si`. A new **`--with-repo`** flag emits `"<repo><TAB><kernel>"` instead; only the **kiro-iso-builder** GUI passes it (to group kernels by source). Broadening lives in the script's default output, not behind the flag, so the documented "CLI and GUI run the exact same logic" invariant holds.
+
+**Behaviour note:** because the list is no longer curated, the build's interactive `kernel="ask"` picker (and the bad-name suggestion list) now also offer microarch kernels. This is intended — buildability is unaffected (microarch kernels still have headers); it just means the human-facing picker shows everything the repos actually carry.
+
+- **`build-scripts/list-kernels.sh`** — generic everything-with-`-headers` discovery; `--with-repo` option; header comment rewritten to the new policy.
+- **`build-scripts/build-the-iso.sh`** — corrected the stale "only real kernels, no false positives" comment above `detect_available_kernels()` to match the new policy.
+
 ## 2026-06-10 — Calamares installer launches on labwc-backed Wayland sessions (Budgie)
 
 On a **Budgie** live ISO the installer would not start. Budgie's session is Wayland with **labwc** as the compositor (`startbudgielabwc`), and **Calamares is a Qt xcb/X11 app** launched as **root** via `pkexec` from **`calamares_polkit`**. Under labwc the root process has no authorization for the user's XWayland display, so Calamares died with `Authorization required, but no authorization protocol specified` / `qt.qpa.xcb: could not connect to display :1`. Two early suspects were ruled out: `xcb-util-cursor` is already on the ISO (the `xcb-cursor0 ... is needed` line is Qt's generic message whenever the xcb plugin fails for any reason), and the SDDM autologin `Session=` naming is a separate concern.
