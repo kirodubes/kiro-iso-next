@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-06-12 — On-screen keyboard (onboard) shipped on the live ISO for accessibility
+
+Added **`onboard`** to **`archiso/packages.x86_64`** (in the Kiro/nemesis package block). **onboard** is an on-screen keyboard for tablet PCs and mobility-impaired users — a piece of ISO-side accessibility that complements the existing `accessibility=on` boot path and ATT's Accessibility page. The package lives in Arch **`extra`** (1.4.1-14), so the build pulls it with no extra repo and no AUR. It is launched on demand by the user (toggle keyboard), so no autostart wiring is needed — the package-list entry is the complete change. Scoped to the beta chain (**`kiro-iso-next`**) only; production `kiro-iso` is untouched pending validation.
+
+- **`archiso/packages.x86_64`** — added **`onboard`**.
+
 ## 2026-06-11 — Kernel discovery lists the full repo offering, with repo tags for the GUI
 
 **`build-scripts/list-kernels.sh`** no longer curates the kernel list — it now reports **every** kernel the enabled repos carry, where "a kernel" is still defined by the same discriminator (a package `X` that has a matching `X-headers`, which both proves it is a real kernel rather than a companion package like `*-zfs`/`*-nvidia` and guarantees the DKMS drivers can build). The old version probed a fixed candidate list plus a few hard-coded families (`linux-cachyos|linux-xanmod|linux-lts[0-9]`) and **deliberately excluded** CPU-microarch builds; that exclusion is gone. The script is also faster and simpler: one `pacman -Sl` pass building a name→repo map and a name set, instead of a `pacman -Si` call per candidate. On the dev box this grew the list from a handful to **42 kernels** (the whole `linux-cachyos-*` family, `linux-xanmod-*`, pinned `linux-lts515/61/66`, and microarch `linux-x64v*`/`linux-znver*`).
