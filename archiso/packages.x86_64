@@ -221,6 +221,8 @@ spice-vdagent
 
 ###  DISPLAY MANAGER — boot to the login screen
 accountsservice
+###  on-screen keyboard for the SDDM greeter (accessibility — InputMethod=qtvirtualkeyboard)
+qt6-virtualkeyboard
 sddm-git
 
 ###  DESKTOP / WM EDITIONS — MANAGED BY build-the-iso.sh

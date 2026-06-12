@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-06-12 — On-screen keyboard at the SDDM login greeter (Qt VirtualKeyboard)
+
+Completed the second half of today's on-screen-keyboard accessibility work. The earlier **`onboard`** change covers the *session* — but a mobility-impaired user is most stuck **before** login, and onboard does nothing at the SDDM greeter. SDDM's own OSK mechanism is **Qt VirtualKeyboard**, which was fully off: **`archiso/airootfs/etc/sddm.conf`** had a blank **`InputMethod=`**, no virtualkeyboard package was installed, and the **`kiro-sddm-simplicity`** greeter theme had no `InputPanel`. Three coordinated changes turn it on:
+
+1. **`archiso/airootfs/etc/sddm.conf`** — set **`InputMethod=qtvirtualkeyboard`** so the greeter loads the Qt VirtualKeyboard input context.
+2. **`archiso/packages.x86_64`** — added **`qt6-virtualkeyboard`** in the DISPLAY MANAGER block. The live greeter is **`sddm-git`** (Qt6), so the input-method plugin loaded into that Qt6 process must be the **qt6** build (the qt5 one would not load). It lives in Arch **`extra`**, so no AUR/extra repo is needed.
+3. **Theme** (separate repos `kiro-sddm-simplicity` + `kiro-sddm-simplicity-qt6`) — added an `InputPanel` plus a **Keyboard** toggle button to the greeter `Main.qml`. The panel is **toggle-only** (raised by the button, never auto-shown on field focus) to keep the default look clean for keyboard users.
+
+Scoped to the beta chain (**`kiro-iso-next`**) only — production `kiro-iso` is untouched pending a boot-test. The two theme repos must be rebuilt and pushed to `nemesis_repo` before an ISO build so the new `Main.qml` is picked up.
+
+- **`archiso/airootfs/etc/sddm.conf`** — `InputMethod=qtvirtualkeyboard`.
+- **`archiso/packages.x86_64`** — added **`qt6-virtualkeyboard`**.
+
 ## 2026-06-12 — On-screen keyboard (onboard) shipped on the live ISO for accessibility
 
 Added **`onboard`** to **`archiso/packages.x86_64`** (in the Kiro/nemesis package block). **onboard** is an on-screen keyboard for tablet PCs and mobility-impaired users — a piece of ISO-side accessibility that complements the existing `accessibility=on` boot path and ATT's Accessibility page. The package lives in Arch **`extra`** (1.4.1-14), so the build pulls it with no extra repo and no AUR. It is launched on demand by the user (toggle keyboard), so no autostart wiring is needed — the package-list entry is the complete change. Scoped to the beta chain (**`kiro-iso-next`**) only; production `kiro-iso` is untouched pending validation.
