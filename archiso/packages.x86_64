@@ -210,7 +210,6 @@ kiro-calamares-config-next
 kiro-calamares-tweak-tool-nemesis
 mkinitcpio-firmware
 mkinitcpio-openswap
-onboard
 os-prober
 pacman-hook-kernel-install
 plymouth-theme-kiro-logo-nemesis
@@ -222,7 +221,8 @@ spice-vdagent
 ###  DISPLAY MANAGER — boot to the login screen
 accountsservice
 ###  on-screen keyboard for the SDDM greeter (accessibility — InputMethod=qtvirtualkeyboard)
-qt6-virtualkeyboard
+###  MUST be qt5 — sddm forces DisplayServer=x11 (999-force-x11) so the live greeter is the Qt5 sddm-greeter; qt6-virtualkeyboard is invisible to it and the theme falls back to embedded
+qt5-virtualkeyboard
 sddm-git
 
 ###  DESKTOP / WM EDITIONS — MANAGED BY build-the-iso.sh
@@ -725,6 +725,7 @@ font-manager
 gittyup
 laptop-detect
 lsb-release
+onboard
 menulibre
 mintstick
 mugshot
