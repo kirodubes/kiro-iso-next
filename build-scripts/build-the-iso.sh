@@ -914,6 +914,7 @@ main() {
     setup_chaotic
     ensure_chaotic_mirrors
     setup_cachyos
+    setup_kiro_keyring
 
     # "All green" gate — confirm every repo the build/install depends on is
     # reachable (after the host->curated fallbacks above) before mkarchiso runs.

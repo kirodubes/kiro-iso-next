@@ -244,8 +244,7 @@ KIRO packages are available via:
 
 ```ini
 [kiro_repo]
-SigLevel = Never
-Server = https://erikdubois.github.io/$repo/$arch
+Server = https://kirodubes.github.io/$repo/$arch
 ```
 
 ---

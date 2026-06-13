@@ -101,6 +101,20 @@ EOF_CACHYOS
     log_success "cachyos-keyring and cachyos-mirrorlist installed"
 }
 
+setup_kiro_keyring() {
+    # prepopulate_keyring runs `pacman-key --populate kiro`, which reads the
+    # host's /usr/share/pacman/keyrings/kiro.gpg — shipped by the kiro-keyring
+    # package. Without it Phase 7 fails. Idempotent: a host that already has it
+    # (the dev box, any previously-set-up host) is detected and skipped.
+    if pacman -Q kiro-keyring &>/dev/null; then
+        log_info "kiro-keyring is installed"
+        return 0
+    fi
+    log_warn "Installing kiro-keyring"
+    sudo pacman -Sy --needed --noconfirm kiro-keyring
+    log_success "kiro-keyring installed"
+}
+
 enable_cachyos() {
     # Re-enable a [cachyos] repo that is present in pacman.conf but commented out
     # (Kiro ships it disabled by default — chaotic-aur is the backstop). Only
