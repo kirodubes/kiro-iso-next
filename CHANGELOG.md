@@ -22,6 +22,12 @@
 - Fixes: resolve the invoking user's home from **`SUDO_USER`** too (not just `PKEXEC_UID`); **root guard** — `clean` exits 1 if `$EUID != 0`; **verify-after** — re-list at the end and exit 1 listing any survivors instead of claiming success.
 - Files: `build-scripts/unmount-build.sh`.
 
+### Also — `nemesis_repo` now resolves through `kiro-mirrorlist` (-next only)
+- The shipped/installed pacman config no longer hardcodes the nemesis_repo URL. `[nemesis_repo]` in **`archiso/airootfs/etc/pacman.conf`** switched from `Server = https://erikdubois.github.io/$repo/$arch` to **`Include = /etc/pacman.d/kiro-mirrorlist`**, and the new **`kiro-mirrorlist`** package (which ships that file) was added to **`packages.x86_64`** in the *REPO KEYRINGS + MIRRORLISTS* group. This decouples the repo URL from every install: a future URL change or failover mirror ships as a package update instead of a per-machine config edit — exactly how `chaotic-aur`/`cachyos` already resolve their servers via their own mirrorlists, and how the sibling `kiro-keyring` is wired.
+- The **build-time** confs (`archiso/pacman.conf`, `build-scripts/pacman.conf`) intentionally **keep the direct `Server =` line** — the build host has no `/etc/pacman.d/kiro-mirrorlist`, so `mkarchiso` must reach nemesis_repo directly to pull packages (including `kiro-mirrorlist` itself). The `Include` resolves only at pacman runtime on the live/installed system, where the package has placed the file. `SigLevel` is unaffected (global, inherited).
+- **Sequencing caveat:** `kiro-mirrorlist`'s source is pushed to `kirodubes/KIRO-PKG-BUILD-APPS`, but the nemesis_repo build flow has **not** run yet. It must be built and served from nemesis_repo **before** the next -next ISO build, or `mkarchiso` will fail to find the package.
+- Files: `archiso/airootfs/etc/pacman.conf`, `archiso/packages.x86_64`.
+
 ---
 
 ## 2026-06-12 — On-screen keyboard at the SDDM login greeter (Qt VirtualKeyboard)
