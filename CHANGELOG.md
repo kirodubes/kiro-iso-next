@@ -2,6 +2,26 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.06.13
+
+### What Changed
+- **Dogfood package-signature enforcement (-next only).** Flipped `[nemesis_repo]` to `SigLevel = Required DatabaseOptional` in the **shipped** config (`archiso/airootfs/etc/pacman.conf`), so a freshly-built -next ISO verifies signed nemesis packages out of the box. Production (`kiro-iso`) is untouched and stays `Never` until `kiro-keyring` has propagated across the installed fleet. Part of the package-signing rollout (Phase A live, Phase B verified on a VM — see [signing study](file:///home/erik/.claude/plans/federated-petting-badger.md)).
+
+### Technical Details
+- Only the **runtime/shipped** pacman.conf enforces. The **build-time** confs (`build-scripts/pacman.conf` → build-host `/etc/pacman.conf`; `archiso/pacman.conf` → airootfs build) stay `Never`, so `mkarchiso` pulls nemesis packages without needing the build host to trust the Kiro key, and `kiro-keyring`'s `pacman-key --populate kiro` scriptlet establishes trust inside the airootfs during the build. Enforcement then applies on first boot. Avoids the keyring bootstrap (the keyring is itself a signed nemesis package) and the build-host-trust requirement.
+- `kiro-keyring` already ships via the `kiro-system-files` dependency (packages.x86_64). `kiro_repo` is the paired follow-up (appended post-install at `Never` by `qdd-kiro-repo`; flip its `printf` once nemesis enforcement is confirmed).
+- **Explicit keyring prepopulation:** rather than rely on the `kiro-keyring` install scriptlet's timing, Phase 7 (`prepopulate_keyring` in `build-the-iso.sh`) now `--populate kiro` into the airootfs keyring alongside archlinux/chaotic/cachyos — the same idiom already used for the chaotic custom repo. Guarantees the key is baked into the ISO's trustdb. Reads the host's `/usr/share/pacman/keyrings/kiro.gpg` (provided by the `kiro-keyring` package).
+- **Robustness follow-up (not yet done):** `host-prep.sh` should ensure `kiro-keyring` is installed on the build host (mirroring the chaotic/cachyos keyring guards) so `--populate kiro` doesn't fail on a clean host. Works today because the build host already has it.
+
+### Files Modified
+- `archiso/airootfs/etc/pacman.conf` — `[nemesis_repo]` `Never → Required DatabaseOptional`
+- `build-scripts/build-the-iso.sh` — `prepopulate_keyring()` adds `--populate kiro`
+
+### Also — hardened `unmount-build.sh` (it reported false success)
+- `clean` mode printed "Build-mount cleanup done" even when it unmounted **nothing** — two causes: (1) run as a normal user, every `umount` was denied and the error swallowed; (2) run under plain `sudo`, `$HOME` is root's so it derived `buildFolder=/root/kiro-build`, found zero mounts, and "succeeded". Either way the stale mkarchiso binds survived and the next build would stack on them.
+- Fixes: resolve the invoking user's home from **`SUDO_USER`** too (not just `PKEXEC_UID`); **root guard** — `clean` exits 1 if `$EUID != 0`; **verify-after** — re-list at the end and exit 1 listing any survivors instead of claiming success.
+- Files: `build-scripts/unmount-build.sh`.
+
 ---
 
 ## 2026-06-12 — On-screen keyboard at the SDDM login greeter (Qt VirtualKeyboard)
