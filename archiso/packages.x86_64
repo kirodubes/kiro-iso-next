@@ -200,6 +200,7 @@ cachyos-keyring
 cachyos-mirrorlist
 chaotic-keyring
 chaotic-mirrorlist
+kiro-keyring
 kiro-mirrorlist
 
 ###  INSTALLER / CALAMARES — the installer and its install-time helpers

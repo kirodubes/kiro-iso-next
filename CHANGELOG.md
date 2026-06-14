@@ -2,6 +2,20 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.06.14
+
+### What Changed
+- **`kiro-keyring` is now an explicit entry in `packages.x86_64`.** It previously reached the ISO only transitively (as a `kiro-system-files` dependency, per the 06.13 note). Listing it directly in the *REPO KEYRINGS + MIRRORLISTS* group — right beside its already-explicit sibling `kiro-mirrorlist` — guarantees the keyring package is installed on the shipped/installed system regardless of dependency churn. This is the second of the "two packages to work" pairing: `kiro-keyring` (trusts the signing key) + `kiro-mirrorlist` (resolves the `[nemesis_repo]` `Include`), the combination `arcolinux-nemesis` and any nemesis_repo pull needs under `SigLevel = Required DatabaseOptional`.
+
+### Technical Details
+- Without the keyring **package** on the installed system, the kiro key exists only in the prepopulated trustdb baked in at build time (Phase 7 `--populate kiro`). That works on first boot, but a later `pacman-key --init`/`--populate` reset (e.g. the `keyfix`/`key-fix` alias → `kiro-fix-pacman-keys`) would drop the key with no `/usr/share/pacman/keyrings/kiro.gpg` to repopulate from — and future key rotation/revocation could never reach the machine. Shipping the package closes that, exactly as Arch ships `archlinux-keyring` rather than relying on a one-time populate.
+- No `SigLevel` change. Shipped `[nemesis_repo]` stays `Required DatabaseOptional` (the 06.13 dogfood flip); the build keyring already trusts the key via `prepopulate_keyring` + `host-prep.sh`'s `setup_kiro_keyring`, so `mkarchiso` verifies and installs both kiro packages from nemesis_repo at build time.
+
+### Files Modified
+- `archiso/packages.x86_64` — `kiro-keyring` added to the *REPO KEYRINGS + MIRRORLISTS* group.
+
+---
+
 ## 2026.06.13
 
 ### What Changed
