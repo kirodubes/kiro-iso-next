@@ -4,6 +4,14 @@
 
 ## 2026.06.14
 
+### New `AI TOOLS` group in TIER 3 — opt-out AI on the ISO
+- AI shouldn't be forced on users. Created a dedicated **`### AI TOOLS`** group in TIER 3 (USER-CHANGEABLE / OPTIONAL) of `packages.x86_64` holding `claude-code` and the new `kiro-assistant` (Claude Code knowledge pack for Kiro). Moved `claude-code` out of `DESKTOP / MISC EXTRAS` into it. Mirrors the change made in production `kiro-iso` for parity.
+- TIER 3 groups surface as categories in the Kiro ISO Builder package screen and ATT Streamline, so users get a single **AI TOOLS** category they can drop as a whole. Keeping both AI packages together avoids the broken half-state where `kiro-assistant` (`depends=claude-code`) is kept while `claude-code` is dropped.
+- **Build-ordering caveat:** `kiro-assistant` must exist in `nemesis_repo` before a build including this line, or `mkarchiso` will fail to resolve it. Publishing `kiro-assistant` to `nemesis_repo` is still pending (GitHub repo not yet created).
+
+### Files Modified
+- `archiso/packages.x86_64` — new `AI TOOLS` TIER 3 group (`claude-code` + `kiro-assistant`); `claude-code` removed from `DESKTOP / MISC EXTRAS`.
+
 ### What Changed
 - **`kiro-keyring` is now an explicit entry in `packages.x86_64`.** It previously reached the ISO only transitively (as a `kiro-system-files` dependency, per the 06.13 note). Listing it directly in the *REPO KEYRINGS + MIRRORLISTS* group — right beside its already-explicit sibling `kiro-mirrorlist` — guarantees the keyring package is installed on the shipped/installed system regardless of dependency churn. This is the second of the "two packages to work" pairing: `kiro-keyring` (trusts the signing key) + `kiro-mirrorlist` (resolves the `[nemesis_repo]` `Include`), the combination `arcolinux-nemesis` and any nemesis_repo pull needs under `SigLevel = Required DatabaseOptional`.
 
