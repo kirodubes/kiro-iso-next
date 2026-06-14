@@ -14,8 +14,12 @@
 ### Also — corrected stale 06.13 SigLevel prose
 - The 06.13 Technical Details claimed the build-time confs "stay `Never`". They never did — `archiso/pacman.conf` and `build-scripts/pacman.conf` both inherit the global `Required DatabaseOptional`, same as the shipped conf. The "Never at build time" idea was superseded by the key-seeding approach (`host-prep.sh setup_kiro_keyring` + Phase 7 `--populate kiro`) that actually shipped. Rewrote that bullet to match the files; no config changed.
 
+### Also — pre-seed `sdl2-compat` to avoid the first-update replace prompt
+- A freshly installed ISO showed `:: Replace sdl2 with extra/sdl2-compat? [Y/n]` on the user's first `pacman -Syu`. `sdl2` isn't an explicit package here — it's pulled in transitively (ffmpeg, sdl2_image, wxwidgets, qemu-ui-sdl…), so the build installs the old `sdl2` and Arch's `extra/sdl2-compat` (which `Replaces: sdl2`) proposes the swap on first update.
+- Fix: add **`sdl2-compat`** explicitly to `packages.x86_64` (new *REPLACEMENT PRE-SEEDS* group). Because it `Provides: sdl2`, the build installs it instead of `sdl2`, satisfies every transitive dep, ships no `sdl2`, and the first `-Syu` has nothing to replace. Zero-risk — `sdl2-compat` is the current Arch default already running on every up-to-date box. Mirrored to production `kiro-iso` for parity. Note this only removes *this* prompt; a rolling ISO can still surface future Arch renames between build and first update — pre-seeding known ones is the mitigation.
+
 ### Files Modified
-- `archiso/packages.x86_64` — `kiro-keyring` added to the *REPO KEYRINGS + MIRRORLISTS* group.
+- `archiso/packages.x86_64` — `kiro-keyring` added to the *REPO KEYRINGS + MIRRORLISTS* group; `sdl2-compat` added in a new *REPLACEMENT PRE-SEEDS* group.
 - `CHANGELOG.md` — corrected the stale 06.13 build-time `SigLevel` description.
 
 ---
