@@ -214,6 +214,7 @@ calamares-next
 chwd
 hwdetect
 kiro-bootloader-grub-nemesis
+kiro-grub-theme
 kiro-calamares-config-next
 kiro-calamares-tweak-tool-nemesis
 mkinitcpio-firmware
