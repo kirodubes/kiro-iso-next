@@ -4,6 +4,18 @@
 
 ## 2026.06.19
 
+### Kiro GRUB theme + branded BIOS live-boot splash
+- Added the **`kiro-grub-theme`** package to `packages.x86_64` and repointed
+  `GRUB_THEME` (`airootfs/etc/default/grub`) to `/boot/grub/themes/kiro/theme.txt`
+  — parity with production. The theme is delivered entirely by the package; no
+  theme files are committed into the ISO profile. (`kiro_final` in the beta
+  Calamares config removes it on UEFI/systemd-boot installs.)
+- Replaced the stock grey `archiso/syslinux/splash.png` (640×480) with a dark
+  Kiro splash (logo only, no wordmark) in the top band above the vesamenu box,
+  and set the menu `title`/`sel` colours to Kiro blue in
+  `archiso/syslinux/archiso_head.cfg`. This brands the **BIOS** live USB menu —
+  the live USB's own boot asset, separate from the package.
+
 ### Clarified the NVIDIA driver consequence in the boot menu
 - The default boot entry (`driver=free`, previously labeled just "open source: AMD / Intel") makes Calamares' `kiro_remove_nvidia` strip the bundled NVIDIA driver during install — so an NVIDIA user who boots the default silently lands on nouveau with no warning. The boot-menu labels and help text now spell out each path's consequence so the choice is informed.
 - All three boot loaders were updated in lockstep (they present the same entries): the systemd-boot UEFI entries (`efiboot/loader/entries/01/02/02b`), the BIOS syslinux menu (`syslinux/archiso_sys-linux.cfg`, which also carries the longer TEXT HELP), and `grub/grub.cfg`.
