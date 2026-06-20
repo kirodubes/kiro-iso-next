@@ -876,3 +876,6 @@ kiro-assistant
 ### >>> EXTRA-APP kiro-plasma-system-settings | Kiro System Settings config | nemesis_repo | plasma >>>
 #kiro-plasma-system-settings
 ### <<< EXTRA-APP kiro-plasma-system-settings <<<
+### >>> EXTRA-APP kiro-plasma-window-management | Kiro Window Management config | nemesis_repo | plasma >>>
+#kiro-plasma-window-management
+### <<< EXTRA-APP kiro-plasma-window-management <<<
