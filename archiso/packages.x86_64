@@ -857,3 +857,22 @@ kiro-assistant
 ### >>> EXTRA-APP gscan2pdf | gscan2pdf | extra >>>
 #gscan2pdf
 ### <<< EXTRA-APP gscan2pdf <<<
+
+### CATEGORY: Plasma
+# Scoped to the plasma edition (4th marker field) — the kiro-iso-builder only offers
+# these when Plasma is ticked, on a conditional "Plasma extras" page. From nemesis_repo.
+### >>> EXTRA-APP kiro-plasma-dolphin | Kiro Dolphin config | nemesis_repo | plasma >>>
+#kiro-plasma-dolphin
+### <<< EXTRA-APP kiro-plasma-dolphin <<<
+### >>> EXTRA-APP kiro-plasma-keybindings | Kiro Plasma keybindings | nemesis_repo | plasma >>>
+#kiro-plasma-keybindings
+### <<< EXTRA-APP kiro-plasma-keybindings <<<
+### >>> EXTRA-APP kiro-plasma-konsole | Kiro Konsole config | nemesis_repo | plasma >>>
+#kiro-plasma-konsole
+### <<< EXTRA-APP kiro-plasma-konsole <<<
+### >>> EXTRA-APP kiro-plasma-servicemenus | Kiro Dolphin service menus | nemesis_repo | plasma >>>
+#kiro-plasma-servicemenus
+### <<< EXTRA-APP kiro-plasma-servicemenus <<<
+### >>> EXTRA-APP kiro-plasma-system-settings | Kiro System Settings config | nemesis_repo | plasma >>>
+#kiro-plasma-system-settings
+### <<< EXTRA-APP kiro-plasma-system-settings <<<

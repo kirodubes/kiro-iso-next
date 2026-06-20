@@ -2,7 +2,22 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
-## 2026.06.19
+## 2026.06.20
+
+### Plasma extras — edition-scoped opt-in apps in the ISO builder
+- Added a **`### CATEGORY: Plasma`** group of **EXTRA-APP** blocks to **`packages.x86_64`**
+  for the five `kiro-plasma-*` packages (`kiro-plasma-dolphin`, `-keybindings`, `-konsole`,
+  `-servicemenus`, `-system-settings`), all served from **`nemesis_repo`**. Each block uses a
+  new **optional 4th marker field** that scopes it to an edition:
+  `### >>> EXTRA-APP <key> | <label> | nemesis_repo | plasma >>>`.
+- **Why:** these packages only make sense on a Plasma build, so they should be offered only
+  when Plasma is selected — not mixed into the global app list. The Kiro ISO Builder reads the
+  scope and shows them on a dedicated **"Plasma extras"** page that appears only when the user
+  ticks Plasma (nothing ticked by default). The build itself is unchanged:
+  `apply_package_additions()` matches EXTRA-APP blocks by key and ignores the new field, so
+  ticking one simply uncomments its package line as before.
+- The blocks ship commented-out (opt-in); a standard build with Plasma but no Plasma extras
+  ticked is byte-for-byte unaffected.
 
 ### Kiro GRUB theme + branded BIOS live-boot splash
 - Added the **`kiro-grub-theme`** package to `packages.x86_64` and repointed
