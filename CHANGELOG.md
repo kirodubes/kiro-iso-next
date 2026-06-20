@@ -23,8 +23,9 @@
 - Added two plasma-scoped categories to **`packages.x86_64`** so the Plasma extras page now
   groups optional desktop styling on its own:
   - **`### CATEGORY: Plasma — Themes`** — `kiro-plasma-sweet` (the complete Sweet Plasma global
-    theme: desktoptheme, look-and-feel, aurorae, color scheme, Kvantum, SDDM) and
-    `surfn-plasma-flow` (the Surfn Flow theme).
+    theme: desktoptheme, look-and-feel, aurorae, color scheme, Kvantum, SDDM), the four further
+    Kiro Plasma global themes `kiro-plasma-layan`, `kiro-plasma-nord`, `kiro-plasma-whitesur`
+    and `kiro-plasma-win11`, and `surfn-plasma-flow` (the Surfn Flow theme).
   - **`### CATEGORY: Plasma — Icons`** — `surfn-plasma-dark-icons` and `surfn-plasma-light-icons`.
 - All four ship commented-out (opt-in), `| plasma`-scoped, served from **`nemesis_repo`**, and
   are auto-discovered by the Kiro ISO Builder — no builder code change. Each is a separate
