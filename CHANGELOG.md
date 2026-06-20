@@ -34,6 +34,16 @@
   uses the new name and will resolve once that package is rebuilt under `kiro-plasma-sweet` into
   `nemesis_repo`.
 
+### Surfn icon sets — recategorised and correctly named
+- **`packages.x86_64`** — moved the `surfn-plasma-flow` EXTRA-APP block out of
+  **`### CATEGORY: Plasma — Themes`** and into **`### CATEGORY: Plasma — Icons`**: it is an icon
+  set (an Erik original), not a global theme, and belongs with its siblings.
+- Renamed all three Surfn icon sets to their real names so they are recognisable in the builder's
+  Plasma extras page: `Surfn Dark icons` → **Surfn Plasma Dark**, `Surfn Light icons` →
+  **Surfn Plasma Light**, `Surfn Flow theme` → **Surfn Plasma Flow**.
+- Display-label and category only — the package keys (`surfn-plasma-dark-icons`,
+  `surfn-plasma-light-icons`, `surfn-plasma-flow`) are untouched, so the build is unaffected.
+
 ### Kiro GRUB theme + branded BIOS live-boot splash
 - Added the **`kiro-grub-theme`** package to `packages.x86_64` and repointed
   `GRUB_THEME` (`airootfs/etc/default/grub`) to `/boot/grub/themes/kiro/theme.txt`
