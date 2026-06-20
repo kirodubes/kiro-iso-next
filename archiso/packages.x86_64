@@ -879,3 +879,19 @@ kiro-assistant
 ### >>> EXTRA-APP kiro-plasma-window-management | Kiro Window Management config | nemesis_repo | plasma >>>
 #kiro-plasma-window-management
 ### <<< EXTRA-APP kiro-plasma-window-management <<<
+
+### CATEGORY: Plasma — Themes
+### >>> EXTRA-APP kiro-plasma-sweet | Kiro Plasma Sweet (complete theme) | nemesis_repo | plasma >>>
+#kiro-plasma-sweet
+### <<< EXTRA-APP kiro-plasma-sweet <<<
+### >>> EXTRA-APP surfn-plasma-flow | Surfn Flow theme | nemesis_repo | plasma >>>
+#surfn-plasma-flow-git
+### <<< EXTRA-APP surfn-plasma-flow <<<
+
+### CATEGORY: Plasma — Icons
+### >>> EXTRA-APP surfn-plasma-dark-icons | Surfn Dark icons | nemesis_repo | plasma >>>
+#surfn-plasma-dark-icons-git
+### <<< EXTRA-APP surfn-plasma-dark-icons <<<
+### >>> EXTRA-APP surfn-plasma-light-icons | Surfn Light icons | nemesis_repo | plasma >>>
+#surfn-plasma-light-icons-git
+### <<< EXTRA-APP surfn-plasma-light-icons <<<
