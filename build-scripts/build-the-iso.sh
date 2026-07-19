@@ -143,7 +143,16 @@ apply_version_bump() {
     fi
 
     local newversion
-    newversion="v$(date +%y.%m.%d)"
+    if [[ -n "${version_override:-}" ]]; then
+        if [[ ! "${version_override}" =~ ^v[0-9]{2}\.[0-9]{2}\.[0-9]{2}$ ]]; then
+            log_error "version_override='${version_override}' is malformed — expected vYY.MM.DD (e.g. v26.07.01). Fix it in build.conf."
+            exit 1
+        fi
+        newversion="${version_override}"
+        log_info "Using version_override from build.conf: ${newversion} (not today's date)"
+    else
+        newversion="v$(date +%y.%m.%d)"
+    fi
 
     log_section "Phase 2 — Bumping version to ${newversion}"
 
@@ -561,13 +570,16 @@ apply_editions() {
     fi
     # Live ISO autologin session follows default_session, so a non-XFCE build (e.g.
     # editions="cinnamon") boots its own desktop instead of a now-absent XFCE.
-    # Most editions' SDDM session basename equals the edition name, but budgie is the
-    # exception: Arch's budgie-desktop ships wayland-sessions/budgie-desktop.desktop, so
+    # Most editions' SDDM session basename equals the edition name, but a few are
+    # exceptions: Arch's budgie-desktop ships wayland-sessions/budgie-desktop.desktop, so
     # SDDM needs Session=budgie-desktop — Session=budgie matches nothing and autologin
-    # silently drops to the greeter. Map the odd ones here; pass the rest through.
+    # silently drops to the greeter. Likewise hlwm's session file comes from Arch's
+    # herbstluftwm package (xsessions/herbstluftwm.desktop), not a 'hlwm' name.
+    # Map the odd ones here; pass the rest through.
     local sddm_session="${default_sess}"
     case "${default_sess}" in
         budgie) sddm_session="budgie-desktop" ;;
+        hlwm)   sddm_session="herbstluftwm" ;;
     esac
     local sddm_conf="${buildFolder}/archiso/airootfs/etc/sddm.conf.d/kde_settings.conf"
     [[ -f "${sddm_conf}" ]] && sed -i "s/^Session=.*/Session=${sddm_session}/" "${sddm_conf}"
