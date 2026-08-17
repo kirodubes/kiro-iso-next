@@ -2,6 +2,34 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.08.17
+
+### Stop a GitHub rate limit from killing the build: the `.bashrc` fetch now retries and falls back to the clone
+
+Five consecutive builds died 12 seconds in with **"Failed to download .bashrc from
+kiro-bash-config"**. The cause was not the build host: `raw.githubusercontent.com` was
+answering **HTTP 429 Too Many Requests**, and that limit is per **public IP** — repeated ISO
+builds trip it and it holds for 5–15 minutes, so every machine on the same connection fails
+at once while `github.com` itself still responds normally.
+
+- **`build-scripts/build-the-iso.sh`** — the bare `wget … || exit 1` in Phase 6 is replaced by
+  a new **`fetch_skel_bashrc()`** helper that:
+  - **retries twice**, 3s apart, so a dropped TLS handshake or DNS blip no longer aborts a
+    whole ISO build — the same retry idiom the connectivity probe already uses;
+  - **downloads to a temp file and requires it to be non-empty** before promoting it into
+    skel. `wget -O` truncates its target even on an error response, so the old code could
+    leave a 0-byte `.bashrc` behind in the ISO;
+  - **falls back to the clone's tracked `archiso/airootfs/etc/skel/.bashrc`** with a loud
+    warning instead of aborting. Phase 6 wipes the build-tree skel two lines earlier, so the
+    fallback deliberately reads from `REPO_DIR` — never from the skel directory;
+  - stops the build only if that tracked copy is missing too.
+- **Why:** retries alone would not have saved these builds — a rate limit outlasts any sane
+  backoff, so the fallback is what actually keeps the build alive. It is a safe fallback: the
+  tracked copy is byte-identical to kiro-bash-config's `.bashrc-latest`, a file with exactly
+  one commit in its entire history. Fetching stays the primary path so a future
+  kiro-bash-config change is still picked up automatically, and the warning makes it obvious
+  in the log whenever a build fell back.
+
 ## 2026.07.19
 
 ### Add two new X11 window-manager editions: **dusk** and **hlwm**

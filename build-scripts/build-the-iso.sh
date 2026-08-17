@@ -382,6 +382,42 @@ check_required_packages() {
     ensure_package grub
 }
 
+fetch_skel_bashrc() {
+    # Pull the current .bashrc from kiro-bash-config. GitHub answers raw requests
+    # with 429 once the build host's public IP has fetched too often (repeated ISO
+    # builds trip it, and it lasts 5-15 minutes) — that must not kill a whole build,
+    # so fall back to the clone's tracked copy. Phase 6 wipes skel before this runs,
+    # so the fallback has to read from REPO_DIR, never from skel_dir.
+    local skel_dir="$1"
+    local url="https://raw.githubusercontent.com/kirodubes/kiro-bash-config/refs/heads/main/etc/skel/.bashrc-latest"
+    local repo_copy="${REPO_DIR}/archiso/airootfs/etc/skel/.bashrc"
+    local tmp attempt
+    tmp="$(mktemp)"
+    # wget -O truncates its target even on an error response, so download to a temp
+    # file and only promote it once we know it actually has content.
+    for attempt in 1 2; do
+        if wget -q --timeout=15 --tries=1 "${url}" -O "${tmp}" && [[ -s "${tmp}" ]]; then
+            mv "${tmp}" "${skel_dir}/.bashrc"
+            status_ok ".bashrc fetched from kiro-bash-config"
+            return 0
+        fi
+        if (( attempt < 2 )); then
+            sleep 3
+        fi
+    done
+    rm -f "${tmp}"
+    if [[ -s "${repo_copy}" ]]; then
+        cp "${repo_copy}" "${skel_dir}/.bashrc"
+        log_warn "Could not fetch .bashrc from kiro-bash-config (GitHub rate limit?) — using
+the clone's tracked copy, which may be behind kiro-bash-config."
+        return 0
+    fi
+    log_error "Failed to download .bashrc from kiro-bash-config and no tracked copy at
+${repo_copy} to fall back to. Check your network and re-run."
+    exit 1
+}
+
+
 prepare_build_tree() {
     log_section "Phase 5 — Preparing build tree"
 
@@ -417,9 +453,7 @@ prepare_build_tree() {
     find "${skel_dir}" -mindepth 1 -delete 2>/dev/null || true
 
     echo "Fetching latest .bashrc..."
-    wget -q "https://raw.githubusercontent.com/kirodubes/kiro-bash-config/refs/heads/main/etc/skel/.bashrc-latest" \
-        -O "${skel_dir}/.bashrc" \
-        || { log_error "Failed to download .bashrc from kiro-bash-config"; exit 1; }
+    fetch_skel_bashrc "${skel_dir}"
 
     echo "Refreshing packages.x86_64..."
     cp -f "${REPO_DIR}/archiso/packages.x86_64" "${PACKAGES_FILE}"
