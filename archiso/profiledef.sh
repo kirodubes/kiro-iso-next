@@ -2,10 +2,10 @@
 # shellcheck disable=SC2034
 
 iso_name="kiro-next"
-iso_label="kiro-next-v26.07.19"
+iso_label="kiro-next-v26.08.22"
 iso_publisher="kiro"
 iso_application="Kiro Live/Rescue CD"
-iso_version="v26.07.19"
+iso_version="v26.08.22"
 install_dir="arch"
 buildmodes=('iso')
 bootmodes=('bios.syslinux'
