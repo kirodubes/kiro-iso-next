@@ -2,6 +2,28 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.08.28
+
+### Privacy: test machines recorded under generic labels
+
+`BUILD_TIMES.md` recorded a real LAN address (`erik@192.168.122.78`) in the install-target
+column of the Calamares Installs table. The file is tracked in a public repository, so this
+violated the standing rule that hostnames and IP addresses never go online.
+
+**Why:** the install log needs to distinguish *which* box and *which* firmware path a result
+came from; it never needed the machine's address to do that.
+
+Replaced with the generic label `kvm-vm`, matching the scheme applied across the production
+repo's `BUILD_TIMES.md` and `DISTRO_TESTING.md` in the same pass — `metal-A` / `metal-B` (bare
+metal, UEFI / systemd-boot), `metal-C` (bare metal, BIOS / grub, legacy NVIDIA), `kvm-vm` and
+`<vm-host>` for the virtual machines. The file now carries a short legend above its tables
+documenting the convention, so future entries follow it rather than reintroducing real values.
+
+This scrubs the file going forward; it does not rewrite the already-published history.
+
+**Files Modified** — `BUILD_TIMES.md`, `CHANGELOG.md`.
+
+
 ## 2026.08.17
 
 ### Stop a GitHub rate limit from killing the build: the `.bashrc` fetch now retries and falls back to the clone

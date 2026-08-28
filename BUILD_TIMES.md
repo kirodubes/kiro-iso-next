@@ -4,6 +4,8 @@ Tracks wall-clock for ISO builds (auto-appended by [`build-scripts/build-the-iso
 
 Useful for spotting cost regressions when changing squashfs compression, kernel set, package list, or Calamares modules.
 
+> **Test machines** are recorded under generic labels — `metal-A` / `metal-B` (bare metal, UEFI / systemd-boot), `metal-C` (bare metal, BIOS / grub, legacy NVIDIA), `kvm-vm` and `<vm-host>` (virtual machines). Real hostnames and network addresses are deliberately not recorded in this repo; use the same labels for new entries.
+
 ## ISO Builds
 
 | When             | Version    | Kernel(s)                  | Squashfs       | Duration | ISO size | Notes                                    |
@@ -24,4 +26,4 @@ Useful for spotting cost regressions when changing squashfs compression, kernel 
 
 | When             | ISO        | Target              | Duration | mkinitcpio passes | Notes                                          |
 |------------------|------------|---------------------|----------|-------------------|------------------------------------------------|
-| 2026-06-08 13:25 | v26.06.08  | erik@192.168.122.78 | 2m35s    | 2                 | Part B validated: spice-vdagent kept on kvm    |
+| 2026-06-08 13:25 | v26.06.08  | kvm-vm | 2m35s    | 2                 | Part B validated: spice-vdagent kept on kvm    |
