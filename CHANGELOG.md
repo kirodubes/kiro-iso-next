@@ -4,6 +4,29 @@
 
 ## 2026.09.11
 
+### Build tree is stripped of stray `.claude` tooling dirs before `mkarchiso`
+
+Mirrored from `kiro-iso`, where an ISO-vs-ISO comparison found `/.claude/.cc-writes` and
+`/etc/pacman.d/.claude/.cc-writes` shipped inside a live root filesystem. Those empty dirs are
+created locally by editor/agent tooling and are invisible to git twice over — `.gitignore` hides
+`.claude/`, and git does not track empty directories — so `git status` stays clean while
+`mkarchiso` copies them verbatim out of `archiso/airootfs/`.
+
+`prepare_build_tree()` now removes any `.claude` directory from the build copy immediately after
+the tree is copied. `kiro-iso-next` had none under `archiso/`, so nothing was deleted here — the
+guard is preventative, keeping the twin in step with `kiro-iso`.
+
+### Technical Details
+
+- `prepare_build_tree()` (Phase 5): `find "${buildFolder}/archiso" -type d -name '.claude'`, counted
+  then removed with `-prune -exec rm -rf {} +`; `log_warn` surfaces the count so a recurrence shows
+  up in the build log instead of silently shipping.
+- Acts on `${buildFolder}` only; the repo tree and its root `.claude/` project dir are untouched.
+
+### Files Modified
+
+- `build-scripts/build-the-iso.sh`
+
 ### Fallback boot entry is now kernel-agnostic (was hardcoded to `linux-zen`)
 
 The live boot menus carry a second "fallback kernel" entry so a user whose hardware refuses the
