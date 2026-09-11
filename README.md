@@ -85,10 +85,10 @@ The build bumps the version (`vYY.MM.DD`) across all version files as its **Phas
 
 ### Kernel Selection
 
-The default build ships **`linux-cachyos`** as the live-boot + post-install default and **`linux-zen`** as a secondary installed kernel selectable from the boot loader menu. Both are set on one line in the `build-scripts/build-the-iso.sh` config block:
+The default build ships **`linux`** as the live-boot + post-install default and **`linux-lts`** as a secondary installed kernel selectable from the boot loader menu. Both are set on one line in the `build-scripts/build-the-iso.sh` config block:
 
 ```bash
-kernel="linux-cachyos linux-zen"   # space-separated; first entry = live-boot kernel
+kernel="linux linux-lts"   # space-separated; first entry = live-boot kernel
 picker="auto"                       # auto | gum | dialog — only used when kernel="ask"
 ```
 

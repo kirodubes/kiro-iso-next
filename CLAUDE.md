@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Changes here must be build-tested and boot-tested before being mirrored to `kiro-iso`.
 
-**Kernel stack: `linux-cachyos` (default) + `linux-zen` (fallback).** Kiro dropped `linux-lqx`
+**Kernel stack: `linux` (default) + `linux-lts` (fallback)** — the pairing is rotated per monthly ISO. Kiro dropped `linux-lqx`
 (Liquorix) on 2026-05-28 — never propose restoring it. The build is kernel-agnostic; the active
 kernel is set via the `kernel=` knob in `build-the-iso.sh`. See the kernel rule in
 [Kiro-HQ/ASSISTANT.md](/home/erik/Insync/Kiro/Kiro-HQ/ASSISTANT.md).
@@ -43,7 +43,7 @@ a beta change, swap the `-next`/`-nemesis` package back to its plain name in the
 
 ### Current state
 
-UEFI boot, BIOS/syslinux boot, the PipeWire stack, and the Calamares post-install hooks (microcode, linux.preset cleanup) are verified. NVIDIA `driver=nonfree` boot + DKMS build against the shipped kernel headers (`linux-cachyos-headers` / `linux-zen-headers`) is the standing item to re-verify on real hardware after any kernel-related change.
+UEFI boot, BIOS/syslinux boot, the PipeWire stack, and the Calamares post-install hooks (microcode, linux.preset cleanup) are verified. NVIDIA `driver=nonfree` boot + DKMS build against the shipped kernel headers (`linux-headers` / `linux-lts-headers`) is the standing item to re-verify on real hardware after any kernel-related change.
 
 ## Beta Build Workflow
 
