@@ -2,6 +2,60 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.09.14
+
+### `nvidia_driver=none` no longer ships boot entries it cannot deliver
+
+**What Changed**
+
+A `none` build strips every NVIDIA package from `packages.x86_64`, but the **boot menus are static**
+and kept advertising two NVIDIA entries. Those entries boot with `nouveau.modeset=0` and nouveau in
+`module_blacklist`, disabling the open-source driver on the assumption that the proprietary driver is
+there to take over. On a `none` ISO nothing takes over — **NVIDIA hardware got a black screen in the
+live session**, before the installer was ever reached. `inject_nvidia_packages()` now removes those
+entries from all three menus when `nvidia_driver=none`.
+
+This was reachable by users, not a dead branch: **kiro-iso-builder** offers `none` in its GUI
+dropdown (`NVIDIA = ["open", "580xx", "390xx", "none"]` in `configure_gui.py`). Its hint worked around
+the bug in prose, telling the user to pick the first boot entry by hand. The entries are now simply
+absent, so there is nothing to avoid.
+
+Production was never affected — every shipped ISO is built `open`, where the entries are correct.
+
+**Technical Details**
+
+- Reuses the existing `KIRO_FALLBACK_BEGIN/END` idiom from the same file: `archiso_sys-linux.cfg` and
+  `grub/grub.cfg` gained a `KIRO_NVIDIA_BEGIN/END` marker pair around their two NVIDIA blocks,
+  stripped with one `sed '/BEGIN/,/END/d'` each — a `sed` range-delete removes *every* matching range,
+  so one pair per file covers both blocks. The UEFI entries are standalone files, so they are `rm -f`'d
+  like `04-fallback.conf` is when a single kernel is selected.
+- **The two hint lines in the surviving open-drivers entry are deleted by pattern, not by marker.**
+  They sit inside a syslinux `TEXT HELP` block, where every line renders literally and `#` is *not* a
+  comment — a marker there would have printed `# >>> KIRO_NVIDIA_BEGIN >>>` in the BIOS menu of every
+  production ISO.
+- The script mutates `${buildFolder}/archiso`, a copy made at `cp -r "${REPO_DIR}/archiso"`, so no
+  deletion touches the repo tree.
+- Verified statically before any ISO build, both paths. **`open`:** the menus differ from git HEAD by
+  exactly four added comment lines and nothing else. **`none`:** both UEFI entry files gone, zero
+  `nonfree` references left in either menu, and the open-drivers / nomodeset / fallback entries intact
+  with `TEXT HELP`/`ENDTEXT` balanced 3/3, grub braces balanced 30/30, `DEFAULT arch` still resolving,
+  and the `KIRO_FALLBACK` block untouched.
+- `build.conf.defaults` line 35 and this repo's `CLAUDE.md` both listed only `open | 580xx | 390xx`.
+  `none` has been a fully supported value with its own branch; the docs never caught up.
+
+**Scope** — testing line only. `kiro-iso` carries byte-identical menu files and an identical
+`inject_nvidia_packages()`, so the port is mechanical, but it waits on a `none` ISO being built and
+booted from this repo first.
+
+**Files Modified**
+
+- `build-scripts/build-the-iso.sh`
+- `archiso/syslinux/archiso_sys-linux.cfg`
+- `archiso/grub/grub.cfg`
+- `build-scripts/build.conf.defaults`
+- `CLAUDE.md`
+- `CHANGELOG.md`
+
 ## 2026.09.12
 
 ### `kiro-polybar` dropped from the shipped package list (mirrored from `kiro-iso`)
