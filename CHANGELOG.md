@@ -2,6 +2,35 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.09.25
+
+### Build-host prep no longer wipes the host's own repos from pacman.conf
+
+**What changed.** `get-pacman-repos-keys-and-mirrors.sh` → `configure_pacman_conf()` backed up the
+build host's `/etc/pacman.conf` to `pacman.conf.kiro` and then **copied the ISO's template over it**.
+On a Kiro host the template is the same as the real file, so nobody noticed. On any other distro that
+runs KIB it deleted that distro's own repositories: on a Ryoku test VM, KIB's prerequisite step removed
+`[ryoku]`. CachyOS, EndeavourOS or Garuda build hosts would lose theirs the same way. The function now
+**appends only the repo sections the host lacks** (`[nemesis_repo]`, `[chaotic-aur]`) and never
+replaces the file; the host's own repos and `[options]` stay untouched. `[cachyos]` was already handled
+append-only by `host-prep.sh`.
+
+**Technical details.**
+- Per repo: `grep` for an uncommented `[repo]` header; if absent, `awk` copies that section from the
+  template (header up to the first blank line or next header, so trailing comments such as the
+  commented-out `#[cachyos]` block don't come along) and `sudo tee -a` appends it.
+- The `.kiro` backup is still written once, before any change.
+- Tested on the Ryoku VM against copies of real host files, with the target pointed at a temp file:
+  Ryoku before any Kiro tooling and Ryoku + nemesis_repo both keep `[ryoku]` and gain the missing
+  sections (`pacman-conf --repo-list`: core extra ryoku nemesis_repo chaotic-aur); the Kiro template
+  itself comes out byte-identical, so Kiro build hosts see no change.
+- Mirrored between kiro-iso and kiro-iso-next (the file was identical in both).
+
+### Files Modified
+
+- `build-scripts/get-pacman-repos-keys-and-mirrors.sh`
+- `CHANGELOG.md`
+
 ## 2026.09.14
 
 ### `nvidia_driver=none` no longer ships boot entries it cannot deliver
@@ -1060,7 +1089,7 @@ Mirror of the same-date `kiro-iso` change. A 4th menu entry, **"fallback kernel 
 
 ## 2026-05-28 — Default kernel: `linux-lqx` → `linux-cachyos` (synced from production)
 
-Mirror of the same-date `kiro-iso` change. Both `build-scripts/build-the-iso.sh` (lines 369-370) and every load-bearing archiso template were updated: `KERNEL_CANDIDATES` dropped `linux-lqx`, `CANONICAL_KERNEL` set to `linux-cachyos`, and all boot/initramfs templates (3 efiboot entries, 2 syslinux configs, 2 grub configs, 2 mkinitcpio.d presets, plus `packages.x86_64`) now reference `linux-cachyos`. Cachyos variants (`-bore`, `-lts`, `-rc`) continue to be discovered dynamically from the enabled repos at picker time. `LIQUORIX.md` is retained as a historical record with a banner noting the switch. The previous bug — picker pre-selecting `linux-lqx` and the builder's auto-rewrite (line 526) being a no-op for canonical picks, so default-path ISOs shipped lqx unchanged — is fixed by aligning canonical with the cachyos decision.
+Mirror of the same-date `kiro-iso` change. Both `build-scripts/build-the-iso.sh` (lines 369-370) and every load-bearing archiso template were updated: `KERNEL_CANDIDATES` dropped `linux-lqx`, `CANONICAL_KERNEL` set to `linux-cachyos`, and all boot/initramfs templates (3 efiboot entries, 2 syslinux configs, 2 grub configs, 2 mkinitcpio.d presets, plus `packages.x86_64`) now reference `linux-cachyos`. Cachyos variants (`-bore`, `-lts`, `-rc`) continue to be discovered dynamically from the enabled repos at picker time. `LIQUORIX.md` is retained as a historical record with a banner noting the switch. The previous bug — picker preselecting `linux-lqx` and the builder's auto-rewrite (line 526) being a no-op for canonical picks, so default-path ISOs shipped lqx unchanged — is fixed by aligning canonical with the cachyos decision.
 
 ---
 
