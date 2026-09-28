@@ -4,6 +4,20 @@
 
 ## 2026.09.28
 
+### Console font switched to eurlatgr
+
+**What changed.** `/etc/vconsole.conf` now sets `FONT=eurlatgr` instead of `FONT=gr737c-8x16`. The old
+font was inherited from the ArcoLinux ISO import on 2025-04-27. It is a Greek DOS codepage 737 font that
+lacks most Western accented letters (é, è, à, ç, ë), so Belgian and other European users could get
+missing glyphs on a TTY.
+
+**Technical details.** eurlatgr is the Arch wiki's recommended console font, covering Latin and Greek in
+one 8x16 size, the same size as before. Calamares only rewrites KEYMAP and XKB* in vconsole.conf, so the
+FONT line carries over to the installed system. Testing line only; kiro-iso and the KIROTUX ISOs keep
+gr737c until this is boot-tested.
+
+**Files modified.** `archiso/airootfs/etc/vconsole.conf`
+
 ### GRUB menu no longer lists every firmware boot entry
 
 **What changed.** grub 2.16 ships a new `/etc/grub.d/31_efi_bootnext` script that adds a
