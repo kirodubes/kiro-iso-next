@@ -79,17 +79,17 @@ Usage:
     bash record-install-time.sh <target> [--user U] [--port P] [--password PW] [--notes "..."] [--dry-run]
 
 Target:
-    vm                  → 127.0.0.1 on port 2022 (VirtualBox NAT forward default)
+    vm                  → 127.0.0.1 on port 2020 (the Kiro test VM's NAT forward)
     [user@]host[:port]  → any reachable host (e.g. me@192.168.1.50, box.local:22)
 
 User / port / password resolve highest-precedence first:
     1. the user@ / :port in the target, or the --user / --port / --password flags
     2. the KIRO_SSH_USER / KIRO_SSH_PORT / KIRO_SSH_PASS environment variables
-    3. defaults: user=\$USER, port=22 (2022 for the 'vm' keyword), key/agent auth
+    3. defaults: user=\$USER, port=22 (2020 for the 'vm' keyword), key/agent auth
 
 Options:
     --user U       SSH user (default: \$USER or KIRO_SSH_USER).
-    --port P       SSH port (default: 22, or 2022 for 'vm').
+    --port P       SSH port (default: 22, or 2020 for 'vm').
     --password PW  Use sshpass with this password instead of key/agent auth.
                    Requires the 'sshpass' package. Prefer key auth where possible.
     --notes "..."  Free-text column for the table row (e.g. "post-fix",
@@ -114,7 +114,7 @@ resolve_ssh() {
 
     if [[ "${target}" == "vm" ]]; then
         t_host="127.0.0.1"
-        default_port=2022
+        default_port=2020
     else
         local raw="${target}"
         if [[ "${raw}" == *@* ]]; then
@@ -153,7 +153,11 @@ resolve_ssh() {
 # timestamp on the unlikely chance the marker isn't present.
 fetch_facts() {
     local ssh_cmd="$1"
-    ${ssh_cmd} '
+    # The payload is fed over stdin to an explicit `bash -s` rather than passed
+    # as a remote command: ssh strips the local quoting and lets the target's
+    # LOGIN shell re-parse whatever is left. Kiro defaults to fish, which cannot
+    # parse bash assignments, so any inline form fails on a Kiro target.
+    ${ssh_cmd} bash -s <<'REMOTE'
         if [[ ! -f /var/log/Calamares.log ]]; then
             echo "ERROR: /var/log/Calamares.log not present on this target" >&2
             exit 1
@@ -167,7 +171,7 @@ fetch_facts() {
         iso_release=$(grep -oP "^ISO_RELEASE=\K.*" /etc/dev-rel 2>/dev/null || echo "?")
         mkinitcpio_passes=$(grep -c "==> Building image" /var/log/Calamares.log || true)
         printf "%s\n%s\n%s\n%s\n" "${first_ts}" "${last_ts}" "${iso_release}" "${mkinitcpio_passes}"
-    '
+REMOTE
 }
 
 compute_duration() {

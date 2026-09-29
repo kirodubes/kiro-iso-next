@@ -2,6 +2,20 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.09.29
+
+### record-install-time.sh synced from kiro-iso: port 2020 default + fish-safe remote payload
+
+**What changed.** The `-next` copy of `build-scripts/record-install-time.sh` was behind kiro-iso: `vm` still
+defaulted to port 2022, and the remote payload was still an inline quoted command, which fails when the
+target's login shell is fish (the Kiro default). Copied the kiro-iso version over.
+
+**Technical details.** The remote payload now goes over stdin to an explicit `bash -s` heredoc, so the
+target's login shell never parses it.
+
+**Files modified.**
+- `build-scripts/record-install-time.sh`
+
 ## 2026.09.28
 
 ### Console font switched to eurlatgr
