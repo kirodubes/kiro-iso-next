@@ -4,6 +4,22 @@
 
 ## 2026.10.01
 
+### host-prep.sh: upgrade_system for the GUI's archiso fix
+
+**What changed.** New `upgrade_system` function in `build-scripts/host-prep.sh`: a full
+`pacman -Syyu --noconfirm`, followed by a warning to reboot if the running kernel's modules were replaced.
+`kiro-iso-builder-nemesis` now offers it as the one-click fix when its pre-flight finds archiso older than
+the 91-1 minimum.
+
+**Technical details.** It is a full upgrade on purpose: `pacman -S archiso` on its own after a database refresh
+would be a partial upgrade. `host-prep-run.sh` runs any host-prep function, so it needed no change. With
+`--noconfirm` pacman takes the default answer, which is "no" for conflicts and replacements, so a rare
+interactive transaction fails visibly in the GUI's Fix log instead of hanging. Testing line only;
+kiro-iso follows once the button has been tried.
+
+**Files modified.** `build-scripts/host-prep.sh`
+
+
 ### Live-session write space: cow_spacesize=75% on every boot entry
 
 **What changed.** `cow_spacesize` was `4G` in GRUB and syslinux, `10G` in the systemd-boot entries, and
