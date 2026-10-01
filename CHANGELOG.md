@@ -4,6 +4,34 @@
 
 ## 2026.10.01
 
+### kernel_params phase 2: copytoram=n moves into kernel_params_x86_64 (PXE keeps copy-to-RAM)
+
+**What changed.** `copytoram=n` comes off the 15 boot entries that had it, and `profiledef.sh` now sets
+`kernel_params_x86_64="cow_spacesize=75% copytoram=n"`. The two GRUB loopback entries had no `copytoram`
+before and now get `copytoram=n` too. The three PXE entries end in `%KERNEL_PARAMS% copytoram=y`.
+
+**Why PXE overrides it.** Read from archiso's hooks (mkinitcpio-archiso 73). USB and CD boots use
+`copytoram=auto` by default: it never copies from an optical drive, and only copies from USB if the root
+squashfs is under 4 GiB. Kiro's is about 6 GB, so `copytoram=n` changes nothing there, and the same applies
+to loopback. PXE over HTTP forces copy-to-RAM whatever the value. PXE over NBD/NFS copies to RAM and
+disconnects unless `copytoram=n`, in which case the live system keeps running off the network share for the
+whole session. A network hiccup, or the installer reconfiguring the network, could then freeze it. archiso's
+`getarg` takes the **last** occurrence (`grep … | tail -1`), so `copytoram=y` after the token keeps PXE
+exactly as before.
+
+**Technical details.** A dry run of mkarchiso's substitution: the 17 USB/CD/loopback entries end up with
+`copytoram=n` once; the 3 PXE entries have it twice, and the final `copytoram=y` wins. `cow_spacesize=75%`
+stays at once per entry. No comment was added to `archiso_pxe-linux.cfg`: it has TEXT HELP blocks, where `#`
+lines are shown on the boot menu. **Test:** build -next, boot BIOS and UEFI. `/proc/cmdline` should have
+`copytoram=n` once, `/run/archiso/bootmnt` should stay mounted (not copied to RAM), and
+`/run/archiso/copytoram` should not exist.
+
+**Files modified.**
+- `archiso/profiledef.sh`
+- `archiso/grub/grub.cfg`
+- `archiso/syslinux/archiso_sys-linux.cfg`, `archiso/syslinux/archiso_pxe-linux.cfg`
+- `archiso/efiboot/loader/entries/*.conf` (5 files)
+
 ### kernel_params phase 1: cow_spacesize moves into kernel_params_x86_64
 
 **What changed.** `cow_spacesize=75%` is no longer written into each of the 20 boot entries. It is set once in
