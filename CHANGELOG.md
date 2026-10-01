@@ -30,7 +30,9 @@ took the four changes that apply to Kiro:
 **Technical details.** The upstream copies used for the diff are in `/usr/share/archiso-90-1` and
 `/usr/share/archiso-91-1`; `docs/ARCHISO_BASELINE` now records `archiso 91-1` as the last synced version.
 The `%KERNEL_PARAMS%` substitution only exists in mkarchiso 91 and later. A build host on archiso 90 or
-earlier would put the literal text `%KERNEL_PARAMS%` on the kernel command line. Testing line only:
+earlier would put the literal text `%KERNEL_PARAMS%` on the kernel command line. Phase 4 of
+`build-the-iso.sh` now runs `check_archiso_version`, which stops the build if `vercmp` finds
+archiso older than 91-1; `ensure_package` only checked that archiso was installed. Testing line only:
 kiro-iso follows after a BIOS + UEFI boot test.
 
 **Files modified.**
@@ -40,6 +42,7 @@ kiro-iso follows after a BIOS + UEFI boot test.
 - `archiso/syslinux/archiso_sys-linux.cfg`, `archiso/syslinux/archiso_pxe-linux.cfg`
 - `archiso/efiboot/loader/entries/*.conf` (5 files)
 - `docs/ARCHISO_BASELINE` (new)
+- `build-scripts/build-the-iso.sh` (archiso version check)
 
 ## 2026.09.29
 
