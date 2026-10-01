@@ -4,6 +4,22 @@
 
 ## 2026.10.01
 
+### Vulkan drivers: vulkan-intel + vulkan-radeon
+
+**What changed.** The ISO (and so every install) shipped `mesa` without any Vulkan driver: on a Yoga 510
+install (Intel HD 620 + AMD Radeon R5 M330) `vulkaninfo` reported "Found no drivers". Vulkan games,
+Steam/Proton and DXVK can't run without them, and GTK4 falls back to its GL renderer. `vulkan-intel` (ANV)
+and `vulkan-radeon` (RADV) are now in the graphics section, next to `intel-media-driver`.
+
+**Technical details.** About 62 MB installed (44 + 18), less compressed in the squashfs. Never shipped
+before (`git log -S vulkan` on packages.x86_64 is empty). NVIDIA's Vulkan ICD comes with `nvidia-utils`;
+`vulkan-nouveau` is left out. -next only; mirror to kiro-iso after a build + boot test.
+**Test:** build -next, then `vulkaninfo --summary` on Intel and AMD hardware lists the GPU with the ANV /
+RADV driver, live and installed.
+
+**Files modified.**
+- `archiso/packages.x86_64`
+
 ### Sync leftovers with kiro-iso: final newlines and CLAUDE.md
 
 **What changed.** `airootfs/etc/environment` and `airootfs/etc/pacman.conf.kiro` were missing their final
