@@ -4,6 +4,31 @@
 
 ## 2026.10.01
 
+### kernel_params phase 1: cow_spacesize moves into kernel_params_x86_64
+
+**What changed.** `cow_spacesize=75%` is no longer written into each of the 20 boot entries. It is set once in
+`profiledef.sh` as `kernel_params_x86_64="cow_spacesize=75%"`, and mkarchiso (91+) puts it into every
+entry through the `%KERNEL_PARAMS%` token added in the archiso 91 sync. It is phase 1 of 4 in the
+MASTER_TODO item that moves the parameters shared by all entries into this one variable. The others are
+`copytoram=n`, then `nvme_load=yes` (first check whether anything reads it), then
+`loglevel=3 no_timer_check` (research first). Each phase gets its own -next build and BIOS + UEFI test.
+
+**Also fixed.** The archiso 91 sync (`b60cf13`) dropped the newline at the end of the five systemd-boot entries:
+the pattern that appended the token to the `options` line also swallowed the line ending of the
+file's last line. systemd-boot still read them (UEFI boots worked), but the newlines are restored.
+
+**Technical details.** A dry run of mkarchiso's own `sed "s|%KERNEL_PARAMS%|${kernel_params}|g"`
+on each file gives exactly one `cow_spacesize=75%` per entry, 20 in total. The variable is keyed by CPU
+architecture, so it applies to every kernel pairing and KIB edition. `build-the-iso.sh` only edits
+`iso_label`/`iso_version` in `profiledef.sh`, so the new line is untouched. **Test:** build -next, boot BIOS
+and UEFI, check that `/proc/cmdline` has `cow_spacesize=75%` exactly once and that cowspace is 75% of RAM.
+
+**Files modified.**
+- `archiso/profiledef.sh`
+- `archiso/grub/grub.cfg`, `archiso/grub/loopback.cfg`
+- `archiso/syslinux/archiso_sys-linux.cfg`, `archiso/syslinux/archiso_pxe-linux.cfg`
+- `archiso/efiboot/loader/entries/*.conf` (5 files)
+
 ### host-prep.sh: upgrade_system for the GUI's archiso fix
 
 **What changed.** New `upgrade_system` function in `build-scripts/host-prep.sh`: a full
