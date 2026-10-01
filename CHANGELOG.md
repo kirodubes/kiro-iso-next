@@ -4,6 +4,31 @@
 
 ## 2026.10.01
 
+### kernel_params phase 3: nvme_load=yes removed (it did nothing)
+
+**What changed.** `nvme_load=yes` is gone from the 15 live boot entries and from
+`airootfs/etc/default/grub` (`GRUB_CMDLINE_LINUX_DEFAULT`, which every GRUB install inherited). Phase 3 of
+the shared-parameter cleanup planned to move it into `kernel_params_x86_64`. Research showed nothing reads
+it, so it is removed instead.
+
+**Evidence.** It came in with the first commit, the 2025-04-27 ArcoLinux import, with no later commit
+using it. It isn't a kernel parameter: NVMe options are `nvme.*` module params. On the live 08:35 -next
+ISO the kernel lists it under "Unknown kernel command line parameters … will be passed to user space",
+next to archiso's own `archisobasedir`, `cow_spacesize` and `copytoram`, which archiso's hooks do read.
+`nvme_load` had 0 hits in the unpacked initramfs, in archiso's hooks (mkinitcpio-archiso 73), and in systemd,
+udev, modprobe, `/etc`, Calamares and every Kiro repo. NVMe machines boot without it, the build host included.
+
+**Technical details.** No user-visible change: an unknown parameter that nobody reads has no effect.
+Installed GRUB systems now get `quiet loglevel=3 audit=0`. systemd-boot installs never had it.
+**Test:** build -next, boot BIOS and UEFI, check that `nvme_load` is absent from `/proc/cmdline` and the boot is
+otherwise unchanged; then do a GRUB install and check its `/proc/cmdline` and `/etc/default/grub`.
+
+**Files modified.**
+- `archiso/grub/grub.cfg`
+- `archiso/syslinux/archiso_sys-linux.cfg`
+- `archiso/efiboot/loader/entries/*.conf` (5 files)
+- `archiso/airootfs/etc/default/grub`
+
 ### kernel_params phase 2: copytoram=n moves into kernel_params_x86_64 (PXE keeps copy-to-RAM)
 
 **What changed.** `copytoram=n` comes off the 15 boot entries that had it, and `profiledef.sh` now sets
