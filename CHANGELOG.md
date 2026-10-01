@@ -16,6 +16,8 @@ before (`git log -S vulkan` on packages.x86_64 is empty). NVIDIA's Vulkan ICD co
 `vulkan-nouveau` is left out. -next only; mirror to kiro-iso after a build + boot test.
 **Test:** build -next, then `vulkaninfo --summary` on Intel and AMD hardware lists the GPU with the ANV /
 RADV driver, live and installed.
+**Verified** on a Yoga 510 install (18:07 build): `vulkaninfo --summary` lists Intel HD 620 (ANV) and
+AMD Radeon R5 M330 (RADV HAINAN).
 
 **Files modified.**
 - `archiso/packages.x86_64`
