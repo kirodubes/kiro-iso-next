@@ -2,6 +2,45 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.10.01
+
+### archiso profile synced with upstream archiso 91
+
+**What changed.** Compared upstream's releng profile and `mkarchiso` from archiso 90-1 against 91-1, and
+took the four changes that apply to Kiro:
+- `profiledef.sh`: dropped `buildmodes=('iso')`, because `iso` is already mkarchiso's default.
+- Removed `airootfs/etc/modprobe.d/broadcom-wl.conf`. It was an empty override for
+  `/usr/lib/modprobe.d/broadcom-wl.conf` from the removed `broadcom-wl` package. Kiro ships
+  `broadcom-wl-dkms`, whose blacklist is `broadcom-wl-dkms.conf`, so the file overrode nothing.
+- GRUB "UEFI Shell" entry: five near-identical per-CPU branches collapsed into one `uefi_machine_type_lower`
+  variable in `grub.cfg` and `loopback.cfg`. Same behaviour, and future upstream patches apply cleanly.
+- Every boot entry (GRUB, loopback, syslinux sys + PXE, systemd-boot) now ends with `%KERNEL_PARAMS%`.
+  archiso 91 fills it from `kernel_params_<arch>` in `profiledef.sh`. Kiro doesn't set
+  `kernel_params_x86_64` yet, so the token becomes empty and the kernel command line is unchanged.
+
+**Kept Kiro's own version (not taken from upstream).**
+- Upstream deleted its custom `airootfs/etc/mkinitcpio.d/linux.preset` in favour of the kernel's default preset. Kiro
+  keeps its preset: it builds a single `linux-cachyos` image from `/etc/mkinitcpio.conf` (the default would
+  add a fallback image) and the build script retargets it per kernel.
+- mkarchiso 91 warns "Running as root is not advised" under sudo. Kiro's build still runs `sudo mkarchiso`;
+  this is only a warning.
+- Not relevant to Kiro (x86_64 only): the aarch64 package list, `kernel_params_aarch64`, stubble
+  device-tree EFI images and the speech boot entries.
+
+**Technical details.** The upstream copies used for the diff are in `/usr/share/archiso-90-1` and
+`/usr/share/archiso-91-1`; `docs/ARCHISO_BASELINE` now records `archiso 91-1` as the last synced version.
+The `%KERNEL_PARAMS%` substitution only exists in mkarchiso 91 and later. A build host on archiso 90 or
+earlier would put the literal text `%KERNEL_PARAMS%` on the kernel command line. Testing line only:
+kiro-iso follows after a BIOS + UEFI boot test.
+
+**Files modified.**
+- `archiso/profiledef.sh`
+- `archiso/airootfs/etc/modprobe.d/broadcom-wl.conf` (removed)
+- `archiso/grub/grub.cfg`, `archiso/grub/loopback.cfg`
+- `archiso/syslinux/archiso_sys-linux.cfg`, `archiso/syslinux/archiso_pxe-linux.cfg`
+- `archiso/efiboot/loader/entries/*.conf` (5 files)
+- `docs/ARCHISO_BASELINE` (new)
+
 ## 2026.09.29
 
 ### record-install-time.sh synced from kiro-iso: port 2020 default + fish-safe remote payload

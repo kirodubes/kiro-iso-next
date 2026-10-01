@@ -7,7 +7,6 @@ iso_publisher="kiro"
 iso_application="Kiro Live/Rescue CD"
 iso_version="v26.09.11"
 install_dir="arch"
-buildmodes=('iso')
 bootmodes=('bios.syslinux'
            'uefi.systemd-boot')
 pacman_conf="pacman.conf"
