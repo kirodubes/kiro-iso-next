@@ -4,6 +4,30 @@
 
 ## 2026.10.01
 
+### Live-session write space: cow_spacesize=75% on every boot entry
+
+**What changed.** `cow_spacesize` was `4G` in GRUB and syslinux, `10G` in the systemd-boot entries, and
+missing from the loopback and PXE entries, which then fell back to archiso's default of 256M. All 20 boot entries now
+set `cow_spacesize=75%`.
+
+**Why.** The old split assumed GRUB machines have less memory. But `cow_spacesize` only applies to the live
+session, and which live boot menu runs depends on the firmware, not on RAM: BIOS boots syslinux, UEFI boots
+systemd-boot, and the ISO's `grub.cfg` is not used by either boot mode (`bios.syslinux` + `uefi.systemd-boot`).
+Only `loopback.cfg` is used, by multiboot USB tools. The installed system never carries `cow_spacesize`,
+whichever bootloader Calamares installs. The value is also a limit, not a reservation: memory is only used
+as the live session writes files. A percentage scales with each machine's RAM, so a 4 GB laptop and a 32 GB
+desktop both get a sensible limit.
+
+**Technical details.** archiso's boot hook mounts `/run/archiso/cowspace` as tmpfs with
+`size=${cow_spacesize}`, and tmpfs accepts a percentage of RAM. The hook's other use (`truncate -s` for a
+dm-snapshot `.cow` file) only applies to non-squashfs root images; Kiro builds `squashfs`. Verify on a live
+boot with `df -h /run/archiso/cowspace`.
+
+**Files modified.**
+- `archiso/grub/grub.cfg`, `archiso/grub/loopback.cfg`
+- `archiso/syslinux/archiso_sys-linux.cfg`, `archiso/syslinux/archiso_pxe-linux.cfg`
+- `archiso/efiboot/loader/entries/*.conf` (5 files)
+
 ### archiso profile synced with upstream archiso 91
 
 **What changed.** Compared upstream's releng profile and `mkarchiso` from archiso 90-1 against 91-1, and
