@@ -15,7 +15,7 @@ Changes here must be build-tested and boot-tested before being mirrored to `kiro
 
 **Kernel stack: `linux` (default) + `linux-lts` (fallback)** — the pairing is rotated per monthly ISO. Kiro dropped `linux-lqx`
 (Liquorix) on 2026-05-28 — never propose restoring it. The build is kernel-agnostic; the active
-kernel is set via the `kernel=` knob in `build-the-iso.sh`. See the kernel rule in
+kernel is set via the `kernel=` knob in `build-scripts/build.conf`. See the kernel rule in
 [Kiro-HQ/ASSISTANT.md](/home/erik/Insync/Kiro/Kiro-HQ/ASSISTANT.md).
 
 ### Package Suffix Convention (`-next` vs `-nemesis`)
@@ -51,9 +51,9 @@ UEFI boot, BIOS/syslinux boot, the PipeWire stack, and the Calamares post-instal
 
 ```
 1. Make changes in kiro-calamares-config-next
-2. Commit and push: cd ~/KIRO/kiro-calamares-config-next && ./up.sh
+2. Commit and push: cd ~/KIRO-ISO-CALAMARES/kiro-calamares-config-next && ./up.sh
 3. Wait 5–10 minutes for kiro_repo (GitHub Pages) to rebuild and serve the new package
-4. Then build the ISO: cd ~/KIRO/kiro-iso-next/build-scripts && bash build-the-iso.sh
+4. Then build the ISO: cd ~/KIRO-ISO-CALAMARES/kiro-iso-next/build-scripts && bash build-the-iso.sh
 ```
 
 **Do not build the ISO immediately after pushing calamares config changes** — the repo won't have the updated package yet and the build will pull the old version.
@@ -66,16 +66,14 @@ Custom Arch Linux ISO builder based on ArchISO. Produces a live/installable ISO 
 
 ## Build Workflow
 
-Always run these in order from `build-scripts/`:
+A single command does everything — version bump and build are merged:
 
 ```bash
-# 1. Bump version across all version files (generates vYY.MM.DD.01)
-bash change-version.sh
-
-# 2. Build the ISO (run as normal user — script calls sudo internally)
-cd build-scripts && bash build-the-iso.sh
+# Build the ISO (run as normal user — script calls sudo internally)
+cd build-scripts && ./build-the-iso.sh
 ```
 
+- The script bumps the version (`vYY.MM.DD`) as its **Phase 2**, before the build, gated by the `bump_version` flag in the config block (default `yes`). Set `bump_version="no"` for a same-day rebuild of the currently-pinned version.
 - Build output lands in `~/kiro-Out/`
 - Build working directory is `~/kiro-build/` (deleted/recreated each run)
 - Checksums (sha1, sha256, md5) and a pkglist are auto-generated alongside the ISO
@@ -84,7 +82,7 @@ cd build-scripts && bash build-the-iso.sh
 
 ## Version Files
 
-`change-version.sh` updates the version string (`vYY.MM.DD.01`) in exactly these three places — keep them in sync:
+`build-the-iso.sh`'s `apply_version_bump()` (Phase 2) sets the version string (`vYY.MM.DD`) in exactly these three places — keep them in sync:
 
 | File                             | Field                           |
 |----------------------------------|---------------------------------|
@@ -92,11 +90,24 @@ cd build-scripts && bash build-the-iso.sh
 | `archiso/profiledef.sh`          | `iso_label=` and `iso_version=` |
 | `build-scripts/build-the-iso.sh` | `kiroVersion=`                  |
 
-To bump the `.01` suffix for same-day rebuilds, edit `extra="01"` in `change-version.sh`.
+For a same-day rebuild that keeps the currently-pinned version, set `bump_version="no"` in **`build-scripts/build.conf`** (the sourced user-config file — see below).
+
+## Build Config — `build.conf`
+
+The user-editable build knobs (`bump_version`, `nvidia_driver`, `kernel`, `picker`, `chaoticsrepo`, `clean_pacman_cache`, `parallel_downloads`, `remove_build_folder`, `build_location`, `desktop`, `editions`, `default_session`) live in **`build-scripts/build.conf`**, which `build-the-iso.sh` sources. This is the single source of truth the `kiro-iso-builder` GUI reads and writes too. Edit them there — not in `build-the-iso.sh`. `kiroVersion` is the one exception: it stays in `build-the-iso.sh` because `apply_version_bump` seds it and `verify_version_sync` greps it.
+
+## Desktop/WM Editions & Add-Apps
+
+`build-the-iso.sh` bakes extra sessions and opt-in apps onto the base image via two stages driven by annotated blocks in `packages.x86_64`:
+
+- **`apply_editions()`** — for each name in `editions=` (build.conf), uncomments the matching `### >>> EDITION-BLOCK <name> >>>` block. `default_session=` sets the live ISO's SDDM autologin session and must be one of the listed editions. Default `editions="xfce ohmychadwm"` reproduces the standard ISO unchanged; the other blocks (awesome, bspwm, chadwm, i3, leftwm, qtile) ship commented and are opt-in.
+- **`apply_package_additions()`** — uncomments the `### >>> EXTRA-APP <key> >>>` block for each key in `build-scripts/package-additions.conf` (one key per line; empty file = standard ISO). The `kiro-iso-builder` GUI's "Add apps" page reads/writes this overlay.
+
+Both read `packages.x86_64` as the single source of truth, so there is no separate hardcoded edition/app list to drift.
 
 ## Nvidia Driver Selection
 
-In `build-scripts/build-the-iso.sh`, set the `nvidia_driver` variable in the **config block at the top of the file** before building:
+In **`build-scripts/build.conf`**, set the `nvidia_driver` variable before building:
 
 - `open` — nvidia-open-dkms (default, modern GPUs)
 - `580xx` — nvidia-580xx-dkms (legacy)
@@ -105,7 +116,7 @@ In `build-scripts/build-the-iso.sh`, set the `nvidia_driver` variable in the **c
 
 The script manipulates `packages.x86_64` in the build folder to inject the chosen driver set.
 
-`none` additionally strips the two NVIDIA entries from all three boot menus — they blacklist nouveau
+`none` additionally strips the two NVIDIA entries from the boot menus — they blacklist nouveau
 expecting the proprietary driver to take over, which a `none` ISO does not ship. The UEFI entries are
 removed as files; syslinux and grub carry `KIRO_NVIDIA_BEGIN/END` marker blocks, stripped the same
 way the `KIRO_FALLBACK` block is when a single kernel is selected.
@@ -141,15 +152,48 @@ Defined in `archiso/pacman.conf` (used during ISO build) and `build-scripts/pacm
 - `archiso/profiledef.sh` — ArchISO profile: name, label, version, bootmodes, compression
 - `archiso/pacman.conf` — pacman config used inside the ISO build
 - `archiso/efiboot/loader/entries/` — UEFI boot entries (kernel + initrd paths; must match kernel in packages.x86_64)
-- `build-scripts/build-the-iso.sh` — full build pipeline
+- `build-scripts/build-the-iso.sh` — full build pipeline (includes `apply_version_bump()` as Phase 2)
 - `build-scripts/get-pacman-repos-keys-and-mirrors.sh` — installs chaotic-keyring/mirrorlist if missing
-- `change-version.sh` — version bump script
 - `up.sh` — git pull → `git add --all` + commit `"update"` + push; quick-push only, not for structured commits
 - `audit.sh` — installed system health checker; run on a freshly installed Kiro VM to verify all Calamares modules ran correctly
 
 ## isoLabel Must Match profiledef.sh
 
 `isoLabel` in `build-the-iso.sh` is constructed as `kiro-next-${kiroVersion}-x86_64.iso`. It must start with `iso_name` from `profiledef.sh` (`kiro-next`) — not just `kiro`. Mismatch causes the checksum phase to fail with "No such file or directory".
+
+## Security Baseline
+
+A full Arch vs Kiro security comparison was run 2026-05-19 — results in **`ARCH-VS-KIRO-SECURITY.md`**. All action items resolved:
+
+- `archiso/airootfs/etc/ssh/sshd_config.d/10-archiso.conf` — **kept intentionally**. The `sshd_config.d/` directory must have at least one file or archiso won't create it on the live ISO, causing errors. The file enables root SSH for the live session; `kiro_final` removes it from the installed system. Confirmed absent post-install.
+- `archiso/airootfs/etc/tmpfiles.d/cups-permissions.conf` — **added**. Enforces `600 root:cups` on CUPS config files at boot via `systemd-tmpfiles`.
+- No firewall — **by design**. `iptables` is installed but intentionally has no rules.
+- `virtualbox-guest-utils` / `vboxservice` — **kept intentionally** for testing convenience, despite the guest modules needing DKMS against the shipped kernel headers (`linux` / `linux-lts`) to load.
+- `vm.overcommit_memory = 1` — **safe**: ZRAM is always active via `zram-generator` + config from `kiro-system-files` (`zstd`, `min(ram/2, 4GB)`, priority 100).
+
+## VirtualBox SSH Scripts
+
+Three helper scripts live in `~/DATA/arcolinux-nemesis/scripts/`:
+- `ssh-into-kiro-vb.sh` — connects to the Kiro VM (`<host>:<port>`, user `<user>`)
+- `ssh-into-arch-vb.sh` — connects to a virgin Arch VM (`<host>:<port>`, user `<user>`)
+- `ssh-into-testbox.sh` — connects to the test box, real metal Kiro machine (`<ip>:<port>`, user `<user>`)
+
+VirtualBox scripts auto-configure NAT port forwarding (`VBoxManage controlvm natpf1` for running VMs, `modifyvm --natpf1` for stopped VMs) and handle `sshpass` + `known_hosts` cleanup automatically. The metal script just pings first then connects.
+
+## kiro-audit (kiro-system-files)
+
+`audit.sh` was removed from this repo — the canonical version is `kiro-audit` in `kiro-system-files`, installed to `/usr/local/bin/kiro-audit` on every Kiro system. Run with `sudo kiro-audit`.
+
+Current checks (as of 2026-05-19): kernel, microcode, mkinitcpio, audio stack, Calamares cleanup, SSH override absent, kiro_final config, MAKEFLAGS CPU count, pacman repos, desktop environments, SDDM, user groups, systemd services, ZRAM, key file permissions, CUPS permissions, sysctl security baseline (8 values), failed units, ISO version, NVIDIA, bootloader, boot time/updates, package integrity.
+
+## Release Workflow Commands
+
+Two Claude Code slash commands formalise the release and verification workflows:
+
+- **`/kiro-ready`** — GO/NO-GO release check (git state, TODO, DISTRO_TESTING, kiro-audit via SSH, ISO recency)
+- **`/kiro-check`** — Deep source-vs-VM comparison (security files, live-env survivors, deprecated config warnings, sysctl, udev, scripts, git re-add detection)
+
+Run `/kiro-check` after any build session. Run `/kiro-ready` before publishing.
 
 ## Known Issues
 
@@ -185,7 +229,7 @@ All bash scripts in this repo follow the standard template:
 8. `main()` ending with `log_success "$(basename "$0") done"`
 9. `main "$@"`
 
-All four build scripts (`build-the-iso.sh`, `get-pacman-repos-keys-and-mirrors.sh`, `install-yay-or-paru.sh`, `change-version.sh`) conform to this template as of 2026-05-18.
+All three build scripts (`build-the-iso.sh`, `get-pacman-repos-keys-and-mirrors.sh`, `install-yay-or-paru.sh`) conform to this template as of 2026-05-18.
 
 ## Commit Conventions
 

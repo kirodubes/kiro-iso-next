@@ -4,6 +4,22 @@
 
 ## 2026.10.01
 
+### Sync leftovers with kiro-iso: final newlines and CLAUDE.md
+
+**What changed.** `airootfs/etc/environment` and `airootfs/etc/pacman.conf.kiro` were missing their final
+newline; both now match kiro-iso byte for byte. `CLAUDE.md` was rebuilt from kiro-iso's version: it still
+described `change-version.sh` (gone; the bump is `build-the-iso.sh` Phase 2) and the `.01` version suffix,
+and was missing the `build.conf`, editions/add-apps, security baseline and release-workflow sections.
+
+**Technical details.** The beta-only parts are kept: the BETA role line, the kernel stack, the `-next` vs
+`-nemesis` suffix convention, the Beta Build Workflow (paths fixed to `~/KIRO-ISO-CALAMARES`), the `kiro-next`
+isoLabel rule and the `kiro-calamares-config-next` known issue. No ISO content changes.
+
+**Files modified.**
+- `CLAUDE.md`
+- `archiso/airootfs/etc/environment`
+- `archiso/airootfs/etc/pacman.conf.kiro`
+
 ### archlinux-logout-gtk4 is now archlinux-logout
 
 **What Changed.** The logout app's package and repo names carried a GTK version suffix that says nothing to users. Everything it installs was already named `archlinux-logout`, so only the package name and the references to it change.
