@@ -4,6 +4,31 @@
 
 ## 2026.10.01
 
+### kernel_params phase 4: no_timer_check dropped, UEFI safe graphics verbose again
+
+**What changed.** Two changes to the five systemd-boot entries, the only ones that carried these parameters:
+- `no_timer_check` is removed from all five. It skips the kernel's boot-time check that the hardware timer
+  interrupt works, a workaround for virtual machines where that check used to fail wrongly. On real hardware the check
+  lets the kernel notice and work around a broken timer, so skipping it can hide a real problem.
+- `03-nomodeset.conf` (safe graphics) loses `quiet loglevel=3` and now matches its syslinux and GRUB
+  counterparts exactly.
+
+**Why.** Git history: all of these came in with kiro-iso `173dce5` (2026-04-14, "update"), a boot-speed pass
+(shorter menu timeouts, beep off, systemd stop timeout 10s) that touched only the systemd-boot entries, with no
+reason recorded. The later Plymouth work documents that `03-nomodeset` is "intentionally left untouched
+in every bootloader" so safe graphics stays **verbose**, but on UEFI it had been quiet since April. So on
+UEFI the fallback entry hid the boot messages it exists to show.
+
+**Kept.** `quiet splash loglevel=3` stays on the four normal systemd-boot entries. `loglevel=3` does not go into
+`kernel_params_x86_64`, because the variable applies to every entry, including safe graphics, which must stay
+verbose.
+
+**Test:** build -next. UEFI: a normal boot is unchanged (splash, no kernel text), the safe-graphics entry shows
+boot messages, and `no_timer_check` is absent from `/proc/cmdline`. BIOS is unchanged. Ideally also one normal
+UEFI boot on real hardware, since `no_timer_check` mattered most on VMs.
+
+**Files modified.** `archiso/efiboot/loader/entries/*.conf` (5 files)
+
 ### kernel_params phase 3: nvme_load=yes removed (it did nothing)
 
 **What changed.** `nvme_load=yes` is gone from the 15 live boot entries and from
