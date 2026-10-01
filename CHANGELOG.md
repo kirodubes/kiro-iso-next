@@ -4,14 +4,6 @@
 
 ## 2026.10.01
 
-### Console font back to gr737c-8x16
-
-**What changed.** `/etc/vconsole.conf` is back to `FONT=gr737c-8x16`, undoing the 2026.09.28 switch to
-`eurlatgr`. Erik decided to go back after the v26.10.01 -next ISO was boot-tested in VirtualBox (UEFI).
-kiro-iso-next and kiro-iso now ship the same font again, so there is nothing to carry over to kiro-iso.
-
-**Files modified.** `archiso/airootfs/etc/vconsole.conf`
-
 ### Live-session write space: cow_spacesize=75% on every boot entry
 
 **What changed.** `cow_spacesize` was `4G` in GRUB and syslinux, `10G` in the systemd-boot entries, and
