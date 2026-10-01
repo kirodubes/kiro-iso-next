@@ -10,6 +10,7 @@ Useful for spotting cost regressions when changing squashfs compression, kernel 
 
 | When             | Version    | Kernel(s)                  | Squashfs       | Duration | ISO size | Notes                                    |
 |------------------|------------|----------------------------|----------------|----------|----------|------------------------------------------|
+| 2026-10-01 07:00 | v26.10.01 | linux linux-lts | zstd L3 -b 1M | 8m1s | 6.3G | |
 | 2026-10-01 06:21 | v26.10.01 | linux linux-lts | zstd L3 -b 1M | 7m58s | 6.3G | |
 | 2026-09-11 08:44 | v26.09.11 | linux linux-lts | zstd L3 -b 1M | 7m56s | 6.2G | |
 | 2026-07-19 07:00 | v26.07.19 | linux-cachyos linux-zen | zstd L3 -b 1M | 8m4s | 6.1G | |
