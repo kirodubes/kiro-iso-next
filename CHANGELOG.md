@@ -41,7 +41,8 @@ using it. It isn't a kernel parameter: NVMe options are `nvme.*` module params. 
 ISO the kernel lists it under "Unknown kernel command line parameters … will be passed to user space",
 next to archiso's own `archisobasedir`, `cow_spacesize` and `copytoram`, which archiso's hooks do read.
 `nvme_load` had 0 hits in the unpacked initramfs, in archiso's hooks (mkinitcpio-archiso 73), and in systemd,
-udev, modprobe, `/etc`, Calamares and every Kiro repo. NVMe machines boot without it, the build host included.
+udev, modprobe, `/etc`, Calamares and every Kiro repo. (Correction: an earlier version of this entry said the
+build host boots from NVMe without it. It boots from a SATA SSD; an NVMe boot test is still open in MASTER_TODO.)
 
 **Technical details.** No user-visible change: an unknown parameter that nobody reads has no effect.
 Installed GRUB systems now get `quiet loglevel=3 audit=0`. systemd-boot installs never had it.
