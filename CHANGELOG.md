@@ -4,6 +4,36 @@
 
 ## 2026.10.03
 
+### NVIDIA on the default (free) boot entry: load nouveau + add vulkan-nouveau
+
+**What Changed.** Booting the default `driver=free` entry on an NVIDIA GPU now gives the live session a real
+graphics driver. Before, a test desktop with an RTX 3070 and three monitors came up on one monitor at 1024x768
+with software rendering. Two additions fix it: a live-only udev rule that loads `nouveau` on the free entry, and
+`vulkan-nouveau` (NVK, Mesa's Vulkan driver for NVIDIA).
+
+**Why.** The ISO bakes in `nvidia-utils` for the nonfree entries, and that package ships
+`/usr/lib/modprobe.d/nvidia-utils.conf` with `blacklist nouveau`. `nouveau.modeset=1` on the cmdline does not
+undo a modprobe.d blacklist, and the free entry also blacklists the nvidia modules, so neither driver loaded.
+Loading nouveau alone brings up every monitor at native resolution but leaves OpenGL on llvmpipe: on Turing and
+newer cards Mesa runs OpenGL on nouveau through zink on NVK, which wasn't on the ISO. `vulkan-nouveau` fixes
+that for the live session **and** for `driver=free` installs on modern NVIDIA, which carry the same package set.
+
+**Technical Details.**
+- `99-kiro-free-nouveau.rules` uses `IMPORT{cmdline}="driver"` and runs `modprobe nouveau` only for PCI vendor
+  `0x10de` display-class (`0x03*`) devices when `driver=free`. An explicit modprobe ignores modprobe.d blacklists.
+  The nonfree entries still keep nouveau out with `module_blacklist=nouveau`. `kiro_final`
+  (kiro-calamares-config-next) deletes the rule from installs, where it would be a no-op anyway since installed
+  systems have no `driver=` parameter.
+- Proven by hand on the RTX 3070 box before writing it: `modprobe nouveau` initialised GSP firmware 570.144 and
+  drove all three monitors; after adding `vulkan-nouveau 1:26.2.4-1` and restarting SDDM the renderer was
+  `zink Vulkan 1.4 (NVIDIA GeForce RTX 3070 (NVK GA104))`. The rule itself passes `udevadm verify`; the built
+  ISO still needs a boot test on the same box.
+- Pre-Turing cards (e.g. Fermi) use Mesa's `nouveau_dri` directly and don't need NVK; the extra 15 MiB is harmless there.
+
+**Files Modified.**
+- `archiso/airootfs/etc/udev/rules.d/99-kiro-free-nouveau.rules` (new)
+- `archiso/packages.x86_64`
+
 ### Graphics diagnostics: libva-utils, mesa-utils, vulkan-tools
 
 **What Changed.** While testing a new AMD Ryzen laptop on the live ISO, `vainfo` was missing, so whether hardware
