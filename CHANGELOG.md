@@ -4,6 +4,24 @@
 
 ## 2026.10.03
 
+### NVIDIA VA-API: libva-nvidia-driver with the open and 580xx drivers
+
+**What Changed.** ISOs built with `nvidia_driver=open` or `580xx` now carry `libva-nvidia-driver`. On the
+`nonfree` entry, Firefox, Chromium and mpv can decode video on the NVIDIA GPU instead of the CPU.
+
+**Why.** Found on the RTX 3070 test desktop: the `nonfree` live session had VDPAU (from `nvidia-utils`) but no
+VA-API driver, and browsers only use VA-API. CPU decoding means more heat, noise and power. chwd already installs
+this package with its open and 580xx NVIDIA profiles, so `nonfreechwd` installs had it; the ISO and `nonfree`
+installs now match.
+
+**Technical Details.** `inject_nvidia_packages` strips any `libva-nvidia-driver` line first, then the open and
+580xx cases append it with the driver. 390xx and none leave it out (390xx is too old for nvidia-vaapi-driver,
+matching chwd). 152 KiB. `kiro_remove_nvidia` (kiro-calamares-config-next) removes it together with the driver
+on `driver=free` installs, since it doesn't depend on `nvidia-utils` and `-Rns` would leave it behind.
+
+**Files Modified.**
+- `build-scripts/build-the-iso.sh`
+
 ### NVIDIA on the default (free) boot entry: load nouveau + add vulkan-nouveau
 
 **What Changed.** Booting the default `driver=free` entry on an NVIDIA GPU now gives the live session a real
