@@ -696,12 +696,18 @@ tuned-ppd
 #sardi-icons   # opt-in; not shipped by default
 
 ###  WEB BROWSERS
+brave-bin
+chromium
 firefox
+vivaldi
+vivaldi-ffmpeg-codecs
 
 ###  MEDIA / GRAPHICS
 flameshot-git
 gcolor3
+gimp
 gpick
+inkscape
 nomacs
 obs-studio
 peek
@@ -722,6 +728,7 @@ gnome-screenshot
 meld
 qbittorrent
 sublime-text-4
+visual-studio-code-bin
 
 ###  CLI UTILITIES
 bat

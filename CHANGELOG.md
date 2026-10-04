@@ -2,23 +2,6 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
-## 2026.10.04
-
-### Smaller ISO: Firefox only, no VS Code, GIMP or Inkscape
-
-**What Changed.** Seven packages are off the ISO: `brave-bin`, `chromium`, `vivaldi`, `vivaldi-ffmpeg-codecs`,
-`visual-studio-code-bin`, `gimp` and `inkscape`. Firefox stays as the only browser and Sublime Text as the editor.
-
-**Why.** Together they are about 2.9 GiB installed, roughly 1.5 GB of the 6.4 GB ISO. Firefox was already the
-default browser in `mimeapps.list`, and anyone who wants the others installs them from the repos in a minute.
-
-**Technical Details.** Package-list change only, in the testing line first; kiro-iso follows after a build and
-boot. The TWM keybindings in the desktop config packages still launch these apps (Super+F1–F4,
-Ctrl+Alt+B/C/G/V); without the apps those keys do nothing until the keybindings are updated.
-
-**Files Modified.**
-- `archiso/packages.x86_64`
-
 ## 2026.10.03
 
 ### NVIDIA VA-API: libva-nvidia-driver with the open and 580xx drivers
