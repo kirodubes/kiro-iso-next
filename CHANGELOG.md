@@ -9,7 +9,7 @@
 **What Changed.** Seven packages are off the ISO: `brave-bin`, `chromium`, `vivaldi`, `vivaldi-ffmpeg-codecs`,
 `visual-studio-code-bin`, `gimp` and `inkscape`. Firefox stays as the only browser and Sublime Text as the editor.
 
-**Why.** Together they are about 2.9 GiB installed, roughly 1.5 GB of the 6.4 GB ISO. Firefox was already the
+**Why.** Together they are about 2.6 GiB installed, roughly 1.4 GB of the 6.4 GB ISO. Firefox was already the
 default browser in `mimeapps.list`, and anyone who wants the others installs them from the repos in a minute.
 
 **Technical Details.** Package-list change only, in the testing line first; kiro-iso follows after a build and
