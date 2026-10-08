@@ -4,6 +4,25 @@
 
 ## 2026.10.08
 
+### Qt theming restored with qt6ct; /etc/environment keeps only the Qt platform theme
+
+**What Changed.** The `EDITOR=nano`-only test below left Qt apps without Kvantum and qt5ct. `/etc/environment` now
+holds `QT_QPA_PLATFORMTHEME=qt5ct` and `EDITOR=nano`, and the ISO installs `qt6ct`. Qt5 and Qt6 apps get the Kvantum
+dark style, Surfn icons and Noto Sans 11 again, while GTK still follows the per-user settings with no forced
+`GTK_THEME`.
+
+**Technical Details.** `qt6ct` registers its platform-theme plugin under both `qt6ct` and `qt5ct`, so one variable
+covers Qt5 and Qt6. `QT_STYLE_OVERRIDE` stays out: qt5ct/qt6ct already set `style=kvantum-dark`, and the variable only
+made both tools warn "The application is not configured correctly". Without `GTK_THEME`, GTK4 on the TWMs takes its
+theme from `~/.config/gtk-4.0/settings.ini`, which names Arc-Dawn-Dark from kiro-dot-files 2026.10.08 on — build
+this ISO with that kiro-dot-files or newer. Verified on a live system (ohmychadwm, user and root); plan in the
+kiro-iso theming project doc. The Plasma rules in `build-the-iso.sh` already strip qt5ct/qt6ct and comment the
+variable for Plasma editions.
+
+**Files Modified.**
+- `archiso/airootfs/etc/environment`
+- `archiso/packages.x86_64`
+
 ### /etc/environment trimmed to EDITOR=nano (test)
 
 **What Changed.** The live and installed `/etc/environment` now holds only `EDITOR=nano`, the same as the KIROTUX
