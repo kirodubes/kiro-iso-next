@@ -4,6 +4,19 @@
 
 ## 2026.10.08
 
+### /etc/environment trimmed to EDITOR=nano (test)
+
+**What Changed.** The live and installed `/etc/environment` now holds only `EDITOR=nano`, the same as the KIROTUX
+Hyprland ISOs. The forced `GTK_THEME=Arc-Dawn-Dark`, `QT_QPA_PLATFORMTHEME=qt5ct`, `QT_STYLE_OVERRIDE=kvantum` and
+`BROWSER=firefox` are gone. This is a test on the -next line: without the forced variables, apps follow the per-user
+settings (GTK settings.ini, Kvantum, ohmychadwm-appearance), so the look a user picks actually applies everywhere.
+
+**Technical Details.** `GTK_THEME` overrode every user theme choice system-wide. Watch for Qt apps after this
+change: with no `QT_QPA_PLATFORMTHEME`, qt5ct/Kvantum settings are no longer picked up automatically.
+
+**Files Modified.**
+- `archiso/airootfs/etc/environment`
+
 ### adw-gtk-theme and celestial-dawn added as optional themes
 
 **What Changed.** `adw-gtk-theme` (adw-gtk3 / adw-gtk3-dark) and `celestial-dawn` are now on the ISO, in the TIER 3
