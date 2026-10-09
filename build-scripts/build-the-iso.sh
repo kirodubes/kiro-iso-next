@@ -281,6 +281,7 @@ packages and fetch the latest .bashrc. Check your network and re-run."
 }
 
 wait_for_online_repos() {
+    log_section "Checking the online repos match local"
     # GitHub Pages serves a freshly pushed repo db a few minutes late; a build started in
     # that window silently ships the old packages (2026-10-05). Wait until the online db
     # matches the local one. Only Erik's build machine (hq) publishes these repos, and a
