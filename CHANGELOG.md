@@ -2,6 +2,22 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.10.18
+
+### The XFCE edition lists its packages one by one, and the XFCE extras can be left out
+
+**What Changed.** The xfce edition block used to ship two package groups, `xfce4` and `xfce4-goodies`. A group can't be partly removed, so a YouTube review that unticked Mousepad, Ristretto and Parole in the Kiro ISO Builder (KIB) still found them after installing. The block now lists every member of both groups. The 14 `xfce4` packages are the desktop itself and always ship with the edition. The 36 `xfce4-goodies` packages (Mousepad, Ristretto, Parole, Xfburn, the panel plugins and the rest) are marked optional: KIB shows them as rows, and the build leaves out the ones you untick. Listing the members also ends a hidden conflict: with chaotic-aur enabled, the `xfce4` group also contains chaotic's `xfce4-panel-compiz`, which conflicts with `xfce4-panel`. The default ISO ships the same XFCE packages as before, minus that one.
+
+A list written out by hand can go stale when Arch changes a group, so every build now compares the lists with the groups in Arch's `[extra]` repo and warns about new or dropped members.
+
+**Technical Details.** An edition block can now hold `## group: NAME` sections, with `optional` at the end of the line for members the user may untick. The `##` lines survive the edition uncomment `sed` and are ignored by KIB's other parsers. After `apply_editions` uncomments a block, the new `apply_optional_edition_excludes` comments out the lines in optional sections whose name is in `package-selection.conf`, using the same literal whole-line match as `apply_package_selection`. Fixed sections and the other blocks are not touched, so a package another edition lists still ships. The new `check_group_drift` runs after `check_required_packages`, once `pacman -Sy` has refreshed the databases. For each `## group:` header it compares the listed names, commented or not, with `pacman -Sgq NAME` limited to `pacman -Slq extra`, so chaotic-aur members never count. It only warns and never stops the build. Both were tested on copies of `packages.x86_64`: with mousepad, ristretto and thunar excluded, the first two stay out and thunar still ships through the qtile block and `xfce4`. The drift check passes on the real file and catches a deleted and an invented member.
+
+**Files Modified.**
+- `archiso/packages.x86_64`
+- `build-scripts/build-the-iso.sh`
+- `CLAUDE.md`
+- `CHANGELOG.md`
+
 ## 2026.10.09
 
 ### build-the-iso.sh waits for GitHub Pages before building

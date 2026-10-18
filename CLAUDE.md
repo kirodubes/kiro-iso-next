@@ -102,6 +102,7 @@ The user-editable build knobs (`bump_version`, `nvidia_driver`, `kernel`, `picke
 
 - **`apply_editions()`** — for each name in `editions=` (build.conf), uncomments the matching `### >>> EDITION-BLOCK <name> >>>` block. `default_session=` sets the live ISO's SDDM autologin session and must be one of the listed editions. Default `editions="xfce ohmychadwm"` reproduces the standard ISO unchanged; the other blocks (awesome, bspwm, chadwm, i3, leftwm, qtile) ship commented and are opt-in.
 - **`apply_package_additions()`** — uncomments the `### >>> EXTRA-APP <key> >>>` block for each key in `build-scripts/package-additions.conf` (one key per line; empty file = standard ISO). The `kiro-iso-builder` GUI's "Add apps" page reads/writes this overlay.
+- **`## group: NAME [optional]` sections** — inside an edition block, a package group can be listed member by member (xfce: `xfce4` fixed, `xfce4-goodies` optional). Lines under an `optional` header honour `package-selection.conf` (`apply_optional_edition_excludes`), so KIB can untick single members. `check_group_drift` warns at every build when Arch's `[extra]` group changed; add or remove the named members by hand. Never add chaotic-aur group members (`xfce4-panel-compiz` conflicts with `xfce4-panel`).
 
 Both read `packages.x86_64` as the single source of truth, so there is no separate hardcoded edition/app list to drift.
 
