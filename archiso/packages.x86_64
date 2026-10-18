@@ -304,7 +304,14 @@ sddm-git
 #xfce4-terminal
 ### <<< EDITION-BLOCK bspwm <<<
 ### >>> EDITION-BLOCK budgie >>>
-#budgie
+## group: budgie
+#budgie-backgrounds
+#budgie-control-center
+#budgie-desktop
+#budgie-desktop-services
+#budgie-session
+## group: budgie optional
+#budgie-desktop-view
 ### <<< EDITION-BLOCK budgie <<<
 ### >>> EDITION-BLOCK chadwm >>>
 #alacritty

@@ -4,6 +4,17 @@
 
 ## 2026.10.18
 
+### The Budgie edition: desktop icons can be left out
+
+**What Changed.** The budgie edition shipped the 6-package `budgie` group whole. It now lists the members: budgie-desktop, the session, the services, the control center and the backgrounds stay fixed. Only **budgie-desktop-view** (the desktop icons) becomes optional and shows in the Kiro ISO Builder (KIB) as "BUDGIE extras (budgie)". With this, every edition that used a package group lists its members: xfce, mate, gnome, plasma and budgie. The default ISO ships the same packages as before.
+
+**Technical Details.** budgie-backgrounds was first marked optional, but KIB hid it because budgie-desktop depends on it, so it moved to the fixed section. The drift check passes for all seven split groups.
+
+**Files Modified.**
+- `archiso/packages.x86_64`
+- `CLAUDE.md`
+- `CHANGELOG.md`
+
 ### The Plasma edition: the Plasma extras can be left out
 
 **What Changed.** The plasma edition shipped the whole `plasma` group (68 packages). As with GNOME, Arch has no separate apps group, so the members were sorted by hand. 43 stay fixed: the workspace, KWin, the screen locker, power and network management, audio, Bluetooth, System Settings, Breeze, the portal, the polkit agent, the widgets and `sddm-kcm` (Kiro uses SDDM). 25 become optional and show in the Kiro ISO Builder (KIB) as "PLASMA extras (plasma)": Discover and Flatpak settings, Spectacle, System Monitor, Vault, Firewall, Welcome, browser integration, disk health, Thunderbolt, the virtual keyboard, print manager, remote desktop, backup (kup), the crash handler, the Plymouth settings and theme, the extra wallpapers, the Oxygen theme set, plasma-sdk, Plasma Bigscreen and **plasma-login-manager**, which Kiro never uses because it is SDDM-only. `kde-system-meta` and `konsole` stay fixed lines. The default ISO ships the same packages as before.
