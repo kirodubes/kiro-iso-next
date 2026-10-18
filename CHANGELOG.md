@@ -4,6 +4,17 @@
 
 ## 2026.10.18
 
+### The Plasma edition: the Plasma extras can be left out
+
+**What Changed.** The plasma edition shipped the whole `plasma` group (68 packages). As with GNOME, Arch has no separate apps group, so the members were sorted by hand. 43 stay fixed: the workspace, KWin, the screen locker, power and network management, audio, Bluetooth, System Settings, Breeze, the portal, the polkit agent, the widgets and `sddm-kcm` (Kiro uses SDDM). 25 become optional and show in the Kiro ISO Builder (KIB) as "PLASMA extras (plasma)": Discover and Flatpak settings, Spectacle, System Monitor, Vault, Firewall, Welcome, browser integration, disk health, Thunderbolt, the virtual keyboard, print manager, remote desktop, backup (kup), the crash handler, the Plymouth settings and theme, the extra wallpapers, the Oxygen theme set, plasma-sdk, Plasma Bigscreen and **plasma-login-manager**, which Kiro never uses because it is SDDM-only. `kde-system-meta` and `konsole` stay fixed lines. The default ISO ships the same packages as before.
+
+**Technical Details.** Same two-section layout as gnome. `ocean-sound-theme` was first put with the extras, but KIB hid it because `plasma-workspace` depends on it, so it moved to the fixed section. The drift check passes, none of the extras is also a TIER 3 line, and KIB's contract test still passes.
+
+**Files Modified.**
+- `archiso/packages.x86_64`
+- `CLAUDE.md`
+- `CHANGELOG.md`
+
 ### The GNOME edition: the GNOME apps can be left out
 
 **What Changed.** The gnome edition shipped the whole `gnome` group (58 packages), so none of its apps could be left out. Unlike XFCE and MATE, Arch has no separate apps group to split off, so the members were sorted by hand. 26 stay fixed: the shell, session, settings, keyring, Nautilus, GNOME Console, Orca, the portal and all gvfs backends. 32 become optional and show in the Kiro ISO Builder (KIB) as "GNOME extras (gnome)": the GNOME apps (Calculator, Calendar, Maps, Music, Weather, Text Editor, Papers, Loupe, Showtime, Epiphany and the rest), plus Software, Tour, Yelp and **gdm**, which Kiro never uses because it is SDDM-only. The default ISO ships the same packages as before.
