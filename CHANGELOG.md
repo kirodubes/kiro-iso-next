@@ -4,6 +4,17 @@
 
 ## 2026.10.18
 
+### The MATE edition gets the same split: mate-extra can be left out
+
+**What Changed.** The mate edition block shipped the `mate` and `mate-extra` groups whole, so Pluma, Atril, Eye of MATE, Engrampa, MATE Terminal and the applets could not be left out. Like XFCE earlier today, the block now lists every member: the 14 `mate` packages are the desktop and always ship with the edition, and the 24 `mate-extra` packages are optional, so the Kiro ISO Builder (KIB) shows them as "MATE extras (mate-extra)" rows. The default ISO ships the same packages as before.
+
+**Technical Details.** Only `packages.x86_64` changed; `apply_optional_edition_excludes` and `check_group_drift` already handle any `## group:` section. All 38 members come from `[extra]`, so nothing from chaotic-aur was dropped. `kiro-mate` has no dependencies, so none of the extras is pinned by it. The drift check passes for all four groups, and KIB's contract test still passes.
+
+**Files Modified.**
+- `archiso/packages.x86_64`
+- `CLAUDE.md`
+- `CHANGELOG.md`
+
 ### The XFCE edition lists its packages one by one, and the XFCE extras can be left out
 
 **What Changed.** The xfce edition block used to ship two package groups, `xfce4` and `xfce4-goodies`. A group can't be partly removed, so a YouTube review that unticked Mousepad, Ristretto and Parole in the Kiro ISO Builder (KIB) still found them after installing. The block now lists every member of both groups. The 14 `xfce4` packages are the desktop itself and always ship with the edition. The 36 `xfce4-goodies` packages (Mousepad, Ristretto, Parole, Xfburn, the panel plugins and the rest) are marked optional: KIB shows them as rows, and the build leaves out the ones you untick. Listing the members also ends a hidden conflict: with chaotic-aur enabled, the `xfce4` group also contains chaotic's `xfce4-panel-compiz`, which conflicts with `xfce4-panel`. The default ISO ships the same XFCE packages as before, minus that one.
