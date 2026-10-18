@@ -4,6 +4,16 @@
 
 ## 2026.10.18
 
+### XFCE: whiskermenu and the volume plugin are fixed again
+
+**What Changed.** A test ISO built from the Kiro ISO Builder with `xfce4-whiskermenu-plugin` and `xfce4-pulseaudio-plugin` unticked booted to an XFCE panel asking "Plugin 'whiskermenu' could not be loaded". Kiro's own panel layout (kiro-xfce's `xfce4-panel.xml`) uses both, so they are no longer optional: they sit in a fixed `xfce4-goodies` section above the optional one, and KIB no longer offers them as rows. The panel's other plugins (actions, clock, pager, separator, systray, tasklist) come with xfce4-panel itself. The other 34 goodies stay optional. The same build confirmed the rest: the unticked packages and chaotic's `xfce4-panel-compiz` were absent, and 31 of 36 goodies shipped.
+
+**Technical Details.** The xfce block now has three sections: `## group: xfce4`, a fixed `## group: xfce4-goodies` with the two plugins, and `## group: xfce4-goodies optional`. `check_group_drift` adds all sections of a group together, so it still matches Arch. An older saved selection that excludes either plugin no longer removes it, because only optional sections honour exclusions. MATE, GNOME, Plasma and Budgie were checked for the same trap: none of them has a Kiro panel layout that needs an optional package.
+
+**Files Modified.**
+- `archiso/packages.x86_64`
+- `CHANGELOG.md`
+
 ### The Budgie edition: desktop icons can be left out
 
 **What Changed.** The budgie edition shipped the 6-package `budgie` group whole. It now lists the members: budgie-desktop, the session, the services, the control center and the backgrounds stay fixed. Only **budgie-desktop-view** (the desktop icons) becomes optional and shows in the Kiro ISO Builder (KIB) as "BUDGIE extras (budgie)". With this, every edition that used a package group lists its members: xfce, mate, gnome, plasma and budgie. The default ISO ships the same packages as before.

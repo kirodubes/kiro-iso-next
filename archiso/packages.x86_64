@@ -697,6 +697,9 @@ sddm-git
 #xfconf
 #xfdesktop
 #xfwm4
+## group: xfce4-goodies
+#xfce4-pulseaudio-plugin
+#xfce4-whiskermenu-plugin
 ## group: xfce4-goodies optional
 #mousepad
 #parole
@@ -720,7 +723,6 @@ sddm-git
 #xfce4-notes-plugin
 #xfce4-notifyd
 #xfce4-places-plugin
-#xfce4-pulseaudio-plugin
 #xfce4-screensaver
 #xfce4-screenshooter
 #xfce4-sensors-plugin
@@ -732,7 +734,6 @@ sddm-git
 #xfce4-verve-plugin
 #xfce4-wavelan-plugin
 #xfce4-weather-plugin
-#xfce4-whiskermenu-plugin
 #xfce4-xkb-plugin
 ### <<< EDITION-BLOCK xfce <<<
 
