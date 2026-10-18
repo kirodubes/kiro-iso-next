@@ -4,6 +4,18 @@
 
 ## 2026.10.18
 
+### The GNOME edition: the GNOME apps can be left out
+
+**What Changed.** The gnome edition shipped the whole `gnome` group (58 packages), so none of its apps could be left out. Unlike XFCE and MATE, Arch has no separate apps group to split off, so the members were sorted by hand. 26 stay fixed: the shell, session, settings, keyring, Nautilus, GNOME Console, Orca, the portal and all gvfs backends. 32 become optional and show in the Kiro ISO Builder (KIB) as "GNOME extras (gnome)": the GNOME apps (Calculator, Calendar, Maps, Music, Weather, Text Editor, Papers, Loupe, Showtime, Epiphany and the rest), plus Software, Tour, Yelp and **gdm**, which Kiro never uses because it is SDDM-only. The default ISO ships the same packages as before.
+
+**Technical Details.** The block has two `## group: gnome` sections, one fixed and one `optional`. `check_group_drift` adds the names of both together, so it still compares against the full group; its group list now goes through `sort -u` so a split group is reported once. KIB hides a row that a fixed package depends on, so a wrong guess in the split can't break the desktop; with the current sync db none of the 32 is hidden.
+
+**Files Modified.**
+- `archiso/packages.x86_64`
+- `build-scripts/build-the-iso.sh`
+- `CLAUDE.md`
+- `CHANGELOG.md`
+
 ### The MATE edition gets the same split: mate-extra can be left out
 
 **What Changed.** The mate edition block shipped the `mate` and `mate-extra` groups whole, so Pluma, Atril, Eye of MATE, Engrampa, MATE Terminal and the applets could not be left out. Like XFCE earlier today, the block now lists every member: the 14 `mate` packages are the desktop and always ship with the edition, and the 24 `mate-extra` packages are optional, so the Kiro ISO Builder (KIB) shows them as "MATE extras (mate-extra)" rows. The default ISO ships the same packages as before.

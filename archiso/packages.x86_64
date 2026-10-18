@@ -369,8 +369,67 @@ sddm-git
 #xfce4-terminal
 ### <<< EDITION-BLOCK dusk <<<
 ### >>> EDITION-BLOCK gnome >>>
-#gnome
 #gnome-tweaks
+## group: gnome
+#gnome-backgrounds
+#gnome-color-manager
+#gnome-console
+#gnome-control-center
+#gnome-keyring
+#gnome-menus
+#gnome-session
+#gnome-settings-daemon
+#gnome-shell
+#gst-thumbnailers
+#gvfs
+#gvfs-afc
+#gvfs-dnssd
+#gvfs-goa
+#gvfs-gphoto2
+#gvfs-mtp
+#gvfs-nfs
+#gvfs-onedrive
+#gvfs-smb
+#gvfs-wsdd
+#malcontent
+#nautilus
+#orca
+#tecla
+#xdg-desktop-portal-gnome
+#xdg-user-dirs-gtk
+## group: gnome optional
+#baobab
+#decibels
+#epiphany
+#gdm
+#gnome-calculator
+#gnome-calendar
+#gnome-characters
+#gnome-clocks
+#gnome-connections
+#gnome-contacts
+#gnome-disk-utility
+#gnome-font-viewer
+#gnome-logs
+#gnome-maps
+#gnome-music
+#gnome-remote-desktop
+#gnome-software
+#gnome-system-monitor
+#gnome-text-editor
+#gnome-tour
+#gnome-user-docs
+#gnome-user-share
+#gnome-weather
+#grilo-plugins
+#loupe
+#papers
+#rygel
+#showtime
+#simple-scan
+#snapshot
+#sushi
+#yelp
 ### <<< EDITION-BLOCK gnome <<<
 ### >>> EDITION-BLOCK hlwm >>>
 #alacritty

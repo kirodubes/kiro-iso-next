@@ -777,7 +777,7 @@ check_group_drift() {
         [[ -n "${added}" ]] && log_warn "Group ${group} has new members in Arch - add them to packages.x86_64: ${added}"
         [[ -n "${removed}" ]] && log_warn "Group ${group} no longer has these members - remove them from packages.x86_64 or the build fails: ${removed}"
         [[ -z "${added}${removed}" ]] && status_ok "Group ${group} matches Arch"
-    done < <(awk '/^## group: / { print $3 }' "${src}")
+    done < <(awk '/^## group: / { print $3 }' "${src}" | sort -u)
     return 0
 }
 
