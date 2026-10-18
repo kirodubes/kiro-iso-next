@@ -4,6 +4,14 @@
 
 ## 2026.10.18
 
+### CUPS permissions rule no longer needs the cups group
+
+**What Changed.** `cups-permissions.conf` set the CUPS config files to `0600 root cups`. On a build without cups the `cups` group does not exist, so systemd-tmpfiles logged "Failed to resolve group 'cups'" twice per boot. The rule now leaves the group alone, so it is silent with or without cups.
+
+**Technical Details.** The group field went from `cups` to `-` on both `z` lines (`/etc/cups/classes.conf`, `/etc/cups/printers.conf`). Nothing is lost: with mode `0600` the group has no access, so naming it never protected anything. Both files stay root-only, and `z` still skips a file that does not exist. Seen on the v26.10.18 KIB test install in VirtualBox.
+
+**Files Modified.** `archiso/airootfs/etc/tmpfiles.d/cups-permissions.conf`
+
 ### XFCE: whiskermenu and the volume plugin are fixed again
 
 **What Changed.** A test ISO built from the Kiro ISO Builder with `xfce4-whiskermenu-plugin` and `xfce4-pulseaudio-plugin` unticked booted to an XFCE panel asking "Plugin 'whiskermenu' could not be loaded". Kiro's own panel layout (kiro-xfce's `xfce4-panel.xml`) uses both, so they are no longer optional: they sit in a fixed `xfce4-goodies` section above the optional one, and KIB no longer offers them as rows. The panel's other plugins (actions, clock, pager, separator, systray, tasklist) come with xfce4-panel itself. The other 34 goodies stay optional. The same build confirmed the rest: the unticked packages and chaotic's `xfce4-panel-compiz` were absent, and 31 of 36 goodies shipped.
