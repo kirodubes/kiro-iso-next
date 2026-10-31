@@ -2,6 +2,31 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.10.31
+
+### archiso profile synced with upstream archiso 92
+
+**What Changed.** Compared upstream's releng profile and `mkarchiso` from archiso 91-1 against 92-1. One change
+taken: **`linux-atm`** is removed from **`archiso/packages.x86_64`**. It is userspace for ADSL ATM modems, and
+upstream removed it because ATM support was dropped with linux 7.2. A new **`docs/ARCHISO_HISTORY.md`** records
+every archiso version Kiro was compared against and the decision on each upstream change, so skipped changes
+are not proposed again unless upstream changes them again.
+
+**Skipped by Erik.**
+- Removing the **`kms`** mkinitcpio hook: Kiro's `plymouth` splash relies on early KMS, and upstream gave no reason.
+- GRUB memtest entry following the `memtest86x64.efi` rename: GRUB isn't one of Kiro's bootmodes, so this was drift only.
+- A systemd-boot memtest x64 entry: Kiro has never had a UEFI memtest entry. Taking it later means naming it `05-…`
+  (sort-key 03 is Kiro's nomodeset) and raising `check_archiso_version` to 92-1.
+
+**Not relevant to Kiro.** The IA32 / AA64 / LOONGARCH64 memtest entries and the aarch64 package list. The mkarchiso
+memtest changes (memtest86+-efi 9.00 renamed its binaries) need nothing from Kiro's profile. BIOS memtest is unchanged.
+
+**Technical Details.** The upstream copies used for the diff are `/usr/share/archiso-91-1` and `/usr/share/archiso-92-1`.
+`docs/ARCHISO_BASELINE` now records `archiso 92-1`. `check_archiso_version` stays at 91-1, because nothing taken
+needs mkarchiso 92. ATT has no `linux-atm` reference. This is the testing line only: kiro-iso follows after the -next ISO boots.
+
+**Files Modified.** `archiso/packages.x86_64`, `docs/ARCHISO_BASELINE`, `docs/ARCHISO_HISTORY.md` (new), `CHANGELOG.md`
+
 ## 2026.10.30
 
 ### BYOI guide shows the real default kernels
