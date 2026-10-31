@@ -1,11 +1,11 @@
 # archiso sync history
 
 Every upstream `archiso` version Kiro was compared against, and what was decided for each upstream change.
-`/kiro-archiso` reads this file first. A change marked **Skipped** is only proposed again if upstream changes it again.
+`/kiro-archiso` reads this file first. What upstream changed in each version is in [ARCHISO_CHANGES.md](ARCHISO_CHANGES.md).
 The upstream copies used for each diff are kept in `/usr/share/archiso-<version>` on the build host.
 The current baseline is in [ARCHISO_BASELINE](ARCHISO_BASELINE).
 
-Decision classes: **Taken** (applied to Kiro), **Skipped** (Erik declined, reason given), **Kiro-own** (Kiro deliberately
+Decision classes: **Taken** (applied to Kiro), **Not for now** (Erik deferred it, reason given; re-ask only when upstream changes it again or Erik asks), **Kiro-own** (Kiro deliberately
 differs), **N/A** (Kiro doesn't have the file or feature), **Already** (Kiro already had it).
 
 ## archiso 92-1 (compared against 91-1, 2026-10-31)
@@ -16,9 +16,9 @@ memtest entries for the other UEFI architectures, `linux-atm` removed, `kms` hoo
 | Change | Decision | Reason |
 |--------|----------|--------|
 | Remove `linux-atm` from `packages.x86_64` | Taken | ADSL ATM userspace; upstream says ATM support was dropped with linux 7.2 |
-| Remove `kms` from the mkinitcpio `HOOKS` | Skipped | Kiro's `plymouth` splash relies on early KMS; upstream gave no reason |
-| GRUB memtest entry: `memtest86${uefi_machine_type_lower}.efi`, `if/elif` | Skipped | Erik's choice; GRUB isn't one of Kiro's bootmodes (syslinux + systemd-boot), so it is drift only |
-| systemd-boot memtest x64 entry (`memtest86x64.efi`) | Skipped | Erik's choice; Kiro has never had a UEFI memtest entry. Taking it later means renaming it to `05-…` (sort-key 03 is Kiro's nomodeset) and raising `check_archiso_version` to 92-1 |
+| Remove `kms` from the mkinitcpio `HOOKS` | Not for now | Kiro's `plymouth` splash relies on early KMS; upstream gave no reason |
+| GRUB memtest entry: `memtest86${uefi_machine_type_lower}.efi`, `if/elif` | Not for now | GRUB isn't one of Kiro's bootmodes (syslinux + systemd-boot), so it is drift only |
+| systemd-boot memtest x64 entry (`memtest86x64.efi`) | Not for now | Kiro has never had a UEFI memtest entry. Taking it later means renaming it to `05-…` (sort-key 03 is Kiro's nomodeset) and raising `check_archiso_version` to 92-1 |
 | systemd-boot memtest IA32 / AA64 / LOONGARCH64 entries | N/A | Kiro is x86_64 only and targets newer machines |
 | mkarchiso copies `memtest86<arch>.efi` | Already | Builder-side; works with Kiro's profile unchanged, nothing breaks |
 | `packages.aarch64`: `linux-atm` removed | N/A | Kiro has no aarch64 list |
@@ -41,4 +41,4 @@ From the CHANGELOG entry "archiso profile synced with upstream archiso 91" (comm
 
 ## archiso 90-1 and 89-1
 
-No sync decisions were recorded. The upstream copies are still in `/usr/share/archiso-90-1` and `/usr/share/archiso-89-1`.
+No sync decisions were recorded. What Kiro has today for those changes is in [ARCHISO_CHANGES.md](ARCHISO_CHANGES.md).

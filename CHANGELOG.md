@@ -9,10 +9,12 @@
 **What Changed.** Compared upstream's releng profile and `mkarchiso` from archiso 91-1 against 92-1. One change
 taken: **`linux-atm`** is removed from **`archiso/packages.x86_64`**. It is userspace for ADSL ATM modems, and
 upstream removed it because ATM support was dropped with linux 7.2. A new **`docs/ARCHISO_HISTORY.md`** records
-every archiso version Kiro was compared against and the decision on each upstream change, so skipped changes
-are not proposed again unless upstream changes them again.
+every archiso version Kiro was compared against and the decision on each upstream change, so deferred changes
+are not proposed again unless upstream changes them again. A second new document, **`docs/ARCHISO_CHANGES.md`**,
+tracks what upstream changed in each version (89 → 90 → 91 → 92): its changelog, the profile files and `mkarchiso`
+lines that changed, and what Kiro has today for each change.
 
-**Skipped by Erik.**
+**Not for now (Erik).**
 - Removing the **`kms`** mkinitcpio hook: Kiro's `plymouth` splash relies on early KMS, and upstream gave no reason.
 - GRUB memtest entry following the `memtest86x64.efi` rename: GRUB isn't one of Kiro's bootmodes, so this was drift only.
 - A systemd-boot memtest x64 entry: Kiro has never had a UEFI memtest entry. Taking it later means naming it `05-…`
@@ -25,7 +27,7 @@ memtest changes (memtest86+-efi 9.00 renamed its binaries) need nothing from Kir
 `docs/ARCHISO_BASELINE` now records `archiso 92-1`. `check_archiso_version` stays at 91-1, because nothing taken
 needs mkarchiso 92. ATT has no `linux-atm` reference. This is the testing line only: kiro-iso follows after the -next ISO boots.
 
-**Files Modified.** `archiso/packages.x86_64`, `docs/ARCHISO_BASELINE`, `docs/ARCHISO_HISTORY.md` (new), `CHANGELOG.md`
+**Files Modified.** `archiso/packages.x86_64`, `docs/ARCHISO_BASELINE`, `docs/ARCHISO_HISTORY.md` (new), `docs/ARCHISO_CHANGES.md` (new), `CHANGELOG.md`
 
 ## 2026.10.30
 
