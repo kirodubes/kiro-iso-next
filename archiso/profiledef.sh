@@ -17,7 +17,10 @@ airootfs_image_type="squashfs"
 #airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M' '-Xdict-size' '1M')
 #airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '6')
 #airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '6' '-b' '1M')
-airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '3' '-b' '1M')
+# kiro-iso audit item 11 (2026-11-15): -next measures L6 vs L3 (6.6G at L3). Compare size + build
+# time in BUILD_TIMES.md before anything changes in production; back to L3 if L6 isn't worth it.
+#airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '3' '-b' '1M')
+airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '6' '-b' '1M')
 bootstrap_tarball_compression=(zstd -19)
 file_permissions=(
   ["/etc/gshadow"]="0:0:400"
