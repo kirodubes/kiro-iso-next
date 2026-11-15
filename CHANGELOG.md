@@ -6,15 +6,18 @@
 
 ### What Changed
 - **The GRUB loopback menu is now a Kiro menu.** Booting the ISO file straight from disk through a GRUB loopback tool (Ventoy in GRUB mode, Super GRUB2 Disk, a `loopback` entry in your own grub.cfg) used to show the stock Arch menu: "Arch Linux install medium", a speakup screen-reader entry, and no `driver=` choice, so NVIDIA cards got no proprietary option and the free path did not blacklist the NVIDIA modules. It now offers the same five entries as the other boot menus: open drivers (default), NVIDIA proprietary (keeps nvidia), NVIDIA auto-detect (needs internet), safe graphics (nomodeset) and the fallback kernel. The speakup entry is gone: `espeakup` and `brltty` are not on the ISO, so it could never read anything. Found in the 2026-11-15 kiro-iso audit (item 1); tested here first, production `kiro-iso` follows after a boot test.
+- **The RAM test shows up again in the loopback menu on UEFI.** Upstream archiso 92 (with memtest86+-efi 9.00) renamed the UEFI memtest binary from `memtest.efi` to `memtest86x64.efi`, and mkarchiso 92 only copies the new name, so the menu's check for the old file never matched and "Run Memtest86+" stayed hidden on UEFI. The 2026-10-31 archiso 92 sync had deferred this as GRUB-only drift; with loopback.cfg now a real Kiro menu, Erik took it. `grub.cfg` (not on the ISO) and a systemd-boot memtest entry stay "Not for now".
 
 ### Technical Details
 - `archiso/grub/loopback.cfg`: the entries copy grub.cfg's kernel arguments, with loopback's `img_dev=UUID=${archiso_img_dev_uuid} img_loop="${iso_path}"` in place of `archisosearchuuid`. The NVIDIA pair sits in a `KIRO_NVIDIA` marker block and the fallback entry in a `KIRO_FALLBACK` block, same markers as grub.cfg and syslinux. Default id `archlinux` → `kiro`.
 - `build-scripts/build-the-iso.sh`: `loopback.cfg` joins the three marker loops: the NVIDIA strip for `nvidia_driver=none`, the fallback strip for a one-kernel build, and the fallback retarget. The primary-kernel rewrite already covered the file.
+- Memtest block copied verbatim from `/usr/share/archiso-92-1/configs/releng/grub/loopback.cfg` (`if` on `memtest86${uefi_machine_type_lower}.efi`, `elif` for BIOS `memtest`). `docs/ARCHISO_HISTORY.md`'s archiso 92 table now splits the GRUB memtest row: loopback.cfg Taken, grub.cfg Not for now. `docs/ARCHISO_BASELINE` stays `archiso 92-1` (installed and in the repos), `check_archiso_version` stays 91-1: mkarchiso 91 would just skip the UEFI memtest file, nothing breaks.
 - Checked offline: `grub-script-check` passes on the file and on the three build outputs (none: NVIDIA entries gone; `kernel="linux"`: fallback gone, only vmlinuz-linux; `kernel="linux linux-lts"`: fallback → linux-lts). Not yet boot-tested.
 
 ### Files Modified
 - `archiso/grub/loopback.cfg`
 - `build-scripts/build-the-iso.sh`
+- `docs/ARCHISO_HISTORY.md`
 - `CLAUDE.md`
 - `CHANGELOG.md`
 
