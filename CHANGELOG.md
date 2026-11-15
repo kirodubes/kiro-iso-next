@@ -32,6 +32,7 @@ The 2026-11-15 kiro-iso audit (offline in Kiro-HQ, `STUDIES/KIRO-AUDIT.md`) foun
 - **Private query DB:** `make_query_db` runs after the repo setup (so newly added repos are included): `fakeroot -- pacman -Sy --dbpath <tmp>` with a symlink to the host's `local`, the way `checkupdates` works; `qpacman` wraps the `-Sl`/`-Sg`/`-Si` calls, `list-kernels.sh` reads it only when `KIRO_QUERY_DBPATH` is set (KIB calls it without), and `cleanup_on_exit` removes it. Tested on the maintainer host: all repos sync, the host `core.db` timestamp is untouched, the same 41 kernels come back.
 - **Signing:** `sign_iso` runs last in `main`, after `record_build_time`, so waiting at the passphrase prompt never counts as build time (this -next build also measures zstd L6). It uses `iso_signing_key` from `build.conf.defaults` (`D9658D546AD48015CABC612B149ABD0C3A0563EE`, `gpg --pinentry-mode loopback --local-user … --detach-sign`, then `gpg --verify`). Tested: not-maintainer, unknown key, no terminal and empty key all skip with exit 0; the real signing runs on the next terminal build.
 - **Signing under KIB never waits for a passphrase:** KIB runs the build in a pty, so the terminal check passes there, but KIB cannot answer gpg's prompt. Under KIB (its `SUDO_PROMPT` sentinel) `sign_iso` now uses `--batch --pinentry-mode error`: it signs when gpg-agent has the passphrase cached (the KIB-nemesis test build of v26.11.15 did, good signature) and otherwise fails at once with the sign-by-hand warning. Tested with a throwaway passphrase key in a scratch keyring: 0 s, no `.sig`, warning shown.
+- **Squashfs zstd level 6 (audit item 11, decided).** After the -next trial (v26.11.15: 6.4G in 9m21s terminal / 9m10s KIB, against 6.6G in ~8m30s at level 3) Erik chose level 6 for production too: about 0.2G smaller ISO for about 45 s more build time. `profiledef.sh` now carries the same line and comment in both repos.
 - **The group check stops crying wolf about xfce4.** `check_group_drift` warned at every build that eight xfce4 "members" were gone and "the build fails". They were Kiro's own additions (`kiro-xfce`, `pamixer`, `dracula-colors-xfce4-terminal`, the Thunar thumbnailers) listed inside the xfce4 group section. They now sit under their own `## Kiro additions …` header, any plain `##` header ends a group section in the check, and `tumbler` (a real xfce4 member) moved up into the group list. Tested in both repos: every group reports "matches Arch", and the edition package list for `xfce ohmychadwm` is identical to before (468 packages; 467 with `mousepad` unticked, so KIB's optional handling is unchanged).
 - **MATE extras follow Arch: `pluma-plugins` added.** Arch added `pluma-plugins` to the `mate-extra` group; `check_group_drift` reported it in the KIB-nemesis build. It goes into the optional `mate-extra` section of the MATE edition block (opt-in edition, commented like the rest of the block), so a MATE build ships it and KIB can untick it. The check now reports `mate-extra matches Arch`.
 - **No stale signature next to a new ISO:** `sign_iso` now removes `<iso>.sig` before any skip (not maintainer host, no key, no terminal), so a rebuild of the same version that isn't signed can't leave the previous build's `.sig` behind. The SourceForge upload scripts (Kiro-HQ) upload the `.sig` when it is there and stop if it doesn't verify. Tested: an old `.sig` is gone after a skipped signing.
@@ -51,6 +52,17 @@ The 2026-11-15 kiro-iso audit (offline in Kiro-HQ, `STUDIES/KIRO-AUDIT.md`) foun
 - `docs/ARCHISO_HISTORY.md`
 - `CLAUDE.md`
 - `CHANGELOG.md`
+
+### oomd policy moves out of the airootfs into kiro-system-files
+
+A kiro-check on the Medion found three systemd-oomd files from this overlay on the installed system, owned by no package and overlapping with **kiro-system-files**' own oomd drop-ins. **`system.slice.d/oomd.conf`** was fully redundant (kiro-system-files sets the same slice at 80%), and **`/etc/systemd/oomd.conf`** only repeated the systemd default limit (60%) and the 20s duration kiro-system-files already sets, while overwriting a file the `systemd` package owns. **`user.slice.d/oomd.conf`** was the only file putting `/user.slice` under oomd, so it moves to **kiro-system-files** (26.11-12, `system/user.slice.d/10-kiro-oomd-per-slice.conf`) instead of being dropped.
+
+Behaviour is unchanged: system.slice 80%, user.slice 60%, app.slice 80% (`oomctl` on the Medion). The same three files leave production kiro-iso the same day. Build only after kiro-system-files 26.11-12 is in the repo.
+
+### Files Modified
+- `archiso/airootfs/etc/systemd/oomd.conf` (deleted)
+- `archiso/airootfs/etc/systemd/system/system.slice.d/oomd.conf` (deleted)
+- `archiso/airootfs/etc/systemd/system/user.slice.d/oomd.conf` (deleted)
 
 ## 2026.11.14
 
