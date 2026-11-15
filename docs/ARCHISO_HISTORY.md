@@ -8,6 +8,8 @@ The current baseline is in [ARCHISO_BASELINE](ARCHISO_BASELINE).
 Decision classes: **Taken** (applied to Kiro), **Not for now** (Erik deferred it, reason given; re-ask only when upstream changes it again or Erik asks), **Kiro-own** (Kiro deliberately
 differs), **N/A** (Kiro doesn't have the file or feature), **Already** (Kiro already had it).
 
+**Standing Kiro-own removals (2026-11-15, kiro-iso audit):** no `grub/grub.cfg` (no grub bootmode; only `grub/loopback.cfg` ships) and no PXE (`archiso_pxe_*` mkinitcpio hooks, `syslinux/archiso_pxe.cfg`, `syslinux/archiso_pxe-linux.cfg`, the `LABEL pxe` in `syslinux.cfg`). Upstream hunks to those are **N/A**. The `nbd` / `mkinitcpio-nfs-utils` packages stay in the verbatim ARCHISO BASE block of `packages.x86_64`.
+
 ## archiso 92-1 (compared against 91-1, 2026-10-31)
 
 Upstream changelog: memtest86+-efi 9.00 renamed its EFI binaries (`memtest.efi` → `memtest86<arch>.efi`), new
