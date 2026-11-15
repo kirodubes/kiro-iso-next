@@ -18,7 +18,7 @@ memtest entries for the other UEFI architectures, `linux-atm` removed, `kms` hoo
 | Remove `linux-atm` from `packages.x86_64` | Taken | ADSL ATM userspace; upstream says ATM support was dropped with linux 7.2 |
 | Remove `kms` from the mkinitcpio `HOOKS` | Not for now | Kiro's `plymouth` splash relies on early KMS; upstream gave no reason |
 | GRUB memtest entry in `grub/loopback.cfg`: `memtest86${uefi_machine_type_lower}.efi`, `if/elif` | Taken (2026-11-15) | Re-decided by Erik: loopback.cfg does reach the ISO (the menu GRUB loopback tools show) and became a Kiro menu in kiro-iso audit item 1; without the rename its UEFI memtest entry never appears |
-| GRUB memtest entry in `grub/grub.cfg` | Not for now (re-asked 2026-11-15) | grub.cfg doesn't reach the ISO (no grub bootmode), drift only; see kiro-iso audit item 2 |
+| GRUB memtest entry in `grub/grub.cfg` | N/A (2026-11-15) | Kiro removed `grub/grub.cfg` (kiro-iso audit item 2): no grub bootmode, so it never reached the ISO. Future `grub/grub.cfg` hunks are N/A; take releng's file again only if a grub bootmode is added |
 | systemd-boot memtest x64 entry (`memtest86x64.efi`) | Not for now | Kiro has never had a UEFI memtest entry. Taking it later means renaming it to `05-…` (sort-key 03 is Kiro's nomodeset) and raising `check_archiso_version` to 92-1 |
 | systemd-boot memtest IA32 / AA64 / LOONGARCH64 entries | N/A | Kiro is x86_64 only and targets newer machines |
 | mkarchiso copies `memtest86<arch>.efi` | Already | Builder-side; works with Kiro's profile unchanged, nothing breaks |
