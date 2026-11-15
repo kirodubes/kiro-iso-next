@@ -2,6 +2,22 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.11.15
+
+### What Changed
+- **The GRUB loopback menu is now a Kiro menu.** Booting the ISO file straight from disk through a GRUB loopback tool (Ventoy in GRUB mode, Super GRUB2 Disk, a `loopback` entry in your own grub.cfg) used to show the stock Arch menu: "Arch Linux install medium", a speakup screen-reader entry, and no `driver=` choice, so NVIDIA cards got no proprietary option and the free path did not blacklist the NVIDIA modules. It now offers the same five entries as the other boot menus: open drivers (default), NVIDIA proprietary (keeps nvidia), NVIDIA auto-detect (needs internet), safe graphics (nomodeset) and the fallback kernel. The speakup entry is gone: `espeakup` and `brltty` are not on the ISO, so it could never read anything. Found in the 2026-11-15 kiro-iso audit (item 1); tested here first, production `kiro-iso` follows after a boot test.
+
+### Technical Details
+- `archiso/grub/loopback.cfg`: the entries copy grub.cfg's kernel arguments, with loopback's `img_dev=UUID=${archiso_img_dev_uuid} img_loop="${iso_path}"` in place of `archisosearchuuid`. The NVIDIA pair sits in a `KIRO_NVIDIA` marker block and the fallback entry in a `KIRO_FALLBACK` block, same markers as grub.cfg and syslinux. Default id `archlinux` → `kiro`.
+- `build-scripts/build-the-iso.sh`: `loopback.cfg` joins the three marker loops: the NVIDIA strip for `nvidia_driver=none`, the fallback strip for a one-kernel build, and the fallback retarget. The primary-kernel rewrite already covered the file.
+- Checked offline: `grub-script-check` passes on the file and on the three build outputs (none: NVIDIA entries gone; `kernel="linux"`: fallback gone, only vmlinuz-linux; `kernel="linux linux-lts"`: fallback → linux-lts). Not yet boot-tested.
+
+### Files Modified
+- `archiso/grub/loopback.cfg`
+- `build-scripts/build-the-iso.sh`
+- `CLAUDE.md`
+- `CHANGELOG.md`
+
 ## 2026.11.14
 
 ### What Changed

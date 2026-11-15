@@ -120,8 +120,9 @@ The script manipulates `packages.x86_64` in the build folder to inject the chose
 
 `none` additionally strips the two NVIDIA entries from the boot menus — they blacklist nouveau
 expecting the proprietary driver to take over, which a `none` ISO does not ship. The UEFI entries are
-removed as files; syslinux and grub carry `KIRO_NVIDIA_BEGIN/END` marker blocks, stripped the same
-way the `KIRO_FALLBACK` block is when a single kernel is selected.
+removed as files; syslinux, grub.cfg and loopback.cfg carry `KIRO_NVIDIA_BEGIN/END` marker blocks, stripped
+the same way the `KIRO_FALLBACK` block is when a single kernel is selected. Only syslinux, systemd-boot and
+`loopback.cfg` reach the ISO (`bootmodes` has no grub mode); loopback.cfg is the menu GRUB loopback tools show.
 
 ## Architecture
 
