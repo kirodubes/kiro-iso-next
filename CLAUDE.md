@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Changes here must be build-tested and boot-tested before being mirrored to `kiro-iso`.
 
-**Kernel stack: `linux` (default) + `linux-lts` (fallback)** — the pairing is rotated per monthly ISO. Kiro dropped `linux-lqx`
+**Kernel stack: `linux-cachyos` (default) + `linux-lts` (fallback)** — the pairing is rotated per monthly ISO. Kiro dropped `linux-lqx`
 (Liquorix) on 2026-05-28 — never propose restoring it. The build is kernel-agnostic; the active
 kernel is set via the `kernel=` knob in `build-scripts/build.conf`. See the kernel rule in
 [Kiro-HQ/ASSISTANT.md](/home/erik/Insync/Kiro/Kiro-HQ/ASSISTANT.md).
