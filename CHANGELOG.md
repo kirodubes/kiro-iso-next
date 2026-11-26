@@ -18,6 +18,11 @@
   ≥ `ec6ce35`, kiro-dot-files ≥ `3edc5c8`.
 - Not synced from production in this change: kiro-iso's `webapp-manager` (2026-11-26) — sync kiro-iso → -next before
   the next -next test.
+- **Synced from production later the same day.** **webapp-manager** (TIER 3, WEB BROWSERS, after
+  `vivaldi-ffmpeg-codecs`) is now in -next too, so the package lists differ only in the intended `-next`/`-nemesis`
+  names again. In the other direction, `cachyos-pi-scan` went to kiro-iso the same day (`8c1c741`) before the -next
+  build + boot + paru test. That makes the next -next build the test for both, ahead of the v26.12.01 release
+  build. nemesis `cachyos-pi-scan` 2.0.1-1 is built now.
 
 ### Files Modified
 - `archiso/packages.x86_64`
