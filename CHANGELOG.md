@@ -2,6 +2,26 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.11.26
+
+### What Changed
+- **`cachyos-pi-scan` on the test ISO (TIER 3, PACKAGE / SYSTEM TOOLS).** It is the scanner behind Kiro's new AUR
+  check: paru runs `kiro-aur-check` (kiro-system-files) before every AUR build and shows the lines worth a look —
+  download-and-run, reading `~/.ssh`, unverified sources — asking before it builds on a dangerous one. New installs
+  get the check switched on from the kiro-dot-files skel `paru.conf`. -next first because it is a new package and
+  it changes what paru does; production after the build + boot + paru test.
+
+### Technical Details
+- TIER 3 so KIB's Packages screen and ATT's Streamline can drop it (KIB's `read_tier3()` lists it); without it the
+  check prints one line and paru builds as before.
+- Needs, on the ISO build host: nemesis `cachyos-pi-scan` (KIRO-PKG-BUILD-3PARTY, not built yet), kiro-system-files
+  ≥ `ec6ce35`, kiro-dot-files ≥ `3edc5c8`.
+- Not synced from production in this change: kiro-iso's `webapp-manager` (2026-11-26) — sync kiro-iso → -next before
+  the next -next test.
+
+### Files Modified
+- `archiso/packages.x86_64`
+
 ## 2026.11.24
 
 ### What Changed
