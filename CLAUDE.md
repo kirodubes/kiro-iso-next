@@ -27,7 +27,7 @@ interchangeable:
 | Suffix      | Meaning                                                                                          | Repo           | Example packages                                                  |
 |-------------|--------------------------------------------------------------------------------------------------|----------------|-------------------------------------------------------------------|
 | `-next`     | The **beta Calamares chain** — a parallel package installed *instead of* its production sibling.  | `kiro_repo`    | `calamares-next`, `kiro-calamares-config-next`                    |
-| `-nemesis`  | A **patched downstream variant** that `conflicts` (not `replaces`) its production counterpart, so it is an **opt-in swap on the beta ISO only**. Used to prove a fix before promoting it to production. | `nemesis_repo` | `kiro-calamares-tweak-tool-nemesis`, `plymouth-theme-kiro-logo-nemesis` |
+| `-nemesis`  | A **patched downstream variant** that `conflicts` (not `replaces`) its production counterpart, so it is an **opt-in swap on the beta ISO only**. Used to prove a fix before promoting it to production. | `nemesis_repo` | `kiro-calamares-tweak-tool-nemesis`, `plymouth-theme-kiro-logo-nemesis`, `kiro-hwd-nemesis` |
 
 Rule of thumb:
 - A `-next` package is the beta **installer engine/config** itself (served from `kiro_repo`,
