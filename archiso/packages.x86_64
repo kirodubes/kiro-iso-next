@@ -926,7 +926,7 @@ archlinux-tools
 cronie
 gparted
 irqbalance
-kiro-hwd
+kiro-hwd-nemesis
 sysz
 upower
 zram-generator

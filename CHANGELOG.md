@@ -2,6 +2,20 @@
 
 > Complete history of the KIRO ISO project — newest first. Each entry explains not just what changed, but why it was done and what benefit it brings. Daily rebuilds (version bump + mirrorlist refresh only) are grouped into a single line.
 
+## 2026.11.28
+
+### What Changed
+- **The test ISO ships `kiro-hwd-nemesis` instead of `kiro-hwd`.** kiro-hwd had no testing twin, so every change
+  (today's NVIDIA 620 flip fix) reached all users at once. kiro-hwd changes now ship here first.
+
+### Technical Details
+- `kiro-hwd-nemesis` provides and conflicts `kiro-hwd` (nemesis_repo, `kirodubes/kiro-hwd-nemesis`); same files.
+  kiro-calamares-config-next's chwd module keeps it in the target instead of installing kiro-hwd over it.
+- `/kiro-ready` Step 5 lists `kiro-hwd` ↔ `kiro-hwd-nemesis` as an intentional swap.
+
+### Files Modified
+- `archiso/packages.x86_64`, `CHANGELOG.md`
+
 ## 2026.11.26
 
 ### What Changed
